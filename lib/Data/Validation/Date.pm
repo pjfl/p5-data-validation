@@ -1,6 +1,6 @@
 package Data::Validation::Date;
 
-# @(#)$Id: Date.pm 292 2008-01-25 00:20:29Z pjf $
+# @(#)$Id$
 
 use strict;
 use warnings;
@@ -8,7 +8,7 @@ use base qw(Data::Validation);
 
 use CatalystX::Usul::Class::Time;
 
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 292 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev$ =~ /\d+/gmx );
 
 sub _validate {
    my ($me, $val) = @_;

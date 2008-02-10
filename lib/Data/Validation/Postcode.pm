@@ -1,12 +1,12 @@
 package Data::Validation::Postcode;
 
-# @(#)$Id: Postcode.pm 274 2008-01-08 14:19:00Z pjf $
+# @(#)$Id$
 
 use strict;
 use warnings;
 use base qw(Data::Validation);
 
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 274 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev$ =~ /\d+/gmx );
 
 sub _init {
    my ($me, $args) = @_;

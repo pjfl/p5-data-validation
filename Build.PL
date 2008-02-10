@@ -1,22 +1,26 @@
 #!/usr/bin/perl
 
-# @(#)$Id: Build.PL 23 2008-02-07 20:23:36Z pjf $
+# @(#)$Id$
 
 use strict;
 use warnings;
 use Module::Build;
 
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 23 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev$ =~ /\d+/gmx );
 
-my $dist     = q(lib/Data/CloudWeights.pm);
+my $dist     = q(lib/Data/Valdation.pm);
 my $requires = { 'perl'                  => q(5.8),
-                 'Class::Accessor::Fast' => q(0.31) };
+                 'Class::Accessor::Fast' => q(0.31),
+                 'Email::Valid'          => q(0.179),
+                 'LWP::UserAgent'        => q(2.036),
+                 'Regexp::Common'        => q(2.120),
+                 'Scalar::Util'          => q(1.19) };
 my $build    = Module::Build->new( create_makefile_pl => q(traditional),
                                    create_readme      => 1,
                                    create_packlist    => 0,
                                    dist_version_from  => $dist,
                                    license            => q(perl),
-                                   module_name        => q(Data::CloudWeights),
+                                   module_name        => q(Data::Validation),
                                    requires           => $requires );
 
 $build->create_build_script();

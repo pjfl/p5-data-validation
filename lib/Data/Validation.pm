@@ -1,6 +1,6 @@
 package Data::Validation;
 
-# @(#)$Id: Validation.pm 271 2008-01-07 00:11:26Z pjf $
+# @(#)$Id$
 
 use strict;
 use warnings;
@@ -10,7 +10,7 @@ use English qw(-no_match_vars);
 use Regexp::Common qw(number);
 use Scalar::Util qw(looks_like_number);
 
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 271 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev$ =~ /\d+/gmx );
 
 # Class methods
 

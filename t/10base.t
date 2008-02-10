@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# @(#)$Id: 10base.t 18 2008-02-07 17:50:49Z pjf $
+# @(#)$Id$
 
 use strict;
 use warnings;
@@ -9,7 +9,7 @@ use FindBin qw($Bin);
 use lib qq($Bin/../lib);
 use Test::More tests => 7;
 
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 18 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev$ =~ /\d+/gmx );
 
 BEGIN { use_ok q(Data::CloudWeights) }
 
