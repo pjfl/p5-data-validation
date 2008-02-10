@@ -8,7 +8,7 @@ use Module::Build;
 
 use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev$ =~ /\d+/gmx );
 
-my $dist     = q(lib/Data/Valdation.pm);
+my $dist     = q(lib/Data/Validation.pm);
 my $requires = { 'perl'                  => q(5.8),
                  'Class::Accessor::Fast' => q(0.31),
                  'Email::Valid'          => q(0.179),
