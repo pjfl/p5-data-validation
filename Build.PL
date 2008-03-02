@@ -10,9 +10,15 @@ use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev$ =~ /\d+/gmx );
 
 my $dist     = q(lib/Data/Validation.pm);
 my $requires = { 'perl'                  => q(5.8),
+                 'charnames'             => q(1.05),
+                 'version'               => q(0.74),
                  'Class::Accessor::Fast' => q(0.31),
+                 'Class::Null'           => q(1.09),
                  'Email::Valid'          => q(0.179),
+                 'Exception::Class'      => q(1.23),
+                 'File::Spec::Functions' => q(1.3),
                  'LWP::UserAgent'        => q(2.036),
+                 'Readonly'              => q(1.03),
                  'Regexp::Common'        => q(2.120),
                  'Scalar::Util'          => q(1.19) };
 my $build    = Module::Build->new( create_makefile_pl => q(traditional),

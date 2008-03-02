@@ -12,7 +12,7 @@ sub _init {
    my ($me, $args) = @_;
 
    $me->{min_length} = $args->{min_length} || 6;
-   return $me
+   return $me;
 }
 
 sub _validate {
