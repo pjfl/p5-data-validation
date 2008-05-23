@@ -481,6 +481,8 @@ There are no known incompatibilities in this module.
 
 =head1 Bugs and Limitations
 
+There is no POD coverage test because the subclases docs are in here instead
+
 The L<Data::Validation::Date> module requires the as yet unpublished module
 L<CatalystX::Usul::Class::Time>
 
