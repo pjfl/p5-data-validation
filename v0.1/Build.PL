@@ -8,7 +8,6 @@ use Module::Build;
 
 use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev$ =~ /\d+/gmx );
 
-my $dist     = q(lib/Data/Validation.pm);
 my $requires = { 'perl'                  => q(5.8),
                  'charnames'             => q(1.05),
                  'version'               => q(0.74),
@@ -21,13 +20,15 @@ my $requires = { 'perl'                  => q(5.8),
                  'Readonly'              => q(1.03),
                  'Regexp::Common'        => q(2.120),
                  'Scalar::Util'          => q(1.19) };
-my $build    = Module::Build->new( create_makefile_pl => q(traditional),
-                                   create_readme      => 1,
-                                   create_packlist    => 0,
-                                   dist_version_from  => $dist,
-                                   license            => q(perl),
-                                   module_name        => q(Data::Validation),
-                                   requires           => $requires );
+my $build = Module::Build->new
+   ( build_requires     => { 'version' => q(0.74) },
+     create_makefile_pl => q(traditional),
+     create_readme      => 1,
+     create_packlist    => 0,
+     dist_version_from  => q(lib/Data/Validation.pm),
+     license            => q(perl),
+     module_name        => q(Data::Validation),
+     requires           => $requires );
 
 $build->create_build_script();
 
