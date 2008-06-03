@@ -6,7 +6,7 @@ use strict;
 use warnings;
 use base qw(Data::Validation);
 
-use CatalystX::Usul::Class::Time;
+use CatalystX::Usul::Time;
 
 use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev$ =~ /\d+/gmx );
 
