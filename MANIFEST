@@ -6,6 +6,7 @@ lib/Data/Validation/Password.pm
 lib/Data/Validation/Path.pm
 lib/Data/Validation/Postcode.pm
 lib/Data/Validation/URL.pm
+LICENSE
 Makefile.PL
 MANIFEST			This list of files
 META.yml
