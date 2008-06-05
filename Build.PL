@@ -21,7 +21,7 @@ my $requires = { 'perl'                  => q(5.8),
                  'Regexp::Common'        => q(2.120),
                  'Scalar::Util'          => q(1.19) };
 my $build = Module::Build->new
-   ( build_requires     => { 'version' => q(0.74) },
+   ( build_requires     => { 'Test::More' => q(0.74), 'version'=> q(0.74) },
      create_makefile_pl => q(traditional),
      create_readme      => 1,
      create_packlist    => 0,
