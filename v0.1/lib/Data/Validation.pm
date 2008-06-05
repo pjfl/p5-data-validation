@@ -484,7 +484,8 @@ There are no known incompatibilities in this module
 There is no POD coverage test because the subclases docs are in here instead
 
 The L<Data::Validation::Date> module requires the as yet unpublished module
-L<CatalystX::Usul::Class::Time>
+L<CatalystX::Usul::Class::Time> and this is not listed as pre req as it
+would create a circular dependancy
 
 Please report problems to the address below.
 Patches are welcome
