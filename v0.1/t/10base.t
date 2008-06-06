@@ -51,7 +51,7 @@ ok( !test_val( $f, q(test), q(this is text) )->error, q(Simple text) );
 
 $f->{test}->{validate} = q(isValidHostname);
 
-ok(  test_val( $f, q(test), q(no_really) )->error eq q(eValidHostname),
+ok(  test_val( $f, q(test), q(does_not_exist) )->error eq q(eValidHostname),
      q(Not valid hostname) );
 ok( !test_val( $f, q(test), q(localhost) )->error, q(Valid hostname) );
 ok( !test_val( $f, q(test), q(127.0.0.1) )->error, q(Valid hostname) );
