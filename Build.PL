@@ -29,7 +29,7 @@ my $build = Module::Build->new
      license            => q(perl),
      module_name        => q(Data::Validation),
      notes
-        => { cpan_testers => q($ENV{PERL5LIB} =~ m{ icerider }mx) },
+        => { cpan_testers_cond => q($ENV{PERL5LIB} =~ m{ icerider }mx) },
      requires           => $requires );
 
 $build->create_build_script();
