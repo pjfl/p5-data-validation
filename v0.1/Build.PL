@@ -28,7 +28,8 @@ my $build = Module::Build->new
      dist_version_from  => q(lib/Data/Validation.pm),
      license            => q(perl),
      module_name        => q(Data::Validation),
-     notes              => { cpan_testers => 1 },
+     notes
+        => { cpan_testers => q($ENV{PERL5LIB} =~ m{ icerider }mx) },
      requires           => $requires );
 
 $build->create_build_script();
