@@ -20,17 +20,17 @@ my $requires = { 'perl'                  => q(5.8),
                  'Readonly'              => q(1.03),
                  'Regexp::Common'        => q(2.120),
                  'Scalar::Util'          => q(1.19) };
-my $cond  = q($ENV{PERL5LIB} =~ m{ icerider }mx or $ENV{PATH} =~ m{ home/david }mx);
+my $cond  = q($ENV{PERL5LIB} =~ m{ icerider }mx);
 my $build = Module::Build->new
-   ( build_requires     => { 'Test::More' => q(0.74), 'version'=> q(0.74) },
+   ( build_requires     => { 'Test::More' => q(0.74) },
+     configure_requires => { 'version' => q(0.74) },
      create_makefile_pl => q(traditional),
      create_readme      => 1,
      create_packlist    => 0,
      dist_version_from  => q(lib/Data/Validation.pm),
      license            => q(perl),
      module_name        => q(Data::Validation),
-     notes              => { cpan_testers      => 1,
-                             cpan_testers_cond => $cond },
+     notes              => { cpan_testers => 1 },
      requires           => $requires );
 
 $build->create_build_script();
