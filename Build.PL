@@ -8,7 +8,7 @@ use Module::Build;
 
 use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev$ =~ /\d+/gmx );
 
-my $requires = { 'perl'                  => q(5.8),
+my $requires = { 'perl'                  => q(5.008),
                  'charnames'             => q(1.05),
                  'version'               => q(0.74),
                  'Class::Accessor::Fast' => q(0.31),
@@ -30,7 +30,8 @@ my $build = Module::Build->new
      dist_version_from  => q(lib/Data/Validation.pm),
      license            => q(perl),
      module_name        => q(Data::Validation),
-     notes              => { cpan_testers => 1, cpan_testers_cond => $cond },
+     notes              => { cpan_testers_cond    => $cond,
+                             cpan_testers_version => 1 },
      requires           => $requires );
 
 $build->create_build_script();
