@@ -32,7 +32,8 @@ my $build = Module::Build->new
      module_name        => q(Data::Validation),
      notes              => { cpan_testers_cond    => $cond,
                              cpan_testers_version => 1 },
-     requires           => $requires );
+     requires           => $requires,
+     sign               => 1 );
 
 $build->create_build_script();
 
