@@ -25,7 +25,8 @@ sub test_val {
 
 my $f = {};
 
-ok(  test_val( $f, undef, 1 )->error eq q(eNoCheckfield), q(NoCheckfield) );
+ok(  test_val( $f, undef, 1 )->error eq q(eNoFieldDefinition),
+     q(No field definition) );
 
 $f->{test}->{validate} = q(isHexadecimal);
 
