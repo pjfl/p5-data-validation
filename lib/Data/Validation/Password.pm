@@ -9,10 +9,10 @@ use base qw(Data::Validation);
 use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev$ =~ /\d+/gmx );
 
 sub _init {
-   my ($me, $args) = @_;
+   my ($me, $args) = @_; my $self = $me->NEXT::_init( $args );
 
-   $me->{min_length} = $args->{min_length} || 6;
-   return $me;
+   $self->min_length( $self->min_length || 6 );
+   return $self;
 }
 
 sub _validate {

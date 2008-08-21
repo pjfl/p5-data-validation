@@ -10,7 +10,7 @@ use LWP::UserAgent;
 use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev$ =~ /\d+/gmx );
 
 sub _validate {
-   my ($res, $ua); my ($me, $val) = @_;
+   my ($me, $val) = @_; my ($res, $ua);
 
    if ($val !~ m{ \A http: }mx) { $val = 'http://localhost'.$val }
 
