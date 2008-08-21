@@ -12,11 +12,11 @@ use NEXT;
 use Regexp::Common qw(number);
 use Scalar::Util   qw(looks_like_number);
 
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev$ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
 
-__PACKAGE__->mk_accessors( qw(exception fields max_length max_value method
-                              min_length min_value pattern required
-                              value) );
+__PACKAGE__->mk_accessors( qw(exception fields filter max_length
+                              max_value method min_length min_value
+                              pattern replace required value) );
 
 sub new {
    my ($me, $e, $fields) = @_;
@@ -72,7 +72,8 @@ sub check_field {
       $fld_copy->{method} = $method;
 
       unless ($val_ref = $me->create_validator( $fld_copy )) {
-         $me->exception->throw( error => q(eBadValidation), arg1 => $id );
+         $me->exception->throw( error => q(eBadValidation),
+                                arg1  => $id, arg2 => $method );
       }
 
       unless ($val_ref->validate( $val )) {
@@ -86,6 +87,28 @@ sub check_field {
 }
 
 sub create_filter {
+   my ($me, $args) = @_;
+   my $class       = ref $me || $me;
+   my $self        = { pattern => undef,
+                       replace => undef };
+
+   unless ($self->{filter} = delete $args->{filter}) {
+      $me->exception->throw( q(eNoFilter) );
+   }
+
+   unless ($me->_will( $self->{filter} )) {
+      (my $filter = $self->{filter}) =~ s{ \A filter }{}mx;
+      $class   = __PACKAGE__.q(::).(ucfirst $filter);
+      ## no critic
+      eval "require $class;";
+      ## critic
+
+      if ($EVAL_ERROR) { $me->exception->throw( $EVAL_ERROR ) }
+   }
+
+   bless $self, $class;
+
+   return $self->_init( $args );
 }
 
 sub create_validator {
@@ -119,6 +142,14 @@ sub create_validator {
    return $self->_init( $args );
 }
 
+sub filter {
+   my ($me, $val) = @_; my $filter = $me->filter;
+
+   return unless (defined $val);
+   return $me->$filter( $val ) if ($me->_will( $filter ));
+   return $me->_filter( $val );
+}
+
 sub validate {
    my ($me, $val) = @_; my $method = $me->method;
 
@@ -130,6 +161,8 @@ sub validate {
 
 # Private methods
 
+sub _filter { shift->exception->throw( q(eNoFilterOverride) ) }
+
 sub _init {
    my ($me, $args) = @_;
 
@@ -140,7 +173,7 @@ sub _init {
    return $me;
 }
 
-sub _validate { shift->exception->throw( q(eNoOverride) ) }
+sub _validate { shift->exception->throw( q(eNoValidateOverride) ) }
 
 sub _will {
    my ($me, $method) = @_; my $class = ref $me || $me;
@@ -148,7 +181,63 @@ sub _will {
    return $method ? defined &{ $class.q(::).$method } : 0;
 }
 
-# Builtin factory methods
+# Builtin factory filter methods
+
+sub filterHTMLEscape {
+   my ($me, $val) = @_;
+
+   $val =~ s{ &(?!(amp|lt|gt|quot);) }{&amp;}gmx;
+   $val =~ s{ < }{&lt;}gmx;
+   $val =~ s{ > }{&gt;}gmx;
+   $val =~ s{ \" }{&quot;}gmx;
+
+   return $val;
+}
+
+sub filterLowerCase {
+   my ($me, $val) = @_; return lc $val;
+}
+
+sub filterNonNumeric {
+   my ($me, $val) = @_;
+
+   $val =~ s{ \D+ }{}gmx;
+
+   return $val;
+}
+
+sub filterReplaceRegex {
+   my ($me, $val) = @_; my ($pattern, $replace);
+
+   return $val unless ($pattern = $me->pattern);
+
+   $replace = $me->replace || q();
+   $val =~ s{ $pattern }{$replace}gmx;
+
+   return $val;
+}
+
+sub filterTrimBoth {
+   my ($me, $val) = @_;
+
+   $val =~ s{ \A \s+ }{}mx; $val =~ s{ \s+ \z }{}mx;
+
+   return $val;
+}
+
+sub filterUpperCase {
+   my ($me, $val) = @_; return uc $val;
+}
+
+sub filterWhiteSpace {
+   my ($me, $val) = @_;
+
+   $val =~ s{ \s+ }{}gmx;
+
+   return $val;
+}
+
+# Builtin factory validation methods
 
 sub isBetweenValues {
    my ($me, $val) = @_;
@@ -252,7 +341,7 @@ Data::Validation - Check data values form conformance with constraints
 
 =head1 Version
 
-0.1.$Rev$
+0.2.$Rev$
 
 =head1 Synopsis
 
