@@ -9,14 +9,14 @@ use base qw(Data::Validation);
 use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev$ =~ /\d+/gmx );
 
 sub _init {
-   my ($me, $args) = @_;
+   my ($me, $args) = @_; my $self = $me->NEXT::_init( $args );
    my @patterns    = ( 'AN NAA',  'ANN NAA',  'AAN NAA', 'AANN NAA',
                        'ANA NAA', 'AANA NAA', 'AAA NAA', );
 
    foreach (@patterns) { s{ A }{[A-Z]}gmx; s{ N }{\\d}gmx; s{ [ ] }{\\s+}gmx; }
 
-   $me->{pattern}  = join q(|), @patterns;
-   return $me;
+   $self->pattern( join q(|), @patterns );
+   return $self;
 }
 
 sub _validate {

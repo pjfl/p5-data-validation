@@ -8,102 +8,116 @@ use charnames      qw(:full);
 use base           qw(Class::Accessor::Fast);
 use English        qw(-no_match_vars);
 use File::Spec::Functions;
-use Readonly;
+use NEXT;
 use Regexp::Common qw(number);
 use Scalar::Util   qw(looks_like_number);
 
 use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev$ =~ /\d+/gmx );
 
-Readonly my %ATTRS => ( max_length => undef,
-                        max_value  => undef,
-                        min_length => undef,
-                        min_value  => undef,
-                        required   => 0,
-                        pattern    => undef,
-                        value      => undef, );
+__PACKAGE__->mk_accessors( qw(exception fields max_length max_value method
+                              min_length min_value pattern required
+                              value) );
 
-# Class methods
+sub new {
+   my ($me, $e, $fields) = @_;
 
-sub check_field {
-   # Validate form field values
-   my ($me, $e, $fields, $id, $val) = @_; my ($fld, $fld_copy, $key, $val_ref);
-
-   unless ($id && ($fld = $fields->{ $id }) && $fld->{validate}) {
-      $e->throw( error => q(eNoCheckfield), arg1 => $id, arg2 => $val );
-   }
-
-   $fld_copy = { %{ $fld } };
-
-   for my $method (split q( ), $fld->{validate}) {
-      $fld_copy->{validate} = $method;
-
-      unless ($val_ref = $me->new( $fld_copy )) {
-         $e->throw( error => q(eBadValidation), arg1 => $id );
-      }
-
-      unless ($val_ref->validate( $val )) {
-         ($key = $method) =~ s{ \A is }{}imx;
-         $e->throw( error => q(e).$key, arg1 => $id, arg2 => $val );
-      }
-   }
-
-   return;
+   return bless { exception => $e, fields => $fields }, ref $me || $me;
 }
 
 sub check_form {
    # Validate all the fields on a form by repeated calling check_field
-   my ($me, $e, $fields, $prefix, $values) = @_; my $ref; $prefix ||= q();
+   my ($me, $prefix, $values) = @_; my $ref; $prefix ||= q();
 
    unless ($values && ref $values eq q(HASH)) {
-      $e->throw( error => q(eNoValues) );
+      $me->exception->throw( q(eNoValues) );
    }
 
    for (keys %{ $values }) {
       my $id = $prefix.$_;
 
-      next unless (($ref = $fields->{ $id }) && $ref->{validate});
+      next unless ($ref = $me->fields->{ $id } and $ref->{validate});
 
-      $me->check_field( $e, $fields, $id, $values->{ $_ } );
+      $values->{ $_ } = $me->check_field( $id, $values->{ $_ } );
    }
 
-   return;
+   return $values;
 }
 
-sub new {
-   my ($me, $args) = @_; my ($class, $method, $path, $self);
+sub check_field {
+   # Validate form field values
+   my ($me, $id, $val) = @_;
+   my ($filter, $filter_ref, $fld, $fld_copy, $key, $method, $val_ref);
 
-   $self = { %ATTRS };
-
-   if ($self->{method} = $args->{validate}) { delete $args->{validate} }
-   else { _carp( 'No validation method' ); return }
-
-   if ($me->_will( $self->{method} )) {
-      $class = ref $me || $me;
-      bless $self, $class;
+   unless ($id and $fld = $me->fields->{ $id } and $fld->{validate}) {
+      $me->exception->throw( error => q(eNoCheckfield),
+                             arg1  => $id, arg2 => $val );
    }
-   else {
-      ($method = $self->{method}) =~ s{ \A isValid }{}mx;
+
+   $fld_copy = { %{ $fld } };
+
+   if ($fld->{filters}) {
+      for $filter (split q( ), $fld->{filters}) {
+         $fld_copy->{filter} = $filter;
+
+         unless ($filter_ref = $me->create_filter( $fld_copy )) {
+            $me->exception->throw( error => q(eBadFilter),
+                                   arg1  => $id, arg2 => $filter );
+         }
+
+         $val = $filter_ref->filter( $val );
+      }
+   }
+
+   for $method (split q( ), $fld->{validate}) {
+      $fld_copy->{method} = $method;
+
+      unless ($val_ref = $me->create_validator( $fld_copy )) {
+         $me->exception->throw( error => q(eBadValidation), arg1 => $id );
+      }
+
+      unless ($val_ref->validate( $val )) {
+         ($key = $method) =~ s{ \A is }{}imx;
+         $me->exception->throw( error => q(e).$key,
+                                arg1  => $id, arg2 => $val );
+      }
+   }
+
+   return $val;
+}
+
+sub create_filter {
+}
+
+sub create_validator {
+   my ($me, $args) = @_;
+   my $class       = ref $me || $me;
+   my $self        = { exception  => $me->exception,
+                       max_length => undef,
+                       max_value  => undef,
+                       min_length => undef,
+                       min_value  => undef,
+                       pattern    => undef,
+                       required   => 0,
+                       value      => undef };
+
+   unless ($self->{method} = delete $args->{method}) {
+      $me->e->throw( 'No validation method' );
+   }
+
+   unless ($me->_will( $self->{method} )) {
+      (my $method = $self->{method}) =~ s{ \A isValid }{}mx;
       $class   = __PACKAGE__.q(::).(ucfirst $method);
       ## no critic
       eval "require $class;";
       ## critic
 
-      if ($EVAL_ERROR) { _carp( $EVAL_ERROR ); return }
-
-      bless $self, $class;
-      $self = $self->_init( $args );
+      if ($EVAL_ERROR) { $me->exception->throw( $EVAL_ERROR ) }
    }
 
-   for (grep { exists $self->{ $_ } } keys %{ $args }) {
-      $self->{ $_ } = $args->{ $_ };
-   }
+   bless $self, $class;
 
-   $class->mk_accessors( keys %{ $self } );
-
-   return $self;
+   return $self->_init( $args );
 }
-
-# Object methods
 
 sub validate {
    my ($me, $val) = @_; my $method = $me->method;
@@ -112,6 +126,26 @@ sub validate {
    return 1 if (!$val && !$me->required && $method ne q(isMandatory));
    return $me->$method( $val ) if ($me->_will( $method ));
    return $me->_validate( $val );
+}
+
+# Private methods
+
+sub _init {
+   my ($me, $args) = @_;
+
+   for (grep { exists $me->{ $_ } } keys %{ $args }) {
+      $me->{ $_ } = $args->{ $_ };
+   }
+
+   return $me;
+}
+
+sub _validate { shift->exception->throw( 'Should have been overridden' ) }
+
+sub _will {
+   my ($me, $method) = @_; my $class = ref $me || $me;
+
+   return $method ? defined &{ $class.q(::).$method } : 0;
 }
 
 # Builtin factory methods
@@ -147,10 +181,9 @@ sub isHexadecimal {
 sub isMandatory { shift; return ((shift) ? 1 : 0) }
 
 sub isMatchingRegex {
-   my ($me, $val) = @_;
-   my $pat        = $me->pattern;
+   my ($me, $val) = @_; my $pat = $me->pattern;
 
-   return $val    =~ m{ $pat }msx ? 1 : 0;
+   return $val =~ m{ $pat }msx ? 1 : 0;
 }
 
 sub isPrintable {
@@ -205,22 +238,6 @@ sub isValidNumber {
    return 0 unless (defined $val);
    return 1 if     (defined looks_like_number( $val ));
    return 0;
-}
-
-# Private methods
-
-sub _carp { require Carp; goto &Carp::carp }
-
-sub _croak { require Carp; goto &Carp::croak }
-
-sub _init { return shift }
-
-sub _validate { return _croak( 'Should have been overridden' ) }
-
-sub _will {
-   my ($me, $method) = @_; my $class = ref $me || $me;
-
-   return $method ? defined &{ $class.q(::).$method } : 0;
 }
 
 1;

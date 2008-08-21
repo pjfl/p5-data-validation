@@ -16,7 +16,9 @@ use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev$ =~ /\d+/gmx );
 BEGIN { use_ok q(Data::Validation) }
 
 sub test_val {
-   eval { Data::Validation->check_field( q(TestException), @_ ) };
+   my $validator = Data::Validation->new( q(TestException), shift );
+
+   eval { $validator->check_field( @_ ) };
 
    return Exception::Class->caught( q(TestException) ) || Class::Null->new();
 }
@@ -129,12 +131,16 @@ my $vals = { field_name  => q(SW1A 4WW),
              field_name3 => q(a@b.c),
              field_name4 => q(qwe) };
 
-eval { Data::Validation->check_form( q(TestException), $f, q(subr_), $vals ) };
+my $validator = Data::Validation->new( q(TestException), $f );
+
+eval { $validator->check_form( q(subr_), $vals ) };
 my $e = Exception::Class->caught( q(TestException) ) || Class::Null->new();
 ok( !$e->error, q(Valid form) );
 
 $vals->{field_name2} = q(tooeasy);
 
-eval { Data::Validation->check_form( q(TestException), $f, q(subr_), $vals ) };
+$validator = Data::Validation->new( q(TestException), $f );
+
+eval { $validator->check_form( q(subr_), $vals ) };
 $e = Exception::Class->caught( q(TestException) ) || Class::Null->new();
 ok(  $e->error eq q(eValidPassword), q(Invalid form) );
