@@ -29,7 +29,7 @@ sub check_form {
    my ($me, $prefix, $values) = @_; my $ref; $prefix ||= q();
 
    unless ($values && ref $values eq q(HASH)) {
-      $me->exception->throw( q(eNoValues) );
+      $me->exception->throw( q(eNoFormValues) );
    }
 
    for (keys %{ $values }) {
@@ -49,7 +49,7 @@ sub check_field {
    my ($filter, $filter_ref, $fld, $fld_copy, $key, $method, $val_ref);
 
    unless ($id and $fld = $me->fields->{ $id } and $fld->{validate}) {
-      $me->exception->throw( error => q(eNoCheckfield),
+      $me->exception->throw( error => q(eNoFieldDefinition),
                              arg1  => $id, arg2 => $val );
    }
 
@@ -101,7 +101,7 @@ sub create_validator {
                        value      => undef };
 
    unless ($self->{method} = delete $args->{method}) {
-      $me->e->throw( 'No validation method' );
+      $me->exception->throw( q(eNoValidationMethod) );
    }
 
    unless ($me->_will( $self->{method} )) {
@@ -140,7 +140,7 @@ sub _init {
    return $me;
 }
 
-sub _validate { shift->exception->throw( 'Should have been overridden' ) }
+sub _validate { shift->exception->throw( q(eNoOverride) ) }
 
 sub _will {
    my ($me, $method) = @_; my $class = ref $me || $me;
