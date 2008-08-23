@@ -21,32 +21,26 @@ has 'required'   => ( is => q(rw), isa => q(Bool) );
 has 'value'      => ( is => q(rw), isa => q(Any) );
 
 sub validate {
-   my ($me, $val) = @_; my $method = $me->method;
+   my ($me, $val) = @_; my $method = $me->method; my $class;
 
    return 0 if (!$val && $me->required);
    return 1 if (!$val && !$me->required && $method ne q(isMandatory));
    return $me->$method( $val ) if ($me->_will( $method ));
 
-   $method   =~ s{ \A isValid }{}mx;
-   my $class = __PACKAGE__.q(::).(ucfirst $method);
+   ($class = $method) =~ s{ \A isValid }{}mx;
+   $class = __PACKAGE__.q(::).(ucfirst $class);
    ## no critic
    eval "require $class;";
    ## critic
 
-   if ($EVAL_ERROR) { $me->exception->throw( $EVAL_ERROR ) }
+   $me->exception->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
 
    my $self = bless $me, $class;
-
-   $self = $self->_init();
 
    return $self->_validate( $val );
 }
 
 # Private methods
-
-sub _init {
-   return shift;
-}
 
 sub _will {
    my ($me, $method) = @_; my $class = ref $me || $me;
