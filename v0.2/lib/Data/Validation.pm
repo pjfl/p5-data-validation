@@ -2,31 +2,15 @@ package Data::Validation;
 
 # @(#)$Id$
 
-use strict;
-use warnings;
-use charnames      qw(:full);
-use base           qw(Class::Accessor::Fast);
-use English        qw(-no_match_vars);
-use File::Spec::Functions;
-use NEXT;
-use Regexp::Common qw(number);
-use Scalar::Util   qw(looks_like_number);
+use Moose;
+use Data::Validation::Constraints;
 
 use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
 
-__PACKAGE__->mk_accessors( qw(constraints exception fields filters
-                              max_length max_value method min_length
-                              min_value pattern replace required
-                              value) );
-
-sub new {
-   my ($me, $e, $config) = @_; my $class = ref $me || $me; $config ||= {};
-
-   return bless { exception   => $e,
-                  constraints => $config->{constraints} || {},
-                  fields      => $config->{fields     } || {},
-                  filters     => $config->{filters    } || {} }, $class;
-}
+has 'exception'   => ( is => q(ro), isa => q(ClassName), required => 1 );
+has 'constraints' => ( is => q(ro), isa => q(HashRef), default => sub { {} } );
+has 'fields'      => ( is => q(ro), isa => q(HashRef), default => sub { {} } );
+has 'filters'     => ( is => q(ro), isa => q(HashRef), default => sub { {} } );
 
 sub check_form {
    # Validate all the fields on a form by repeated calling check_field
@@ -50,7 +34,7 @@ sub check_form {
 sub check_field {
    # Validate form field values
    my ($me, $id, $val) = @_;
-   my ($config, $constraint_ref, $field, $filter_ref, $key, $method);
+   my ($constraint_ref, $field, $filter_ref, $key, $method);
 
    unless ($id and $field = $me->fields->{ $id } and $field->{validate}) {
       $me->exception->throw( error => q(eNoFieldDefinition),
@@ -59,9 +43,11 @@ sub check_field {
 
    if ($field->{filters}) {
       for $method (split q( ), $field->{filters}) {
-         $config = { method => $method, %{ $me->filters->{ $id } || {} } };
+         $filter_ref = Data::Validation::Filter->new
+            ( method => $method, exception => $me->exception,
+              %{ $me->filters->{ $id } || {} } );
 
-         unless ($filter_ref = $me->create_filter( $config )) {
+         unless ($filter_ref) {
             $me->exception->throw( error => q(eBadFilter),
                                    arg1  => $id, arg2 => $method );
          }
@@ -71,9 +57,11 @@ sub check_field {
    }
 
    for $method (split q( ), $field->{validate}) {
-      $config = { method => $method, %{ $me->constraints->{ $id } || {} } };
+      $constraint_ref = Data::Validation::Constraints->new
+         ( method => $method, exception => $me->exception,
+           %{ $me->constraints->{ $id } || {} } );
 
-      unless ($constraint_ref = $me->create_constraint( $config )) {
+      unless ($constraint_ref) {
          $me->exception->throw( error => q(eBadConstraint),
                                 arg1  => $id, arg2 => $method );
       }
@@ -86,245 +74,6 @@ sub check_field {
    }
 
    return $val;
-}
-
-sub create_filter {
-   my ($me, $config) = @_;
-   my $class         = ref $me || $me;
-   my $self          = { exception => $me->exception,
-                         method    => undef,
-                         pattern   => undef,
-                         replace   => undef };
-   my $method;
-
-   unless ($method = $config->{method}) {
-      $me->exception->throw( q(eNoFilterMethod) );
-   }
-
-   unless ($me->_will( $method )) {
-      $method =~ s{ \A filter }{}mx;
-      $class  = __PACKAGE__.q(::).(ucfirst $method);
-      ## no critic
-      eval "require $class;";
-      ## critic
-
-      if ($EVAL_ERROR) { $me->exception->throw( $EVAL_ERROR ) }
-   }
-
-   bless $self, $class;
-
-   return $self->_init( $config );
-}
-
-sub create_constraint {
-   my ($me, $config) = @_;
-   my $class         = ref $me || $me;
-   my $self          = { exception  => $me->exception,
-                         max_length => undef,
-                         max_value  => undef,
-                         method     => undef,
-                         min_length => undef,
-                         min_value  => undef,
-                         pattern    => undef,
-                         required   => 0,
-                         value      => undef };
-   my $method;
-
-   unless ($method = $config->{method}) {
-      $me->exception->throw( q(eNoConstraintMethod) );
-   }
-
-   unless ($me->_will( $method )) {
-      $method  =~ s{ \A isValid }{}mx;
-      $class   = __PACKAGE__.q(::).(ucfirst $method);
-      ## no critic
-      eval "require $class;";
-      ## critic
-
-      if ($EVAL_ERROR) { $me->exception->throw( $EVAL_ERROR ) }
-   }
-
-   bless $self, $class;
-
-   return $self->_init( $config );
-}
-
-sub filter {
-   my ($me, $val) = @_; my $method = $me->method;
-
-   return unless (defined $val);
-   return $me->$method( $val ) if ($me->_will( $method ));
-   return $me->_filter( $val );
-}
-
-sub validate {
-   my ($me, $val) = @_; my $method = $me->method;
-
-   return 0 if (!$val && $me->required);
-   return 1 if (!$val && !$me->required && $method ne q(isMandatory));
-   return $me->$method( $val ) if ($me->_will( $method ));
-   return $me->_validate( $val );
-}
-
-# Private methods
-
-sub _filter { shift->exception->throw( q(eNoFilterOverride) ) }
-
-sub _init {
-   my ($me, $config) = @_;
-
-   for (grep { exists $me->{ $_ } } keys %{ $config }) {
-      $me->{ $_ } = $config->{ $_ };
-   }
-
-   return $me;
-}
-
-sub _validate { shift->exception->throw( q(eNoConstraintOverride) ) }
-
-sub _will {
-   my ($me, $method) = @_; my $class = ref $me || $me;
-
-   return $method ? defined &{ $class.q(::).$method } : 0;
-}
-
-# Builtin factory filter methods
-
-sub filterEscapeHTML {
-   my ($me, $val) = @_;
-
-   $val =~ s{ &(?!(amp|lt|gt|quot);) }{&amp;}gmx;
-   $val =~ s{ < }{&lt;}gmx;
-   $val =~ s{ > }{&gt;}gmx;
-   $val =~ s{ \" }{&quot;}gmx;
-   return $val;
-}
-
-sub filterLowerCase {
-   my ($me, $val) = @_; return lc $val;
-}
-
-sub filterNonNumeric {
-   my ($me, $val) = @_;
-
-   $val =~ s{ \D+ }{}gmx;
-   return $val;
-}
-
-sub filterReplaceRegex {
-   my ($me, $val) = @_; my ($pattern, $replace);
-
-   return $val unless ($pattern = $me->pattern);
-
-   $replace = $me->replace || q();
-   $val =~ s{ $pattern }{$replace}gmx;
-   return $val;
-}
-
-sub filterTrimBoth {
-   my ($me, $val) = @_;
-
-   $val =~ s{ \A \s+ }{}mx; $val =~ s{ \s+ \z }{}mx;
-   return $val;
-}
-
-sub filterUpperCase {
-   my ($me, $val) = @_; return uc $val;
-}
-
-sub filterWhiteSpace {
-   my ($me, $val) = @_;
-
-   $val =~ s{ \s+ }{}gmx;
-   return $val;
-}
-
-# Builtin factory validation methods
-
-sub isBetweenValues {
-   my ($me, $val) = @_;
-
-   return 0 if (defined $me->min_value and $val < $me->min_value);
-   return 0 if (defined $me->max_value and $val > $me->max_value);
-   return 1;
-}
-
-sub isEqualTo {
-   my ($me, $val) = @_;
-
-   if ($me->isValidNumber( $val ) && $me->isValidNumber( $me->value )) {
-      return 1 if ($val == $me->value);
-      return 0;
-   }
-
-   return 1 if ($val eq $me->value);
-   return 0;
-}
-
-sub isHexadecimal {
-   my ($me, $val) = @_;
-
-   $me->pattern( '\A '.$RE{num}{hex}.' \z' );
-   return $me->isMatchingRegex( $val );
-}
-
-sub isMandatory { shift; return ((shift) ? 1 : 0) }
-
-sub isMatchingRegex {
-   my ($me, $val) = @_; my $pat = $me->pattern;
-
-   return $val =~ m{ $pat }msx ? 1 : 0;
-}
-
-sub isPrintable {
-   my ($me, $val) = @_;
-
-   $me->pattern( '\A \p{IsPrint}+ \z' );
-   return $me->isMatchingRegex( $val );
-}
-
-sub isSimpleText {
-   my ($me, $val) = @_;
-
-   $me->pattern( '\A [a-zA-Z0-9_ \-\.]+ \z' );
-   return $me->isMatchingRegex( $val );
-}
-
-sub isValidHostname {
-   my ($me, $val) = @_; return (gethostbyname $val)[0] ? 1 : 0;
-}
-
-sub isValidIdentifier {
-   my ($me, $val) = @_;
-
-   $me->pattern( '\A [a-zA-Z_] \w* \z' );
-   return $me->isMatchingRegex( $val );
-}
-
-sub isValidInteger {
-   my ($me, $val) = @_;
-
-   $me->pattern( '\A '.$RE{num}{int}{-sep=>'[_]?'}.' \z' );
-
-   return 0 unless ($me->isMatchingRegex( $val ));
-   return 0 unless (int $val == $val);
-   return 1;
-}
-
-sub isValidLength {
-   my ($me, $val) = @_;
-
-   return 0 if (defined $me->min_length and length $val < $me->min_length);
-   return 0 if (defined $me->max_length and length $val > $me->max_length);
-   return 1;
-}
-
-sub isValidNumber {
-   my ($me, $val) = @_;
-
-   return 0 unless (defined $val);
-   return 1 if     (defined looks_like_number( $val ));
-   return 0;
 }
 
 1;

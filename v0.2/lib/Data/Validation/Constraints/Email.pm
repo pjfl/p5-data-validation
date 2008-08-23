@@ -1,17 +1,17 @@
-package Data::Validation::Email;
+package Data::Validation::Constraints::Email;
 
 # @(#)$Id$
 
-use strict;
-use warnings;
-use base qw(Data::Validation);
+use Moose;
 use Email::Valid;
 
 use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev$ =~ /\d+/gmx );
 
-sub _validate {
+extends 'Data::Validation::Constraints';
+
+override '_validate' => sub {
    my ($me, $val) = @_; return Email::Valid->address( $val ) ? 1 : 0;
-}
+};
 
 1;
 

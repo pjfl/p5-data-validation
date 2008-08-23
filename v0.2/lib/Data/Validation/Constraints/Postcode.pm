@@ -1,29 +1,29 @@
-package Data::Validation::Postcode;
+package Data::Validation::Constraints::Postcode;
 
 # @(#)$Id$
 
-use strict;
-use warnings;
-use base qw(Data::Validation);
+use Moose;
 
 use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev$ =~ /\d+/gmx );
 
-sub _init {
-   my ($me, $args) = @_; my $self = $me->NEXT::_init( $args );
-   my @patterns    = ( 'AN NAA',  'ANN NAA',  'AAN NAA', 'AANN NAA',
-                       'ANA NAA', 'AANA NAA', 'AAA NAA', );
+extends 'Data::Validation::Constraints';
+
+override '_init' => sub {
+   my $self = shift;
+   my @patterns = ( 'AN NAA',  'ANN NAA',  'AAN NAA', 'AANN NAA',
+                    'ANA NAA', 'AANA NAA', 'AAA NAA', );
 
    foreach (@patterns) { s{ A }{[A-Z]}gmx; s{ N }{\\d}gmx; s{ [ ] }{\\s+}gmx; }
 
    $self->pattern( join q(|), @patterns );
    return $self;
-}
+};
 
-sub _validate {
+override '_validate' => sub {
    my ($me, $val) = @_; my $pat = $me->pattern;
 
    return $val =~ m{ \A (?:$pat) \z }mox ? 1 : 0;
-}
+};
 
 1;
 
