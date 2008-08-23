@@ -43,7 +43,7 @@ sub check_field {
 
    if ($field->{filters}) {
       for $method (split q( ), $field->{filters}) {
-         $filter_ref = Data::Validation::Filter->new
+         $filter_ref = Data::Validation::Filters->new
             ( method => $method, exception => $me->exception,
               %{ $me->filters->{ $id } || {} } );
 

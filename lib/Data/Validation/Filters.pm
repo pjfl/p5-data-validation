@@ -6,42 +6,36 @@ use Moose;
 
 use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
 
-has 'exception'   => ( is => q(ro), isa => q(ClassName), required => 1 );
-
-sub create_filter {
-   my ($me, $config) = @_;
-   my $class         = ref $me || $me;
-   my $self          = { exception => $me->exception,
-                         method    => undef,
-                         pattern   => undef,
-                         replace   => undef };
-   my $method;
-
-   unless ($method = $config->{method}) {
-      $me->exception->throw( q(eNoFilterMethod) );
-   }
-
-   unless ($me->_will( $method )) {
-      $method =~ s{ \A filter }{}mx;
-      $class  = __PACKAGE__.q(::).(ucfirst $method);
-      ## no critic
-      eval "require $class;";
-      ## critic
-
-      if ($EVAL_ERROR) { $me->exception->throw( $EVAL_ERROR ) }
-   }
-
-   bless $self, $class;
-
-   return $self->_init( $config );
-}
+has 'exception' => ( is => q(ro), isa => q(ClassName), required => 1 );
+has 'method'    => ( is => q(ro), isa => q(Str), required => 1 );
+has 'pattern'   => ( is => q(rw), isa => q(Str) );
+has 'replace'   => ( is => q(rw), isa => q(Str) );
 
 sub filter {
-   my ($me, $val) = @_; my $method = $me->method;
+   my ($me, $val) = @_; my $method = $me->method; my $class;
 
    return unless (defined $val);
    return $me->$method( $val ) if ($me->_will( $method ));
-   return $me->_filter( $val );
+
+   ($class = $method) =~ s{ \A filter }{}mx;
+   $class = __PACKAGE__.q(::).(ucfirst $class);
+   ## no critic
+   eval "require $class;";
+   ## critic
+
+   $me->exception->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
+
+   my $self = bless $me, $class;
+
+   return $self->_filter( $val );
+}
+
+# Private methods
+
+sub _will {
+   my ($me, $method) = @_; my $class = ref $me || $me;
+
+   return $method ? defined &{ $class.q(::).$method } : 0;
 }
 
 sub _filter { shift->exception->throw( q(eNoFilterOverride) ) }
