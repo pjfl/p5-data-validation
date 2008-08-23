@@ -16,9 +16,10 @@ use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
 BEGIN { use_ok q(Data::Validation) }
 
 sub test_val {
-   my $e;
-   my $validator = Data::Validation->new( q(TestException), shift );
-   my $value     = eval { $validator->check_field( @_ ) };
+   my $config = shift; my $e;
+   my $validator
+      = Data::Validation->new( exception => q(TestException), %{ $config } );
+   my $value  = eval { $validator->check_field( @_ ) };
 
    return $e if ($e = TestException->caught());
 
@@ -138,7 +139,8 @@ $f->{fields}->{subr_field_name4}->{validate  } = q(isValidLength);
 $f->{constraints}->{subr_field_name4} = { min_length => 2,
                                           max_length => 4 };
 
-my $validator = Data::Validation->new( q(TestException), $f );
+my $validator = Data::Validation->new( exception => q(TestException),
+                                       %{ $f } );
 my $vals      = { field_name  => q(SW1A 4WW),
                   field_name1 => q(/this/is/ok),
                   field_name2 => q(qw3erty),

@@ -1,20 +1,19 @@
-package Data::Validation::Date;
+package Data::Validation::Constraints::Date;
 
 # @(#)$Id$
 
-use strict;
-use warnings;
-use base qw(Data::Validation);
-
+use Moose;
 use CatalystX::Usul::Time;
 
 use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev$ =~ /\d+/gmx );
 
-sub _validate {
+extends 'Data::Validation::Constraints';
+
+override '_validate' => sub {
    my ($me, $val) = @_;
 
    return defined CatalystX::Usul::Class::Time->str2time( $val ) ? 1 : 0;
-}
+};
 
 1;
 
