@@ -9,139 +9,148 @@ use English qw(-no_match_vars);
 use FindBin qw($Bin);
 use lib qq($Bin/../lib);
 use Exception::Class ( q(TestException) => { fields => [ qw(arg1 arg2) ] } );
-use Test::More tests => 34;
+use Test::More tests => 37;
 
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev$ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
 
 BEGIN { use_ok q(Data::Validation) }
 
 sub test_val {
+   my $e;
    my $validator = Data::Validation->new( q(TestException), shift );
+   my $value     = eval { $validator->check_field( @_ ) };
 
-   eval { $validator->check_field( @_ ) };
+   return $e if ($e = TestException->caught());
 
-   return Exception::Class->caught( q(TestException) ) || Class::Null->new();
+   return $value;
 }
 
 my $f = {};
 
-ok(  test_val( $f, undef, 1 )->error eq q(eNoFieldDefinition),
-     q(No field definition) );
+ok( test_val( $f, undef, 1 )->error eq q(eNoFieldDefinition),
+    q(No field definition 1) );
+ok( test_val( $f, q(test), 1 )->error eq q(eNoFieldDefinition),
+    q(No field definition 2) );
 
-$f->{test}->{validate} = q(isHexadecimal);
+$f->{fields}->{test}->{validate} = q(isHexadecimal);
 
-ok(  test_val( $f, q(test), q(alive) )->error eq q(eHexadecimal),
-     q(Not hexadecimal) );
-ok( !test_val( $f, q(test), q(dead) )->error, q(Is hexadecimal) );
+ok( test_val( $f, q(test), q(alive) )->error eq q(eHexadecimal),
+    q(Not hexadecimal) );
+ok( test_val( $f, q(test), q(dead) ) eq q(dead), q(Is hexadecimal) );
 
-$f->{test}->{validate} = q(isMandatory);
+$f->{fields}->{test}->{validate} = q(isMandatory);
 
-ok(  test_val( $f, q(test), undef )->error eq q(eMandatory),
-     q(Missing field) );
-ok( !test_val( $f, q(test), 1 )->error, q(Mandatory field) );
+ok( test_val( $f, q(test), undef )->error eq q(eMandatory),
+    q(Missing field) );
+ok( test_val( $f, q(test), 1 ) eq q(1), q(Mandatory field) );
 
-$f->{test}->{validate} = q(isPrintable);
+$f->{fields}->{test}->{validate} = q(isPrintable);
 
-ok(  test_val( $f, q(test), q() )->error eq q(ePrintable),
-     q(Not printable) );
-ok( !test_val( $f, q(test), q(q; *) )->error, q(Printable) );
+ok( test_val( $f, q(test), q() )->error eq q(ePrintable),
+    q(Not printable) );
+ok( test_val( $f, q(test), q(q; *) ) eq q(q; *), q(Printable) );
 
-$f->{test}->{validate} = q(isSimpleText);
+$f->{fields}->{test}->{validate} = q(isSimpleText);
 
-ok(  test_val( $f, q(test), q(*3$%^) )->error eq q(eSimpleText),
-     q(Not simple text) );
-ok( !test_val( $f, q(test), q(this is text) )->error, q(Simple text) );
+ok( test_val( $f, q(test), q(*3$%^) )->error eq q(eSimpleText),
+    q(Not simple text) );
+ok( test_val( $f, q(test), q(this is text) ) eq q(this is text),
+    q(Simple text) );
 
-$f->{test}->{validate} = q(isValidHostname);
+$f->{fields}->{test}->{validate} = q(isValidHostname);
 
-ok(  test_val( $f, q(test), q(does_not_exist) )->error eq q(eValidHostname),
-     q(Not valid hostname) );
-ok( !test_val( $f, q(test), q(localhost) )->error, q(Valid hostname) );
-ok( !test_val( $f, q(test), q(127.0.0.1) )->error, q(Valid hostname) );
+ok( test_val( $f, q(test), q(does_not_exist) )->error eq q(eValidHostname),
+    q(Not valid hostname) );
+ok( test_val( $f, q(test), q(localhost) ) eq q(localhost), q(Valid hostname) );
+ok( test_val( $f, q(test), q(127.0.0.1) ) eq q(127.0.0.1), q(Valid hostname) );
 
-$f->{test}->{validate} = q(isValidIdentifier);
+$f->{fields}->{test}->{validate} = q(isValidIdentifier);
 
-ok(  test_val( $f, q(test), 1 )->error eq q(eValidIdentifier),
-     q(InvalidIdentifier) );
-ok( !test_val( $f, q(test), q(x) )->error, q(ValidIdentifier) );
+ok( test_val( $f, q(test), 1 )->error eq q(eValidIdentifier),
+    q(InvalidIdentifier) );
+ok( test_val( $f, q(test), q(x) ) eq q(x), q(ValidIdentifier) );
 
-$f->{test}->{validate} = q(isValidNumber isValidInteger);
+$f->{fields}->{test}->{validate} = q(isValidNumber isValidInteger);
 
-ok(  test_val( $f, q(test), 1.1 )->error eq q(eValidInteger),
-     q(InvalidInteger) );
-ok( !test_val( $f, q(test), 1 )->error, q(Integer field) );
+ok( test_val( $f, q(test), 1.1 )->error eq q(eValidInteger),
+    q(InvalidInteger) );
+ok( test_val( $f, q(test), 1 ) == 1, q(Integer field) );
 
-$f->{test}->{validate} = q(isValidNumber isValidInteger isBetweenValues);
-$f->{test}->{min_value} = 2;
-$f->{test}->{max_value} = 4;
+$f->{fields}->{test}->{validate}
+   = q(isValidNumber isValidInteger isBetweenValues);
+$f->{constraints}->{test} = { min_value => 2, max_value => 4 };
 
-ok(  test_val( $f, q(test), 5 )->error eq q(eBetweenValues), q(Out of range) );
-ok( !test_val( $f, q(test), 3 )->error, q(In range) );
+ok( test_val( $f, q(test), 5 )->error eq q(eBetweenValues), q(Out of range) );
+ok( test_val( $f, q(test), 3 ) == 3, q(In range) );
 
-$f->{test}->{validate} = q(isEqualTo);
-$f->{test}->{value} = 4;
+$f->{fields}->{test}->{validate} = q(isEqualTo);
+$f->{constraints}->{test} = { value => 4 };
 
-ok(  test_val( $f, q(test), 5 )->error eq q(eEqualTo), q(Not equal) );
-ok( !test_val( $f, q(test), 4 )->error, q(Is equal to) );
+ok( test_val( $f, q(test), 5 )->error eq q(eEqualTo), q(Not equal) );
+ok( test_val( $f, q(test), 4 ) == 4, q(Is equal to) );
 
-$f->{test}->{validate} = q(isValidLength);
-$f->{test}->{min_length} = 2;
-$f->{test}->{max_length} = 4;
+$f->{fields}->{test}->{validate} = q(isValidLength);
+$f->{constraints}->{test} = { min_length => 2, max_length => 4 };
 
-ok(  test_val( $f, q(test), q(qwerty) )->error eq q(eValidLength),
-     q(Invalid length) );
-ok( !test_val( $f, q(test), q(qwe) )->error, q(Valid length) );
+ok( test_val( $f, q(test), q(qwerty) )->error eq q(eValidLength),
+    q(Invalid length) );
+ok( test_val( $f, q(test), q(qwe) ) eq q(qwe), q(Valid length) );
 
-$f->{test}->{validate} = q(isValidEmail);
+$f->{fields}->{test}->{validate} = q(isMatchingRegex);
+$f->{constraints}->{test} = { pattern => q(...-...) };
 
-ok(  test_val( $f, q(test), q(fred) )->error eq q(eValidEmail),
-     q(Invalid email) );
-ok( !test_val( $f, q(test), q(a@b.c) )->error, q(Valid email) );
+ok( test_val( $f, q(test), q(123 456) )->error eq q(eMatchingRegex),
+    q(Non Matching Regex) );
+ok( test_val( $f, q(test), q(123-456) ) eq q(123-456),
+    q(Matching Regex) );
 
-$f->{test}->{validate} = q(isValidPassword);
+$f->{fields}->{test}->{validate} = q(isValidEmail);
 
-ok(  test_val( $f, q(test), q(fred) )->error eq q(eValidPassword),
-     q(Invalid password) );
-ok(  test_val( $f, q(test), q(freddyBoy) )->error eq q(eValidPassword),
-     q(Invalid password) );
-ok( !test_val( $f, q(test), q(qw3erty) )->error, q(Valid password) );
+ok( test_val( $f, q(test), q(fred) )->error eq q(eValidEmail),
+    q(Invalid email) );
+ok( test_val( $f, q(test), q(a@b.c) ) eq q(a@b.c), q(Valid email) );
 
-$f->{test}->{validate} = q(isValidPath);
+$f->{fields}->{test}->{validate} = q(isValidPassword);
 
-ok(  test_val( $f, q(test), q(this is not ok;) )->error eq q(eValidPath),
-     q(Invalid path) );
-ok( !test_val( $f, q(test), q(/this/is/ok) )->error, q(Valid path) );
+ok( test_val( $f, q(test), q(fred) )->error eq q(eValidPassword),
+    q(Invalid password) );
+ok( test_val( $f, q(test), q(freddyBoy) )->error eq q(eValidPassword),
+    q(Invalid password) );
+ok( test_val( $f, q(test), q(qw3erty) ) eq q(qw3erty), q(Valid password) );
 
-$f->{test}->{validate} = q(isValidPostcode);
+$f->{fields}->{test}->{validate} = q(isValidPath);
 
-ok(  test_val( $f, q(test), q(CA123445) )->error eq q(eValidPostcode),
-     q(Invalid postcode) );
-ok( !test_val( $f, q(test), q(SW1A 4WW) )->error, q(Valid postcode) );
+ok( test_val( $f, q(test), q(this is not ok;) )->error eq q(eValidPath),
+    q(Invalid path) );
+ok( test_val( $f, q(test), q(/this/is/ok) ) eq q(/this/is/ok), q(Valid path) );
 
-$f->{subr_field_name }->{validate  } = q(isValidPostcode);
-$f->{subr_field_name1}->{validate  } = q(isValidPath);
-$f->{subr_field_name2}->{validate  } = q(isValidPassword);
-$f->{subr_field_name3}->{validate  } = q(isValidEmail);
-$f->{subr_field_name4}->{validate  } = q(isValidLength);
-$f->{subr_field_name4}->{min_length} = 2;
-$f->{subr_field_name4}->{max_length} = 4;
+$f->{fields}->{test}->{validate} = q(isValidPostcode);
 
-my $vals = { field_name  => q(SW1A 4WW),
-             field_name1 => q(/this/is/ok),
-             field_name2 => q(qw3erty),
-             field_name3 => q(a@b.c),
-             field_name4 => q(qwe) };
+ok( test_val( $f, q(test), q(CA123445) )->error eq q(eValidPostcode),
+    q(Invalid postcode) );
+ok( test_val( $f, q(test), q(SW1A 4WW) ) eq q(SW1A 4WW), q(Valid postcode) );
+
+$f->{fields}->{subr_field_name }->{validate  } = q(isValidPostcode);
+$f->{fields}->{subr_field_name1}->{validate  } = q(isValidPath);
+$f->{fields}->{subr_field_name2}->{validate  } = q(isValidPassword);
+$f->{fields}->{subr_field_name3}->{validate  } = q(isValidEmail);
+$f->{fields}->{subr_field_name4}->{validate  } = q(isValidLength);
+$f->{constraints}->{subr_field_name4} = { min_length => 2,
+                                          max_length => 4 };
 
 my $validator = Data::Validation->new( q(TestException), $f );
+my $vals      = { field_name  => q(SW1A 4WW),
+                  field_name1 => q(/this/is/ok),
+                  field_name2 => q(qw3erty),
+                  field_name3 => q(a@b.c),
+                  field_name4 => q(qwe) };
 
 eval { $validator->check_form( q(subr_), $vals ) };
-my $e = Exception::Class->caught( q(TestException) ) || Class::Null->new();
+my $e = TestException->caught() || Class::Null->new();
 ok( !$e->error, q(Valid form) );
 
 $vals->{field_name2} = q(tooeasy);
 
-$validator = Data::Validation->new( q(TestException), $f );
-
 eval { $validator->check_form( q(subr_), $vals ) };
-$e = Exception::Class->caught( q(TestException) ) || Class::Null->new();
+$e = TestException->caught() || Class::Null->new();
 ok(  $e->error eq q(eValidPassword), q(Invalid form) );

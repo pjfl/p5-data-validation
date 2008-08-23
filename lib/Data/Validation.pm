@@ -14,69 +14,71 @@ use Scalar::Util   qw(looks_like_number);
 
 use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
 
-__PACKAGE__->mk_accessors( qw(exception fields filter max_length
-                              max_value method min_length min_value
-                              pattern replace required value) );
+__PACKAGE__->mk_accessors( qw(constraints exception fields filters
+                              max_length max_value method min_length
+                              min_value pattern replace required
+                              value) );
 
 sub new {
-   my ($me, $e, $fields) = @_;
+   my ($me, $e, $config) = @_; my $class = ref $me || $me; $config ||= {};
 
-   return bless { exception => $e, fields => $fields }, ref $me || $me;
+   return bless { exception   => $e,
+                  constraints => $config->{constraints} || {},
+                  fields      => $config->{fields     } || {},
+                  filters     => $config->{filters    } || {} }, $class;
 }
 
 sub check_form {
    # Validate all the fields on a form by repeated calling check_field
-   my ($me, $prefix, $values) = @_; my $ref; $prefix ||= q();
+   my ($me, $prefix, $form) = @_; $prefix ||= q(); my $field;
 
-   unless ($values && ref $values eq q(HASH)) {
+   unless ($form && ref $form eq q(HASH)) {
       $me->exception->throw( q(eNoFormValues) );
    }
 
-   for (keys %{ $values }) {
-      my $id = $prefix.$_;
+   for my $name (keys %{ $form }) {
+      my $id = $prefix.$name;
 
-      next unless ($ref = $me->fields->{ $id } and $ref->{validate});
+      next unless ($field = $me->fields->{ $id } and $field->{validate});
 
-      $values->{ $_ } = $me->check_field( $id, $values->{ $_ } );
+      $form->{ $name } = $me->check_field( $id, $form->{ $name } );
    }
 
-   return $values;
+   return $form;
 }
 
 sub check_field {
    # Validate form field values
    my ($me, $id, $val) = @_;
-   my ($filter, $filter_ref, $fld, $fld_copy, $key, $method, $val_ref);
+   my ($config, $constraint_ref, $field, $filter_ref, $key, $method);
 
-   unless ($id and $fld = $me->fields->{ $id } and $fld->{validate}) {
+   unless ($id and $field = $me->fields->{ $id } and $field->{validate}) {
       $me->exception->throw( error => q(eNoFieldDefinition),
                              arg1  => $id, arg2 => $val );
    }
 
-   $fld_copy = { %{ $fld } };
+   if ($field->{filters}) {
+      for $method (split q( ), $field->{filters}) {
+         $config = { method => $method, %{ $me->filters->{ $id } || {} } };
 
-   if ($fld->{filters}) {
-      for $filter (split q( ), $fld->{filters}) {
-         $fld_copy->{filter} = $filter;
-
-         unless ($filter_ref = $me->create_filter( $fld_copy )) {
+         unless ($filter_ref = $me->create_filter( $config )) {
             $me->exception->throw( error => q(eBadFilter),
-                                   arg1  => $id, arg2 => $filter );
+                                   arg1  => $id, arg2 => $method );
          }
 
          $val = $filter_ref->filter( $val );
       }
    }
 
-   for $method (split q( ), $fld->{validate}) {
-      $fld_copy->{method} = $method;
+   for $method (split q( ), $field->{validate}) {
+      $config = { method => $method, %{ $me->constraints->{ $id } || {} } };
 
-      unless ($val_ref = $me->create_validator( $fld_copy )) {
-         $me->exception->throw( error => q(eBadValidation),
+      unless ($constraint_ref = $me->create_constraint( $config )) {
+         $me->exception->throw( error => q(eBadConstraint),
                                 arg1  => $id, arg2 => $method );
       }
 
-      unless ($val_ref->validate( $val )) {
+      unless ($constraint_ref->validate( $val )) {
          ($key = $method) =~ s{ \A is }{}imx;
          $me->exception->throw( error => q(e).$key,
                                 arg1  => $id, arg2 => $val );
@@ -87,18 +89,21 @@ sub check_field {
 }
 
 sub create_filter {
-   my ($me, $args) = @_;
-   my $class       = ref $me || $me;
-   my $self        = { pattern => undef,
-                       replace => undef };
+   my ($me, $config) = @_;
+   my $class         = ref $me || $me;
+   my $self          = { exception => $me->exception,
+                         method    => undef,
+                         pattern   => undef,
+                         replace   => undef };
+   my $method;
 
-   unless ($self->{filter} = delete $args->{filter}) {
-      $me->exception->throw( q(eNoFilter) );
+   unless ($method = $config->{method}) {
+      $me->exception->throw( q(eNoFilterMethod) );
    }
 
-   unless ($me->_will( $self->{filter} )) {
-      (my $filter = $self->{filter}) =~ s{ \A filter }{}mx;
-      $class   = __PACKAGE__.q(::).(ucfirst $filter);
+   unless ($me->_will( $method )) {
+      $method =~ s{ \A filter }{}mx;
+      $class  = __PACKAGE__.q(::).(ucfirst $method);
       ## no critic
       eval "require $class;";
       ## critic
@@ -108,27 +113,29 @@ sub create_filter {
 
    bless $self, $class;
 
-   return $self->_init( $args );
+   return $self->_init( $config );
 }
 
-sub create_validator {
-   my ($me, $args) = @_;
-   my $class       = ref $me || $me;
-   my $self        = { exception  => $me->exception,
-                       max_length => undef,
-                       max_value  => undef,
-                       min_length => undef,
-                       min_value  => undef,
-                       pattern    => undef,
-                       required   => 0,
-                       value      => undef };
+sub create_constraint {
+   my ($me, $config) = @_;
+   my $class         = ref $me || $me;
+   my $self          = { exception  => $me->exception,
+                         max_length => undef,
+                         max_value  => undef,
+                         method     => undef,
+                         min_length => undef,
+                         min_value  => undef,
+                         pattern    => undef,
+                         required   => 0,
+                         value      => undef };
+   my $method;
 
-   unless ($self->{method} = delete $args->{method}) {
-      $me->exception->throw( q(eNoValidationMethod) );
+   unless ($method = $config->{method}) {
+      $me->exception->throw( q(eNoConstraintMethod) );
    }
 
-   unless ($me->_will( $self->{method} )) {
-      (my $method = $self->{method}) =~ s{ \A isValid }{}mx;
+   unless ($me->_will( $method )) {
+      $method  =~ s{ \A isValid }{}mx;
       $class   = __PACKAGE__.q(::).(ucfirst $method);
       ## no critic
       eval "require $class;";
@@ -139,14 +146,14 @@ sub create_validator {
 
    bless $self, $class;
 
-   return $self->_init( $args );
+   return $self->_init( $config );
 }
 
 sub filter {
-   my ($me, $val) = @_; my $filter = $me->filter;
+   my ($me, $val) = @_; my $method = $me->method;
 
    return unless (defined $val);
-   return $me->$filter( $val ) if ($me->_will( $filter ));
+   return $me->$method( $val ) if ($me->_will( $method ));
    return $me->_filter( $val );
 }
 
@@ -164,16 +171,16 @@ sub validate {
 sub _filter { shift->exception->throw( q(eNoFilterOverride) ) }
 
 sub _init {
-   my ($me, $args) = @_;
+   my ($me, $config) = @_;
 
-   for (grep { exists $me->{ $_ } } keys %{ $args }) {
-      $me->{ $_ } = $args->{ $_ };
+   for (grep { exists $me->{ $_ } } keys %{ $config }) {
+      $me->{ $_ } = $config->{ $_ };
    }
 
    return $me;
 }
 
-sub _validate { shift->exception->throw( q(eNoValidateOverride) ) }
+sub _validate { shift->exception->throw( q(eNoConstraintOverride) ) }
 
 sub _will {
    my ($me, $method) = @_; my $class = ref $me || $me;
@@ -183,14 +190,13 @@ sub _will {
 
 # Builtin factory filter methods
 
-sub filterHTMLEscape {
+sub filterEscapeHTML {
    my ($me, $val) = @_;
 
    $val =~ s{ &(?!(amp|lt|gt|quot);) }{&amp;}gmx;
    $val =~ s{ < }{&lt;}gmx;
    $val =~ s{ > }{&gt;}gmx;
    $val =~ s{ \" }{&quot;}gmx;
-
    return $val;
 }
 
@@ -202,7 +208,6 @@ sub filterNonNumeric {
    my ($me, $val) = @_;
 
    $val =~ s{ \D+ }{}gmx;
-
    return $val;
 }
 
@@ -213,7 +218,6 @@ sub filterReplaceRegex {
 
    $replace = $me->replace || q();
    $val =~ s{ $pattern }{$replace}gmx;
-
    return $val;
 }
 
@@ -221,7 +225,6 @@ sub filterTrimBoth {
    my ($me, $val) = @_;
 
    $val =~ s{ \A \s+ }{}mx; $val =~ s{ \s+ \z }{}mx;
-
    return $val;
 }
 
@@ -233,7 +236,6 @@ sub filterWhiteSpace {
    my ($me, $val) = @_;
 
    $val =~ s{ \s+ }{}gmx;
-
    return $val;
 }
 
@@ -242,8 +244,8 @@ sub filterWhiteSpace {
 sub isBetweenValues {
    my ($me, $val) = @_;
 
-   return 0 if (defined $me->min_value && $val < $me->min_value);
-   return 0 if (defined $me->max_value && $val > $me->max_value);
+   return 0 if (defined $me->min_value and $val < $me->min_value);
+   return 0 if (defined $me->max_value and $val > $me->max_value);
    return 1;
 }
 
@@ -263,7 +265,6 @@ sub isHexadecimal {
    my ($me, $val) = @_;
 
    $me->pattern( '\A '.$RE{num}{hex}.' \z' );
-
    return $me->isMatchingRegex( $val );
 }
 
@@ -279,7 +280,6 @@ sub isPrintable {
    my ($me, $val) = @_;
 
    $me->pattern( '\A \p{IsPrint}+ \z' );
-
    return $me->isMatchingRegex( $val );
 }
 
@@ -287,7 +287,6 @@ sub isSimpleText {
    my ($me, $val) = @_;
 
    $me->pattern( '\A [a-zA-Z0-9_ \-\.]+ \z' );
-
    return $me->isMatchingRegex( $val );
 }
 
@@ -299,7 +298,6 @@ sub isValidIdentifier {
    my ($me, $val) = @_;
 
    $me->pattern( '\A [a-zA-Z_] \w* \z' );
-
    return $me->isMatchingRegex( $val );
 }
 
@@ -316,8 +314,8 @@ sub isValidInteger {
 sub isValidLength {
    my ($me, $val) = @_;
 
-   return 0 if (defined $me->min_length && length $val < $me->min_length);
-   return 0 if (defined $me->max_length && length $val > $me->max_length);
+   return 0 if (defined $me->min_length and length $val < $me->min_length);
+   return 0 if (defined $me->max_length and length $val > $me->max_length);
    return 1;
 }
 
@@ -337,7 +335,7 @@ __END__
 
 =head1 Name
 
-Data::Validation - Check data values form conformance with constraints
+Data::Validation - Check data values for conformance with constraints
 
 =head1 Version
 
@@ -347,32 +345,63 @@ Data::Validation - Check data values form conformance with constraints
 
    use Data::Validation;
 
-   sub check_field {
-      my ($me, $stash, $id, $val) = @_;
+   sub check_form  {
+      my ($me, $s, @rest) = @_;
 
-      return Data::Validation->check_field( $me, $stash->{fields}, @id, $val );
+      # Where $me can throw an exception and $s->{fields} contains a
+      # field definition for each of the keys in %{ $rest->[0] }
+      my $dv = Data::Validation->new( $me, $s->{fields} );
+
+      return $dv->check_form( $s->{subr}.q(_), %{ $rest->[0] } );
    }
 
-   sub check_form  {
-      my ($me, $stash, $values) = @_;
+   sub check_field {
+      my ($me, $id, $value) = @_;
 
-      return Data::Validation->check_form( $me,
-                                           $stash->{fields},
-                                           $stash->{method_name}.q(_),
-                                           $values );
+      # Where $me can throw an exception and $s->{fields} contains a
+      # field definition for $s->{fields}->{ $id }
+      my $dv = Data::Validation->new( $me, $s->{fields} );
+
+      return $dv->check_field( $id, $value );
    }
 
 =head1 Description
 
-This module implements common constraints in builtin methods and uses a
-factory pattern to implement an extensible list of external
-constraints.
+This module implements filters and common constraints in builtin
+methods and uses a factory pattern to implement an extensible list of
+external filters and constraints.
 
 =head1 Configuration and Environment
 
-The C<$stash-E<gt>{fields}> hash is passed to both C<check_field> and
-C<check_form> and is used to instantiate each validation object. The
-configuration keys are:
+=head2 new
+
+Simple constructor which expects a class with a C<throw> method and a hash
+reference containing the field definitions.
+
+=head1 Subroutines/Methods
+
+=head2 check_form
+
+   my $dv = Data::Validation->new( $exception, $fields );
+
+   $dv->check_form( $prefix, $values );
+
+Calls L</check_field> for each of the keys in the C<$values> hash. In
+the calls to L</check_field> the C<$values> key has the C<$prefix>
+prepended to form the key to the C<$fields> hash
+
+=head2 check_field
+
+   my $dv = Data::Validation->new( $exception, $fields );
+
+   $dv->check_field( $id, $value );
+
+Checks one value for conformance. The C<$id> is used as a key to the
+C<$fields> hash whose I<validate> attribute contains the list of space
+separated constraint names. The value is tested against each
+constraint in turn. All tests must pass or the subroutine will use the
+C<$exception> object to I<throw> an error. Values of the fields hash
+are:
 
 =over 3
 
@@ -381,22 +410,27 @@ configuration keys are:
 Space separated list of validation method names. Each method must return
 true for the value to be accepted
 
+=item filters
+
+Space separated list of filter methods names. Filters are applied to values
+before they are tested for validity
+
 =item max_length
 
-Used by C<isValidLength>. The C<length> of the supplied value must be
+Used by L</isValidLength>. The I<length> of the supplied value must be
 numerically less than this
 
 =item max_value
 
-Used by C<isBetweenValues>.
+Used by L</isBetweenValues>.
 
 =item min_length
 
-Used by C<isValidLength>.
+Used by L</isValidLength>.
 
 =item min_value
 
-Used by C<isBetweenValues>.
+Used by L</isBetweenValues>.
 
 =item required
 
@@ -405,58 +439,37 @@ validation would be done
 
 =item pattern
 
-Used by C<isMathchingRegex> as the pattern to match the supplied value
+Used by L</isMathchingRegex> as the pattern to match the supplied value
 against. This is set by some of the builtin validation methods that
-then call C<isMathchingRegex> to perform the actual validation
+then call L</isMathchingRegex> to perform the actual validation
+
+=item replace
 
 =item value
 
-Used by the C<isEqualTo> method as the other value in the comparison
+Used by the L</isEqualTo> method as the other value in the comparison
 
 =back
 
-=head1 Subroutines/Methods
+=head2 filter
 
-=head2 new
-
-The constructor is called by C<check_field> so you don't have to. If
-necessary it C<require>s a factory subclass and calls it's C<_init>
-method. Any additional attributes added to C<$self> will have
-accessors and mutators created for them
-
-=head2 check_field
-
-   Data::Validation->check_field( $error_ref, $fields, $id, $value );
-
-Checks one value for conformance. The C<$id> is used as a key to the
-C<$fields> hash whose validate attribute contains the list of space
-separated constraint names. The value is tested against each
-constraint in turn. All tests must pass or the subroutine will use the
-C<$error_ref> object to C<throw> an error.
-
-=head2 check_form
-
-   Data::Validation->check_form( $error_ref, $fields, $prefix, $values );
-
-Calls C<check_field> for each of the keys in the C<$values> hash. In
-the calls to C<check_field> the C<$values> key has the C<$prefix>
-prepended to form the key to the C<$fields> hash.
+Calls either a builtin method or an external one
 
 =head2 validate
 
-Called by C<check_field> this method implements tests for a null
+Called by L</check_field> this method implements tests for a null
 input value so that individual validation methods don't have to. It
-calls either a built in validation method or C<_validate> which should
+calls either a built in validation method or L</_validate> which should
 have been overridden in a factory subclass
 
 =head2 isBetweenValues
 
 Test to see if the supplied value is numerically greater than
-C<$me-E<gt>min_value> and less than C<$me-E<gt>max_value>
+C<< $me->min_value >> and less than C<< $me->max_value >>
 
 =head2 isEqualTo
 
-Test to see if the supplied value is equal to C<$me-E<gt>value>. Calls
+Test to see if the supplied value is equal to C<< $me->value >>. Calls
 C<isValidNumber> on both values to determine the type of comparison
 to perform
 
@@ -466,7 +479,7 @@ Null values are not allowed
 
 =head2 isMatchingRegex
 
-Does the supplied value match C<$me-E<gt>pattern>?
+Does the supplied value match C<< $me->pattern >>?
 
 =head2 isPrintable
 
@@ -491,19 +504,13 @@ Tests to see if the supplied value is an integer
 =head2 isValidLength
 
 Tests to see if the length of the supplied value is greater than
-C<$me-E<gt>min_length> and less than C<$me-E<gt>max_length>
+C<$me-E<gt>min_length> and less than C<< $me->max_length >>
 
 =head2 isValidNumber
 
 Return true if the supplied value C<looks_like_number>
 
-=head2 _carp
-
-Call C<Carp::carp> but delay loading module
-
-=head2 _croak
-
-Call C<Carp::croak> but delay loading module
+=head2 _filter
 
 =head2 _init
 
@@ -555,7 +562,7 @@ Call the C<request> method in L<LWP::UserAgent> to test if a URL is accessible
 
 =head1 Diagnostics
 
-Carps warnings about unknown or bad validation methods
+None
 
 =head1 Dependencies
 
@@ -573,7 +580,7 @@ Carps warnings about unknown or bad validation methods
 
 =item L<LWP::UserAgent>
 
-=item L<Readonly>
+=item L<NEXT>
 
 =item L<Regexp::Common>
 
