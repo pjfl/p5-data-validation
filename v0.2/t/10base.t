@@ -16,10 +16,10 @@ use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
 BEGIN { use_ok q(Data::Validation) }
 
 sub test_val {
-   my $config = shift; my $e;
-   my $validator
-      = Data::Validation->new( exception => q(TestException), %{ $config } );
-   my $value  = eval { $validator->check_field( @_ ) };
+   my $config    = shift; $config->{exception} = q(TestException);
+   my $validator = Data::Validation->new( %{ $config } );
+   my $value     = eval { $validator->check_field( @_ ) };
+   my $e;
 
    return $e if ($e = TestException->caught());
 
