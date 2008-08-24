@@ -4,6 +4,7 @@ package Data::Validation::Constraints;
 
 use Moose;
 use charnames      qw(:full);
+use Class::MOP;
 use English        qw(-no_match_vars);
 use Regexp::Common qw(number);
 use Scalar::Util   qw(looks_like_number);
@@ -11,9 +12,9 @@ use Scalar::Util   qw(looks_like_number);
 use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
 
 has 'exception'  => ( is => q(ro), isa => q(ClassName), required => 1 );
+has 'method'     => ( is => q(ro), isa => q(Str), required => 1 );
 has 'max_length' => ( is => q(rw), isa => q(Int) );
 has 'max_value'  => ( is => q(rw), isa => q(Int) );
-has 'method'     => ( is => q(ro), isa => q(Str), required => 1 );
 has 'min_length' => ( is => q(rw), isa => q(Int) );
 has 'min_value'  => ( is => q(rw), isa => q(Int) );
 has 'pattern'    => ( is => q(rw), isa => q(Str) );
@@ -29,9 +30,7 @@ sub validate {
 
    ($class = $method) =~ s{ \A isValid }{}mx;
    $class = __PACKAGE__.q(::).(ucfirst $class);
-   ## no critic
-   eval "require $class;";
-   ## critic
+   eval { Class::MOP::load_class( $class ) };
 
    $me->exception->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
 
@@ -43,7 +42,7 @@ sub validate {
 # Private methods
 
 sub _will {
-   my ($me, $method) = @_; my $class = ref $me || $me;
+   my ($me, $method) = @_; my $class = $me->blessed;
 
    return $method ? defined &{ $class.q(::).$method } : 0;
 }
@@ -138,7 +137,7 @@ sub isValidNumber {
    my ($me, $val) = @_;
 
    return 0 unless (defined $val);
-   return 1 if     (defined looks_like_number( $val ));
+   return 1 if     (looks_like_number( $val ));
    return 0;
 }
 

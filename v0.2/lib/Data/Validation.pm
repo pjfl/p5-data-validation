@@ -4,6 +4,7 @@ package Data::Validation;
 
 use Moose;
 use Data::Validation::Constraints;
+use Data::Validation::Filters;
 
 use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
 
