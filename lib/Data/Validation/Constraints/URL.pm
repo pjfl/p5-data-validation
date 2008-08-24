@@ -5,7 +5,7 @@ package Data::Validation::Constraints::URL;
 use Moose;
 use LWP::UserAgent;
 
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev$ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
 
 extends 'Data::Validation::Constraints';
 

@@ -3,6 +3,8 @@ package Data::Validation::Filters;
 # @(#)$Id$
 
 use Moose;
+use Class::MOP;
+use English qw(-no_match_vars);
 
 use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
 
@@ -19,9 +21,7 @@ sub filter {
 
    ($class = $method) =~ s{ \A filter }{}mx;
    $class = __PACKAGE__.q(::).(ucfirst $class);
-   ## no critic
-   eval "require $class;";
-   ## critic
+   eval { Class::MOP::load_class( $class ) };
 
    $me->exception->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
 
@@ -33,7 +33,7 @@ sub filter {
 # Private methods
 
 sub _will {
-   my ($me, $method) = @_; my $class = ref $me || $me;
+   my ($me, $method) = @_; my $class = $me->blessed;
 
    return $method ? defined &{ $class.q(::).$method } : 0;
 }

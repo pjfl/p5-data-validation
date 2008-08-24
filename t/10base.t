@@ -9,7 +9,7 @@ use English qw(-no_match_vars);
 use FindBin qw($Bin);
 use lib qq($Bin/../lib);
 use Exception::Class ( q(TestException) => { fields => [ qw(arg1 arg2) ] } );
-use Test::More tests => 37;
+use Test::More tests => 42;
 
 use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
 
@@ -62,20 +62,24 @@ $f->{fields}->{test}->{validate} = q(isValidHostname);
 
 ok( test_val( $f, q(test), q(does_not_exist) )->error eq q(eValidHostname),
     q(Not valid hostname) );
-ok( test_val( $f, q(test), q(localhost) ) eq q(localhost), q(Valid hostname) );
-ok( test_val( $f, q(test), q(127.0.0.1) ) eq q(127.0.0.1), q(Valid hostname) );
+ok( test_val( $f, q(test), q(localhost) ) eq q(localhost),
+    q(Valid hostname 1) );
+ok( test_val( $f, q(test), q(127.0.0.1) ) eq q(127.0.0.1),
+    q(Valid hostname 2) );
 
 $f->{fields}->{test}->{validate} = q(isValidIdentifier);
 
 ok( test_val( $f, q(test), 1 )->error eq q(eValidIdentifier),
-    q(InvalidIdentifier) );
-ok( test_val( $f, q(test), q(x) ) eq q(x), q(ValidIdentifier) );
+    q(Invalid Identifier) );
+ok( test_val( $f, q(test), q(x) ) eq q(x), q(Valid Identifier) );
 
 $f->{fields}->{test}->{validate} = q(isValidNumber isValidInteger);
 
 ok( test_val( $f, q(test), 1.1 )->error eq q(eValidInteger),
-    q(InvalidInteger) );
-ok( test_val( $f, q(test), 1 ) == 1, q(Integer field) );
+    q(Invalid Integer) );
+ok( test_val( $f, q(test), q(1a) )->error eq q(eValidNumber),
+    q(Invalid Number) );
+ok( test_val( $f, q(test), 1 ) == 1, q(Valid Integer) );
 
 $f->{fields}->{test}->{validate}
    = q(isValidNumber isValidInteger isBetweenValues);
@@ -88,7 +92,7 @@ $f->{fields}->{test}->{validate} = q(isEqualTo);
 $f->{constraints}->{test} = { value => 4 };
 
 ok( test_val( $f, q(test), 5 )->error eq q(eEqualTo), q(Not equal) );
-ok( test_val( $f, q(test), 4 ) == 4, q(Is equal to) );
+ok( test_val( $f, q(test), 4 ) == 4, q(Is equal) );
 
 $f->{fields}->{test}->{validate} = q(isValidLength);
 $f->{constraints}->{test} = { min_length => 2, max_length => 4 };
@@ -114,9 +118,9 @@ ok( test_val( $f, q(test), q(a@b.c) ) eq q(a@b.c), q(Valid email) );
 $f->{fields}->{test}->{validate} = q(isValidPassword);
 
 ok( test_val( $f, q(test), q(fred) )->error eq q(eValidPassword),
-    q(Invalid password) );
+    q(Invalid password 1) );
 ok( test_val( $f, q(test), q(freddyBoy) )->error eq q(eValidPassword),
-    q(Invalid password) );
+    q(Invalid password 2) );
 ok( test_val( $f, q(test), q(qw3erty) ) eq q(qw3erty), q(Valid password) );
 
 $f->{fields}->{test}->{validate} = q(isValidPath);
@@ -156,3 +160,25 @@ $vals->{field_name2} = q(tooeasy);
 eval { $validator->check_form( q(subr_), $vals ) };
 $e = TestException->caught() || Class::Null->new();
 ok(  $e->error eq q(eValidPassword), q(Invalid form) );
+
+$f->{fields}->{test}->{validate} = q(isMatchingRegex);
+$f->{constraints}->{test} = { pattern => q(\A \d+ \z) };
+
+ok( test_val( $f, q(test), q(123 456) )->error eq q(eMatchingRegex),
+    q(Non Matching Regex 1) );
+
+$f->{fields}->{test}->{filters} = q(filterTrimBoth);
+
+ok( test_val( $f, q(test), q( 123456 ) ) == 123456, q(Filter TrimBoth) );
+
+$f->{constraints}->{test} = { pattern => q(\A [A-Z ]+ \z) };
+$f->{fields}->{test}->{filters} = q(filterUpperCase);
+
+ok( test_val( $f, q(test), q(hello world) ) eq q(HELLO WORLD),
+    q(Filter UpperCase) );
+
+$f->{constraints}->{test} = { pattern => q(\A \d+ \z) };
+$f->{fields}->{test}->{filters} = q(filterWhiteSpace);
+
+ok( test_val( $f, q(test), q(123 456) ) == 123456, q(Filter WhiteSpace) );
+
