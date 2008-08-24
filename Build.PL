@@ -8,22 +8,25 @@ use Module::Build;
 
 use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev$ =~ /\d+/gmx );
 
-my $requires = { 'perl'                  => q(5.008),
-                 'charnames'             => q(1.05),
-                 'version'               => q(0.74),
-                 'Class::Accessor::Fast' => q(0.31),
-                 'Class::Null'           => q(1.09),
-                 'Email::Valid'          => q(0.179),
-                 'Exception::Class'      => q(1.23),
-                 'File::Spec::Functions' => q(1.3),
-                 'LWP::UserAgent'        => q(2.036),
-                 'Readonly'              => q(1.03),
-                 'Regexp::Common'        => q(2.120),
-                 'Scalar::Util'          => q(1.19) };
+my $requires = { 'perl'                          => q(5.008),
+                 'charnames'                     => q(1.05),
+                 'version'                       => q(0.74),
+                 'Class::MOP'                    => q(0.53),
+                 'Data::Validation::Constraints' => q(0),
+                 'Data::Validation::Filters'     => q(0),
+                 'Email::Valid'                  => q(0.179),
+                 'LWP::UserAgent'                => q(2.036),
+                 'Moose'                         => q(0.38),
+                 'Moose::Util::TypeConstraints'  => q(0.21),
+                 'Regexp::Common'                => q(2.120),
+                 'Scalar::Util'                  => q(1.19) };
 my $cond  = q($ENV{PERL5LIB} =~ m{ icerider }mx);
 my $build = Module::Build->new
-   ( build_requires     => { 'Test::More' => q(0.74) },
-     configure_requires => { 'version' => q(0.74) },
+   ( build_requires     => { 'Exception::Class'  => q(1.23),
+                             'Class::Null'       => q(1.09),
+                             'Test::More'        => q(0.74),
+                             'version'           => q(0.74) },
+     configure_requires => { 'version'           => q(0.74) },
      create_makefile_pl => q(traditional),
      create_readme      => 1,
      create_packlist    => 0,
