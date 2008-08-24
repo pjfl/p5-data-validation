@@ -19,26 +19,35 @@ sub filter {
    return unless (defined $val);
    return $me->$method( $val ) if ($me->_will( $method ));
 
-   ($class = $method) =~ s{ \A filter }{}mx;
-   $class = $me->blessed.q(::).(ucfirst $class);
-   eval { Class::MOP::load_class( $class ) };
-
-   $me->exception->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
-
-   my $self = bless $me, $class;
+   my $self = $me->_load_class( q(filter), $method );
 
    return $self->_filter( $val );
 }
 
 # Private methods
 
+sub _filter { shift->exception->throw( q(eNoFilterOverride) ) }
+
+sub _load_class {
+   my ($me, $prefix, $class) = @_;
+
+   $class =~ s{ \A $prefix }{}mx;
+
+   if ($class =~ m{ \A \+ }mx) { $class =~ s{ \A \+ }{}mx }
+   else { $class = $me->blessed.q(::).(ucfirst $class) }
+
+   eval { Class::MOP::load_class( $class ) };
+
+   $me->exception->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
+
+   return bless $me, $class;
+}
+
 sub _will {
    my ($me, $method) = @_;
 
    return $method ? defined &{ $me->blessed.q(::).$method } : 0;
 }
-
-sub _filter { shift->exception->throw( q(eNoFilterOverride) ) }
 
 # Builtin factory filter methods
 
@@ -68,7 +77,7 @@ sub filterReplaceRegex {
 
    return $val unless ($pattern = $me->pattern);
 
-   $replace = $me->replace || q();
+   $replace = defined $me->replace ? $me->replace : q();
    $val =~ s{ $pattern }{$replace}gmx;
    return $val;
 }
