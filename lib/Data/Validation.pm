@@ -3,12 +3,17 @@ package Data::Validation;
 # @(#)$Id$
 
 use Moose;
+use Moose::Util::TypeConstraints;
 use Data::Validation::Constraints;
 use Data::Validation::Filters;
 
 use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
 
-has 'exception'   => ( is => q(ro), isa => q(ClassName), required => 1 );
+subtype 'Exception'
+   => as 'ClassName'
+   => where { $_->can( q(throw) ) };
+
+has 'exception'   => ( is => q(ro), isa => q(Exception), required => 1 );
 has 'constraints' => ( is => q(ro), isa => q(HashRef), default => sub { {} } );
 has 'fields'      => ( is => q(ro), isa => q(HashRef), default => sub { {} } );
 has 'filters'     => ( is => q(ro), isa => q(HashRef), default => sub { {} } );

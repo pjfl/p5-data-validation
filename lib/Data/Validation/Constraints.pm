@@ -29,7 +29,7 @@ sub validate {
    return $me->$method( $val ) if ($me->_will( $method ));
 
    ($class = $method) =~ s{ \A isValid }{}mx;
-   $class = __PACKAGE__.q(::).(ucfirst $class);
+   $class = $me->blessed.q(::).(ucfirst $class);
    eval { Class::MOP::load_class( $class ) };
 
    $me->exception->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
@@ -42,9 +42,9 @@ sub validate {
 # Private methods
 
 sub _will {
-   my ($me, $method) = @_; my $class = $me->blessed;
+   my ($me, $method) = @_;
 
-   return $method ? defined &{ $class.q(::).$method } : 0;
+   return $method ? defined &{ $me->blessed.q(::).$method } : 0;
 }
 
 sub _validate {
