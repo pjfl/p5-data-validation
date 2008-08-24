@@ -28,18 +28,27 @@ sub validate {
    return 1 if (!$val && !$me->required && $method ne q(isMandatory));
    return $me->$method( $val ) if ($me->_will( $method ));
 
-   ($class = $method) =~ s{ \A isValid }{}mx;
-   $class = $me->blessed.q(::).(ucfirst $class);
-   eval { Class::MOP::load_class( $class ) };
-
-   $me->exception->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
-
-   my $self = bless $me, $class;
+   my $self = $me->_load_class( q(isValid), $method );
 
    return $self->_validate( $val );
 }
 
 # Private methods
+
+sub _load_class {
+   my ($me, $prefix, $class) = @_;
+
+   $class =~ s{ \A $prefix }{}mx;
+
+   if ($class =~ m{ \A \+ }mx) { $class =~ s{ \A \+ }{}mx }
+   else { $class = $me->blessed.q(::).(ucfirst $class) }
+
+   eval { Class::MOP::load_class( $class ) };
+
+   $me->exception->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
+
+   return bless $me, $class;
+}
 
 sub _will {
    my ($me, $method) = @_;

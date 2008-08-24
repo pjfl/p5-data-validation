@@ -6,12 +6,11 @@ use Moose;
 use Moose::Util::TypeConstraints;
 use Data::Validation::Constraints;
 use Data::Validation::Filters;
+use English qw(-no_match_vars);
 
 use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
 
-subtype 'Exception'
-   => as 'ClassName'
-   => where { $_->can( q(throw) ) };
+subtype 'Exception' => as 'ClassName' => where { $_->can( q(throw) ) };
 
 has 'exception'   => ( is => q(ro), isa => q(Exception), required => 1 );
 has 'constraints' => ( is => q(ro), isa => q(HashRef), default => sub { {} } );
@@ -40,7 +39,7 @@ sub check_form {
 sub check_field {
    # Validate form field values
    my ($me, $id, $val) = @_;
-   my ($constraint_ref, $field, $filter_ref, $key, $method);
+   my (%config, $constraint_ref, $field, $filter_ref, $key, $method);
 
    unless ($id and $field = $me->fields->{ $id } and $field->{validate}) {
       $me->exception->throw( error => q(eNoFieldDefinition),
@@ -49,28 +48,22 @@ sub check_field {
 
    if ($field->{filters}) {
       for $method (split q( ), $field->{filters}) {
-         $filter_ref = Data::Validation::Filters->new
-            ( method => $method, exception => $me->exception,
-              %{ $me->filters->{ $id } || {} } );
+         %config = ( method => $method, exception => $me->exception,
+                     %{ $me->filters->{ $id } || {} } );
+         $filter_ref = eval { Data::Validation::Filters->new( %config ) };
 
-         unless ($filter_ref) {
-            $me->exception->throw( error => q(eBadFilter),
-                                   arg1  => $id, arg2 => $method );
-         }
+         $me->exception->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
 
          $val = $filter_ref->filter( $val );
       }
    }
 
    for $method (split q( ), $field->{validate}) {
-      $constraint_ref = Data::Validation::Constraints->new
-         ( method => $method, exception => $me->exception,
-           %{ $me->constraints->{ $id } || {} } );
+      %config = ( method => $method, exception => $me->exception,
+                  %{ $me->constraints->{ $id } || {} } );
+      $constraint_ref = eval { Data::Validation::Constraints->new( %config ) };
 
-      unless ($constraint_ref) {
-         $me->exception->throw( error => q(eBadConstraint),
-                                arg1  => $id, arg2 => $method );
-      }
+      $me->exception->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
 
       unless ($constraint_ref->validate( $val )) {
          ($key = $method) =~ s{ \A is }{}imx;
