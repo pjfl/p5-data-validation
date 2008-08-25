@@ -3,14 +3,12 @@ package Data::Validation;
 # @(#)$Id$
 
 use Moose;
-use Moose::Util::TypeConstraints;
+use Data::Validation::Utils;
 use Data::Validation::Constraints;
 use Data::Validation::Filters;
 use English qw(-no_match_vars);
 
 use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
-
-subtype 'Exception' => as 'ClassName' => where { $_->can( q(throw) ) };
 
 has 'exception'   => ( is => q(ro), isa => q(Exception), required => 1 );
 has 'constraints' => ( is => q(ro), isa => q(HashRef), default => sub { {} } );
@@ -95,25 +93,29 @@ Data::Validation - Check data values for conformance with constraints
    use Data::Validation;
 
    sub check_field {
-      my ($me, $s, $id, $value) = @_;
+      my ($me, $stash, $id, $value) = @_;
       my $config = { exception   => q(Exception::Class),
-                     constraints => $s->{constraints} || {},
-                     fields      => $s->{fields}      || {},
-                     filters     => $s->{filters}     || {} };
-      my $dv = Data::Validation->new( %{ $config } );
+                     constraints => $stash->{constraints} || {},
+                     fields      => $stash->{fields}      || {},
+                     filters     => $stash->{filters}     || {} };
+      my $dv = eval { Data::Validation->new( %{ $config } ) };
+
+      $me->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
 
       return $dv->check_field( $id, $value );
    }
 
    sub check_form  {
-      my ($me, $s, $form) = @_;
+      my ($me, $stash, $form) = @_;
       my $config = { exception   => q(Exception::Class),
-                     constraints => $s->{constraints} || {},
-                     fields      => $s->{fields}      || {},
-                     filters     => $s->{filters}     || {} };
-      my $dv = Data::Validation->new( %{ $config } );
+                     constraints => $stash->{constraints} || {},
+                     fields      => $stash->{fields}      || {},
+                     filters     => $stash->{filters}     || {} };
+      my $dv = eval { Data::Validation->new( %{ $config } ) };
 
-      return $dv->check_form( $s->{subr}.q(_), $form );
+      $me->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
+
+      return $dv->check_form( $stash->{form_prefix}, $form );
    }
 
 =head1 Description

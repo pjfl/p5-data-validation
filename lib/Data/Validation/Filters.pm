@@ -3,12 +3,12 @@ package Data::Validation::Filters;
 # @(#)$Id$
 
 use Moose;
-use Class::MOP;
-use English qw(-no_match_vars);
 
 use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
 
-has 'exception' => ( is => q(ro), isa => q(ClassName), required => 1 );
+with 'Data::Validation::Utils';
+
+has 'exception' => ( is => q(ro), isa => q(Exception), required => 1 );
 has 'method'    => ( is => q(ro), isa => q(Str), required => 1 );
 has 'pattern'   => ( is => q(rw), isa => q(Str) );
 has 'replace'   => ( is => q(rw), isa => q(Str) );
@@ -19,34 +19,15 @@ sub filter {
    return unless (defined $val);
    return $me->$method( $val ) if ($me->_will( $method ));
 
-   my $self = $me->_load_class( q(filter), $method );
+   my $plugin = $me->_load_class( q(filter), $method );
 
-   return $self->_filter( $val );
+   return $plugin->_filter( $val );
 }
 
 # Private methods
 
-sub _filter { shift->exception->throw( q(eNoFilterOverride) ) }
-
-sub _load_class {
-   my ($me, $prefix, $class) = @_;
-
-   $class =~ s{ \A $prefix }{}mx;
-
-   if ($class =~ m{ \A \+ }mx) { $class =~ s{ \A \+ }{}mx }
-   else { $class = $me->blessed.q(::).(ucfirst $class) }
-
-   eval { Class::MOP::load_class( $class ) };
-
-   $me->exception->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
-
-   return bless $me, $class;
-}
-
-sub _will {
-   my ($me, $method) = @_;
-
-   return $method ? defined &{ $me->blessed.q(::).$method } : 0;
+sub _filter {
+   shift->exception->throw( q(eNoFilterOverride) ); return;
 }
 
 # Builtin factory filter methods
@@ -112,7 +93,7 @@ __END__
 
 =head1 Version
 
-0.1.$Revision$
+0.2.$Revision$
 
 =head1 Synopsis
 
