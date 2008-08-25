@@ -158,15 +158,10 @@ Tests a single data value for conformance with a constraint
 
 =head1 Configuration and Environment
 
+Uses the L<Data::Validation::Utils> L<Moose::Role>. Defines the
+following attributes:
+
 =over 3
-
-=item exception
-
-Class capable of throwing an exception
-
-=item method
-
-Name of the constraint to apply
 
 =item max_length
 
@@ -190,12 +185,6 @@ Used by L</isBetweenValues>.
 If true then null values are not allowed regardless of what other
 validation would be done
 
-=item pattern
-
-Used by L</isMathchingRegex> as the pattern to match the supplied value
-against. This is set by some of the builtin validation methods that
-then call L</isMathchingRegex> to perform the actual validation
-
 =item value
 
 Used by the L</isEqualTo> method as the other value in the comparison
@@ -212,17 +201,9 @@ don't have to. It calls either a built in validation method or
 L</_validate> which should have been overridden in a factory
 subclass. An exception is thrown if the data value is not acceptable
 
-=head2 _load_class
-
-Load the external constraint subclass at run time
-
 =head2 _validate
 
 Should have been overridden in an external constraint subclass
-
-=head2 _will
-
-Tests to see if the given method is a defined subroutine
 
 =head2 isBetweenValues
 
@@ -314,11 +295,11 @@ None
 
 =over 3
 
-=item L<Moose>
-
 =item L<charnames>
 
-=item L<Class::MOP>
+=item L<Data::Validation::Utils>
+
+=item L<Moose>
 
 =item L<Regexp::Common>
 
@@ -332,7 +313,7 @@ There are no known incompatibilities in this module
 
 =head1 Bugs and Limitations
 
-There is no POD coverage test because the subclases docs are in here instead
+There is no POD coverage test because the subclasses docs are in here instead
 
 The L<Data::Validation::Constraints::Date> module requires the as yet
 unpublished module L<CatalystX::Usul::Class::Time> and this is not
