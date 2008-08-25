@@ -86,7 +86,7 @@ __END__
 
 =head1 Name
 
-<Module::Name> - <One-line description of module's purpose>
+Data::Validation::Filters - Filter data values
 
 =head1 Version
 
@@ -94,28 +94,84 @@ __END__
 
 =head1 Synopsis
 
-   use <Module::Name>;
-   # Brief but working code examples
+   use Data::Validation::Filters;
+
+   %config = ( method => $method,
+               exception => q(Exception::Class),
+               %{ $me->filters->{ $id } || {} } );
+
+   $filter_ref = Data::Validation::Filters->new( %config );
+
+   $value = $filter_ref->filter( $value );
 
 =head1 Description
+
+Applies a single filter to a data value and returns it's possibly changed
+value
+
+=head1 Configuration and Environment
+
+Uses the L<Data::Validation::Utils> L<Moose::Role>. Defines the
+following attributes:
+
+=over 3
+
+=item replace
+
+The replacement value used in regular expression search and replace
+operations
+
+=back
 
 =head1 Subroutines/Methods
 
 =head2 filter
 
-Calls either a builtin method or an external one
+Calls either a builtin method or an external one to filter the data value
 
 =head2 _filter
 
+Should have been overridden in an external filter subclass
+
+=head2 filterEscapeHTML
+
+Replaces &<>" with their &xxx; equivalents
+
+=head2 filterLowerCase
+
+Lower cases the data value
+
+=head2 filterNonNumeric
+
+Removes all non numeric characters
+
+=head2 filterReplaceRegex
+
+Matches the regular expression pattern and substitutes the replace string
+
+=head2 filterTrimBoth
+
+Remove all leading and trailing whitespace
+
+=head2 filterUpperCase
+
+Upper cases the data value
+
+=head2 filterWhiteSpace
+
+Removes all whitespace
+
 =head1 Diagnostics
 
-=head1 Configuration and Environment
+None
 
 =head1 Dependencies
 
-=over 4
+=over 3
 
-=item L<Class::Accessor::Fast>
+=item L<Data::Validation::Utils>
+
+=item L<Moose>
 
 =back
 
