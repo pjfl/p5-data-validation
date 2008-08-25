@@ -9,6 +9,10 @@ use Moose::Util::TypeConstraints;
 
 subtype 'Exception' => as 'ClassName' => where { $_->can( q(throw) ) };
 
+has 'exception' => ( is => q(ro), isa => q(Exception), required => 1 );
+has 'method'    => ( is => q(ro), isa => q(Str), required => 1 );
+has 'pattern'   => ( is => q(rw), isa => q(Str) );
+
 sub _load_class {
    my ($me, $prefix, $class) = @_;
 
@@ -31,3 +35,8 @@ sub _will {
 }
 
 1;
+
+# Local Variables:
+# mode: perl
+# tab-width: 3
+# End:

@@ -11,13 +11,10 @@ use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
 
 with 'Data::Validation::Utils';
 
-has 'exception'  => ( is => q(ro), isa => q(Exception), required => 1 );
-has 'method'     => ( is => q(ro), isa => q(Str), required => 1 );
 has 'max_length' => ( is => q(rw), isa => q(Int) );
 has 'max_value'  => ( is => q(rw), isa => q(Int) );
 has 'min_length' => ( is => q(rw), isa => q(Int) );
 has 'min_value'  => ( is => q(rw), isa => q(Int) );
-has 'pattern'    => ( is => q(rw), isa => q(Str) );
 has 'required'   => ( is => q(rw), isa => q(Bool) );
 has 'value'      => ( is => q(rw), isa => q(Any) );
 
