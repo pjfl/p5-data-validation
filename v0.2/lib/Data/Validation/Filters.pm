@@ -8,10 +8,7 @@ use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
 
 with 'Data::Validation::Utils';
 
-has 'exception' => ( is => q(ro), isa => q(Exception), required => 1 );
-has 'method'    => ( is => q(ro), isa => q(Str), required => 1 );
-has 'pattern'   => ( is => q(rw), isa => q(Str) );
-has 'replace'   => ( is => q(rw), isa => q(Str) );
+has 'replace' => ( is => q(rw), isa => q(Str) );
 
 sub filter {
    my ($me, $val) = @_; my $method = $me->method; my $class;
