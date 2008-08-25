@@ -4,14 +4,14 @@ package Data::Validation::Constraints;
 
 use Moose;
 use charnames      qw(:full);
-use Class::MOP;
-use English        qw(-no_match_vars);
 use Regexp::Common qw(number);
 use Scalar::Util   qw(looks_like_number);
 
 use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
 
-has 'exception'  => ( is => q(ro), isa => q(ClassName), required => 1 );
+with 'Data::Validation::Utils';
+
+has 'exception'  => ( is => q(ro), isa => q(Exception), required => 1 );
 has 'method'     => ( is => q(ro), isa => q(Str), required => 1 );
 has 'max_length' => ( is => q(rw), isa => q(Int) );
 has 'max_value'  => ( is => q(rw), isa => q(Int) );
@@ -28,36 +28,15 @@ sub validate {
    return 1 if (!$val && !$me->required && $method ne q(isMandatory));
    return $me->$method( $val ) if ($me->_will( $method ));
 
-   my $self = $me->_load_class( q(isValid), $method );
+   my $plugin = $me->_load_class( q(isValid), $method );
 
-   return $self->_validate( $val );
+   return $plugin->_validate( $val );
 }
 
 # Private methods
 
-sub _load_class {
-   my ($me, $prefix, $class) = @_;
-
-   $class =~ s{ \A $prefix }{}mx;
-
-   if ($class =~ m{ \A \+ }mx) { $class =~ s{ \A \+ }{}mx }
-   else { $class = $me->blessed.q(::).(ucfirst $class) }
-
-   eval { Class::MOP::load_class( $class ) };
-
-   $me->exception->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
-
-   return bless $me, $class;
-}
-
 sub _validate {
    shift->exception->throw( q(eNoConstraintOverride) ); return;
-}
-
-sub _will {
-   my ($me, $method) = @_;
-
-   return $method ? defined &{ $me->blessed.q(::).$method } : 0;
 }
 
 # Builtin factory validation methods
