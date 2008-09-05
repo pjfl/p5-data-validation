@@ -1,3 +1,13 @@
+2008-09-05
+
+	* Build.PL
+
+	Excluded nekoware
+
+	* t/10base.t
+
+	Improved the methodology
+
 2008-08-24
 
 	* lib/Data/Validation.pm:

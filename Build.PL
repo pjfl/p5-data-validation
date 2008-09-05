@@ -19,7 +19,8 @@ my $requires = { 'perl'                         => q(5.008),
                  'Moose::Util::TypeConstraints' => q(0.21),
                  'Regexp::Common'               => q(2.120),
                  'Scalar::Util'                 => q(1.19) };
-my $cond  = q($ENV{PERL5LIB} =~ m{ icerider }mx);
+my $cond
+   = q($ENV{PERL5LIB} =~ m{ icerider }mx or $ENV{PERL} =~ m{ nekoware }mx);
 my $build = Module::Build->new
    ( build_requires     => { 'Exception::Class' => q(1.23),
                              'Class::Null'      => q(1.09),
