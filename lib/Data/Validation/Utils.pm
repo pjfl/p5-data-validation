@@ -2,6 +2,7 @@ package Data::Validation::Utils;
 
 # @(#)$Id$
 
+use strict;
 use Class::MOP;
 use English qw(-no_match_vars);
 use Moose::Role;

@@ -2,6 +2,7 @@ package Data::Validation::Constraints::URL;
 
 # @(#)$Id$
 
+use strict;
 use Moose;
 use LWP::UserAgent;
 

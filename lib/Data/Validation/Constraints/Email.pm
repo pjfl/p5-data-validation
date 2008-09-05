@@ -2,6 +2,7 @@ package Data::Validation::Constraints::Email;
 
 # @(#)$Id$
 
+use strict;
 use Moose;
 use Email::Valid;
 
