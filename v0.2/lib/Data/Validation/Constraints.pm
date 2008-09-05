@@ -2,6 +2,7 @@ package Data::Validation::Constraints;
 
 # @(#)$Id$
 
+use strict;
 use Moose;
 use charnames      qw(:full);
 use Regexp::Common qw(number);

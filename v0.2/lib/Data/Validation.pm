@@ -2,6 +2,7 @@ package Data::Validation;
 
 # @(#)$Id$
 
+use strict;
 use Moose;
 use Data::Validation::Utils;
 use Data::Validation::Constraints;
@@ -227,4 +228,3 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
 # mode: perl
 # tab-width: 3
 # End:
-

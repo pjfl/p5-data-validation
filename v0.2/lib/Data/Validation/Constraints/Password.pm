@@ -2,6 +2,7 @@ package Data::Validation::Constraints::Password;
 
 # @(#)$Id$
 
+use strict;
 use Moose;
 
 use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );

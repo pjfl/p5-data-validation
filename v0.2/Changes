@@ -1,8 +1,13 @@
 2008-09-05
 
+	* lib/*.pm
+
+	Added use strict because CPANTS doesn't recognise that use Moose is
+	the same thing
+
 	* Build.PL
 
-	Excluded nekoware
+	Excluded nekoware because it's gethostbyname function is broken
 
 	* t/10base.t
 

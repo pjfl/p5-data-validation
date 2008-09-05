@@ -2,6 +2,7 @@ package Data::Validation::Constraints::Date;
 
 # @(#)$Id$
 
+use strict;
 use Moose;
 use CatalystX::Usul::Time;
 
