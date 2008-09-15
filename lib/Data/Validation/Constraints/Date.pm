@@ -11,7 +11,7 @@ use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
 extends 'Data::Validation::Constraints';
 
 override '_validate' => sub {
-   my ($me, $val) = @_;
+   my ($self, $val) = @_;
 
    return defined CatalystX::Usul::Class::Time->str2time( $val ) ? 1 : 0;
 };

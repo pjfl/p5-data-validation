@@ -11,7 +11,7 @@ use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
 extends 'Data::Validation::Constraints';
 
 override '_validate' => sub {
-   my ($me, $val) = @_; return Email::Valid->address( $val ) ? 1 : 0;
+   my ($self, $val) = @_; return Email::Valid->address( $val ) ? 1 : 0;
 };
 
 1;

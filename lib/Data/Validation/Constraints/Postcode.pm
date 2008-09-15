@@ -10,7 +10,7 @@ use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
 extends 'Data::Validation::Constraints';
 
 override '_validate' => sub {
-   my ($me, $val) = @_;
+   my ($self, $val) = @_;
    my @patterns   = ( 'AN NAA',  'ANN NAA',  'AAN NAA', 'AANN NAA',
                       'ANA NAA', 'AANA NAA', 'AAA NAA', );
 

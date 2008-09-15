@@ -17,24 +17,24 @@ has 'method'    => ( is => q(ro), isa => q(Str), required => 1 );
 has 'pattern'   => ( is => q(rw), isa => q(Str) );
 
 sub _load_class {
-   my ($me, $prefix, $class) = @_;
+   my ($self, $prefix, $class) = @_;
 
    $class =~ s{ \A $prefix }{}mx;
 
    if ($class =~ m{ \A \+ }mx) { $class =~ s{ \A \+ }{}mx }
-   else { $class = $me->blessed.q(::).(ucfirst $class) }
+   else { $class = $self->blessed.q(::).(ucfirst $class) }
 
    eval { Class::MOP::load_class( $class ) };
 
-   $me->exception->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
+   $self->exception->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
 
-   return bless $me, $class;
+   return bless $self, $class;
 }
 
 sub _will {
-   my ($me, $method) = @_;
+   my ($self, $method) = @_;
 
-   return $method ? defined &{ $me->blessed.q(::).$method } : 0;
+   return $method ? defined &{ $self->blessed.q(::).$method } : 0;
 }
 
 1;

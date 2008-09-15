@@ -10,7 +10,7 @@ use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
 extends 'Data::Validation::Constraints';
 
 override '_validate' => sub {
-   my ($me, $val) = @_; return $val =~ m{ [;&*{} ] }mx ? 0 : 1;
+   my ($self, $val) = @_; return $val =~ m{ [;&*{} ] }mx ? 0 : 1;
 };
 
 1;

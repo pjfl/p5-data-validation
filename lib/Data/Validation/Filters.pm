@@ -12,12 +12,12 @@ with 'Data::Validation::Utils';
 has 'replace' => ( is => q(rw), isa => q(Str) );
 
 sub filter {
-   my ($me, $val) = @_; my $method = $me->method; my $class;
+   my ($self, $val) = @_; my $method = $self->method; my $class;
 
    return unless (defined $val);
-   return $me->$method( $val ) if ($me->_will( $method ));
+   return $self->$method( $val ) if ($self->_will( $method ));
 
-   my $plugin = $me->_load_class( q(filter), $method );
+   my $plugin = $self->_load_class( q(filter), $method );
 
    return $plugin->_filter( $val );
 }
@@ -31,7 +31,7 @@ sub _filter {
 # Builtin factory filter methods
 
 sub filterEscapeHTML {
-   my ($me, $val) = @_;
+   my ($self, $val) = @_;
 
    $val =~ s{ &(?!(amp|lt|gt|quot);) }{&amp;}gmx;
    $val =~ s{ < }{&lt;}gmx;
@@ -41,39 +41,39 @@ sub filterEscapeHTML {
 }
 
 sub filterLowerCase {
-   my ($me, $val) = @_; return lc $val;
+   my ($self, $val) = @_; return lc $val;
 }
 
 sub filterNonNumeric {
-   my ($me, $val) = @_;
+   my ($self, $val) = @_;
 
    $val =~ s{ \D+ }{}gmx;
    return $val;
 }
 
 sub filterReplaceRegex {
-   my ($me, $val) = @_; my ($pattern, $replace);
+   my ($self, $val) = @_; my ($pattern, $replace);
 
-   return $val unless ($pattern = $me->pattern);
+   return $val unless ($pattern = $self->pattern);
 
-   $replace = defined $me->replace ? $me->replace : q();
+   $replace = defined $self->replace ? $self->replace : q();
    $val =~ s{ $pattern }{$replace}gmx;
    return $val;
 }
 
 sub filterTrimBoth {
-   my ($me, $val) = @_;
+   my ($self, $val) = @_;
 
    $val =~ s{ \A \s+ }{}mx; $val =~ s{ \s+ \z }{}mx;
    return $val;
 }
 
 sub filterUpperCase {
-   my ($me, $val) = @_; return uc $val;
+   my ($self, $val) = @_; return uc $val;
 }
 
 sub filterWhiteSpace {
-   my ($me, $val) = @_;
+   my ($self, $val) = @_;
 
    $val =~ s{ \s+ }{}gmx;
    return $val;
@@ -99,7 +99,7 @@ Data::Validation::Filters - Filter data values
 
    %config = ( method => $method,
                exception => q(Exception::Class),
-               %{ $me->filters->{ $id } || {} } );
+               %{ $self->filters->{ $id } || {} } );
 
    $filter_ref = Data::Validation::Filters->new( %config );
 
