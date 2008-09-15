@@ -11,7 +11,7 @@ use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
 extends 'Data::Validation::Constraints';
 
 override '_validate' => sub {
-   my ($me, $val) = @_;
+   my ($self, $val) = @_;
 
    $val = 'http://localhost'.$val if ($val !~ m{ \A http: }mx);
 

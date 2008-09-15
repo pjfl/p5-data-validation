@@ -20,13 +20,13 @@ has 'required'   => ( is => q(rw), isa => q(Bool) );
 has 'value'      => ( is => q(rw), isa => q(Any) );
 
 sub validate {
-   my ($me, $val) = @_; my $method = $me->method; my $class;
+   my ($self, $val) = @_; my $method = $self->method; my $class;
 
-   return 0 if (!$val && $me->required);
-   return 1 if (!$val && !$me->required && $method ne q(isMandatory));
-   return $me->$method( $val ) if ($me->_will( $method ));
+   return 0 if (!$val && $self->required);
+   return 1 if (!$val && !$self->required && $method ne q(isMandatory));
+   return $self->$method( $val ) if ($self->_will( $method ));
 
-   my $plugin = $me->_load_class( q(isValid), $method );
+   my $plugin = $self->_load_class( q(isValid), $method );
 
    return $plugin->_validate( $val );
 }
@@ -40,30 +40,30 @@ sub _validate {
 # Builtin factory validation methods
 
 sub isBetweenValues {
-   my ($me, $val) = @_;
+   my ($self, $val) = @_;
 
-   return 0 if (defined $me->min_value and $val < $me->min_value);
-   return 0 if (defined $me->max_value and $val > $me->max_value);
+   return 0 if (defined $self->min_value and $val < $self->min_value);
+   return 0 if (defined $self->max_value and $val > $self->max_value);
    return 1;
 }
 
 sub isEqualTo {
-   my ($me, $val) = @_;
+   my ($self, $val) = @_;
 
-   if ($me->isValidNumber( $val ) && $me->isValidNumber( $me->value )) {
-      return 1 if ($val == $me->value);
+   if ($self->isValidNumber( $val ) && $self->isValidNumber( $self->value )) {
+      return 1 if ($val == $self->value);
       return 0;
    }
 
-   return 1 if ($val eq $me->value);
+   return 1 if ($val eq $self->value);
    return 0;
 }
 
 sub isHexadecimal {
-   my ($me, $val) = @_;
+   my ($self, $val) = @_;
 
-   $me->pattern( '\A '.$RE{num}{hex}.' \z' );
-   return $me->isMatchingRegex( $val );
+   $self->pattern( '\A '.$RE{num}{hex}.' \z' );
+   return $self->isMatchingRegex( $val );
 }
 
 sub isMandatory {
@@ -71,56 +71,56 @@ sub isMandatory {
 }
 
 sub isMatchingRegex {
-   my ($me, $val) = @_; my $pat = $me->pattern;
+   my ($self, $val) = @_; my $pat = $self->pattern;
 
    return $val =~ m{ $pat }msx ? 1 : 0;
 }
 
 sub isPrintable {
-   my ($me, $val) = @_;
+   my ($self, $val) = @_;
 
-   $me->pattern( '\A \p{IsPrint}+ \z' );
-   return $me->isMatchingRegex( $val );
+   $self->pattern( '\A \p{IsPrint}+ \z' );
+   return $self->isMatchingRegex( $val );
 }
 
 sub isSimpleText {
-   my ($me, $val) = @_;
+   my ($self, $val) = @_;
 
-   $me->pattern( '\A [a-zA-Z0-9_ \-\.]+ \z' );
-   return $me->isMatchingRegex( $val );
+   $self->pattern( '\A [a-zA-Z0-9_ \-\.]+ \z' );
+   return $self->isMatchingRegex( $val );
 }
 
 sub isValidHostname {
-   my ($me, $val) = @_; return (gethostbyname $val)[0] ? 1 : 0;
+   my ($self, $val) = @_; return (gethostbyname $val)[0] ? 1 : 0;
 }
 
 sub isValidIdentifier {
-   my ($me, $val) = @_;
+   my ($self, $val) = @_;
 
-   $me->pattern( '\A [a-zA-Z_] \w* \z' );
-   return $me->isMatchingRegex( $val );
+   $self->pattern( '\A [a-zA-Z_] \w* \z' );
+   return $self->isMatchingRegex( $val );
 }
 
 sub isValidInteger {
-   my ($me, $val) = @_;
+   my ($self, $val) = @_;
 
-   $me->pattern( '\A '.$RE{num}{int}{-sep=>'[_]?'}.' \z' );
+   $self->pattern( '\A '.$RE{num}{int}{-sep=>'[_]?'}.' \z' );
 
-   return 0 unless ($me->isMatchingRegex( $val ));
+   return 0 unless ($self->isMatchingRegex( $val ));
    return 0 unless (int $val == $val);
    return 1;
 }
 
 sub isValidLength {
-   my ($me, $val) = @_;
+   my ($self, $val) = @_;
 
-   return 0 if (defined $me->min_length and length $val < $me->min_length);
-   return 0 if (defined $me->max_length and length $val > $me->max_length);
+   return 0 if (defined $self->min_length and length $val < $self->min_length);
+   return 0 if (defined $self->max_length and length $val > $self->max_length);
    return 1;
 }
 
 sub isValidNumber {
-   my ($me, $val) = @_;
+   my ($self, $val) = @_;
 
    return 0 unless (defined $val);
    return 1 if     (looks_like_number( $val ));
@@ -147,7 +147,7 @@ Data::Validation::Constraints - Test data values for conformance with constraint
 
    %config = ( method => $method,
                exception => q(Exception::Class),
-               %{ $me->constraints->{ $id } || {} } );
+               %{ $self->constraints->{ $id } || {} } );
 
    $constraint_ref = Data::Validation::Constraints->new( %config );
 
@@ -209,11 +209,11 @@ Should have been overridden in an external constraint subclass
 =head2 isBetweenValues
 
 Test to see if the supplied value is numerically greater than
-C<< $me->min_value >> and less than C<< $me->max_value >>
+C<< $self->min_value >> and less than C<< $self->max_value >>
 
 =head2 isEqualTo
 
-Test to see if the supplied value is equal to C<< $me->value >>. Calls
+Test to see if the supplied value is equal to C<< $self->value >>. Calls
 C<isValidNumber> on both values to determine the type of comparison
 to perform
 
@@ -223,7 +223,7 @@ Null values are not allowed
 
 =head2 isMatchingRegex
 
-Does the supplied value match C<< $me->pattern >>?
+Does the supplied value match C<< $self->pattern >>?
 
 =head2 isPrintable
 
@@ -248,7 +248,7 @@ Tests to see if the supplied value is an integer
 =head2 isValidLength
 
 Tests to see if the length of the supplied value is greater than
-C<< $me->min_length >> and less than C<< $me->max_length >>
+C<< $self->min_length >> and less than C<< $self->max_length >>
 
 =head2 isValidNumber
 

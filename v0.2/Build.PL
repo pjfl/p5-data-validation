@@ -19,14 +19,14 @@ my $requires = { 'perl'                         => q(5.008),
                  'Moose::Util::TypeConstraints' => q(0.21),
                  'Regexp::Common'               => q(2.120),
                  'Scalar::Util'                 => q(1.19) };
-my $cond
-   = q($ENV{PERL5LIB} =~ m{ icerider }mx or $ENV{PERL} =~ m{ nekoware }mx);
+my $cond  = q($ENV{PERL5LIB} =~ m{ icerider }imx or $^O =~ m{ irix }imx);
 my $build = Module::Build->new
-   ( build_requires     => { 'Exception::Class' => q(1.23),
-                             'Class::Null'      => q(1.09),
-                             'Test::More'       => q(0.74),
-                             'version'          => q(0.74) },
-     configure_requires => { 'version'          => q(0.74) },
+   ( build_requires     => { 'Exception::Class'    => q(1.23),
+                             'Class::Null'         => q(1.09),
+                             'Test::More'          => q(0.74),
+                             'version'             => q(0.74) },
+     configure_requires => { 'ExtUtils::MakeMaker' => q(6.42),
+                             'version'             => q(0.74) },
      create_makefile_pl => q(traditional),
      create_readme      => 1,
      create_packlist    => 0,

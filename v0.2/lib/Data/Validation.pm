@@ -18,18 +18,18 @@ has 'filters'     => ( is => q(ro), isa => q(HashRef), default => sub { {} } );
 
 sub check_form {
    # Validate all the fields on a form by repeated calling check_field
-   my ($me, $prefix, $form) = @_; $prefix ||= q(); my $field;
+   my ($self, $prefix, $form) = @_; $prefix ||= q(); my $field;
 
    unless ($form && ref $form eq q(HASH)) {
-      $me->exception->throw( q(eNoFormValues) );
+      $self->exception->throw( q(eNoFormValues) );
    }
 
    for my $name (keys %{ $form }) {
       my $id = $prefix.$name;
 
-      next unless ($field = $me->fields->{ $id } and $field->{validate});
+      next unless ($field = $self->fields->{ $id } and $field->{validate});
 
-      $form->{ $name } = $me->check_field( $id, $form->{ $name } );
+      $form->{ $name } = $self->check_field( $id, $form->{ $name } );
    }
 
    return $form;
@@ -37,22 +37,22 @@ sub check_form {
 
 sub check_field {
    # Validate form field values
-   my ($me, $id, $value) = @_;
+   my ($self, $id, $value) = @_;
    my (%config, $constraint_ref, $error, $field, $filter_ref, $method);
 
-   unless ($id and $field = $me->fields->{ $id } and $field->{validate}) {
-      $me->exception->throw( error => q(eNoFieldDefinition),
-                             arg1  => $id, arg2 => $value );
+   unless ($id and $field = $self->fields->{ $id } and $field->{validate}) {
+      $self->exception->throw( error => q(eNoFieldDefinition),
+                               arg1  => $id, arg2 => $value );
    }
 
    if ($field->{filters}) {
       for $method (split q( ), $field->{filters}) {
          %config = ( method => $method,
-                     exception => $me->exception,
-                     %{ $me->filters->{ $id } || {} }, );
+                     exception => $self->exception,
+                     %{ $self->filters->{ $id } || {} }, );
          $filter_ref = eval { Data::Validation::Filters->new( %config ) };
 
-         $me->exception->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
+         $self->exception->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
 
          $value = $filter_ref->filter( $value );
       }
@@ -60,15 +60,16 @@ sub check_field {
 
    for $method (split q( ), $field->{validate}) {
       %config = ( method => $method,
-                  exception => $me->exception,
-                  %{ $me->constraints->{ $id } || {} }, );
+                  exception => $self->exception,
+                  %{ $self->constraints->{ $id } || {} }, );
       $constraint_ref = eval { Data::Validation::Constraints->new( %config ) };
 
-      $me->exception->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
+      $self->exception->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
 
       unless ($constraint_ref->validate( $value )) {
          ($error = $method) =~ s{ \A is }{e}imx;
-         $me->exception->throw( error => $error, arg1 => $id, arg2 => $value );
+         $self->exception->throw( error => $error,
+                                  arg1  => $id, arg2 => $value );
       }
    }
 
@@ -94,27 +95,27 @@ Data::Validation - Check data values for conformance with constraints
    use Data::Validation;
 
    sub check_field {
-      my ($me, $stash, $id, $value) = @_;
+      my ($self, $stash, $id, $value) = @_;
       my $config = { exception   => q(Exception::Class),
                      constraints => $stash->{constraints} || {},
                      fields      => $stash->{fields}      || {},
                      filters     => $stash->{filters}     || {} };
       my $dv = eval { Data::Validation->new( %{ $config } ) };
 
-      $me->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
+      $self->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
 
       return $dv->check_field( $id, $value );
    }
 
    sub check_form  {
-      my ($me, $stash, $form) = @_;
+      my ($self, $stash, $form) = @_;
       my $config = { exception   => q(Exception::Class),
                      constraints => $stash->{constraints} || {},
                      fields      => $stash->{fields}      || {},
                      filters     => $stash->{filters}     || {} };
       my $dv = eval { Data::Validation->new( %{ $config } ) };
 
-      $me->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
+      $self->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
 
       return $dv->check_form( $stash->{form_prefix}, $form );
    }
