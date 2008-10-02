@@ -49,7 +49,7 @@ Data::Validation::Utils - Code and attribute reuse
 
 =head1 Version
 
-0.1.$Revision$
+0.2.$Revision$
 
 =head1 Synopsis
 
