@@ -1,41 +1,25 @@
-2008-09-05
+Revision history for Data::Validation
 
-	* lib/*.pm
+0.2.58   03/10/2008
+         - Bumped revision in POD
 
-	Added use strict because CPANTS doesn't recognise that use Moose is
-	the same thing
+         05/09/2008
+         - Added use strict because CPANTS doesn't recognise that use Moose is
+           the same thing
+         - Excluded nekoware because it's gethostbyname function is broken
+         - Improved the testing methodology
 
-	* Build.PL
+         24/08/2008
+         - Here Moosey, Moosey, Moosey
 
-	Excluded nekoware because it's gethostbyname function is broken
+         22/08/2008
+         - Introduced constructor which means an API change
+         - Added filters
 
-	* t/10base.t
+         02/06/2008
+         - Made version a build requirement
 
-	Improved the methodology
-
-2008-08-24
-
-	* lib/Data/Validation.pm:
-
-	Here Moosey, Moosey, Moosey
-
-2008-08-22
-
-	* lib/Data/Validation.pm:
-
-	Introduced constructor which means an API change
-	Added filters
-
-2008-06-02
-
-	* Build.PL:
-
-	Made version a build requirement
-
-2008-05-23
-
-	* t/02pod.t:
-
-	Added POD tests
+         23/05/2008
+         - Added POD tests
 
 
