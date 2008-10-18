@@ -20,7 +20,6 @@ my $requires = { 'perl'                         => q(5.008),
                  'Regexp::Common'               => q(2.120),
                  'Scalar::Util'                 => q(1.19) };
 #my $cond  = q($ENV{PERL5LIB} =~ m{ icerider }imx or $^O =~ m{ irix }imx);
-my $cond  = q($ENV{AUTOMATED_TESTING} || $ENV{COMSPEC} || $ENV{PATH} =~ m{ srezic }mx);
 my $build = Module::Build->new
    ( build_requires     => { 'Exception::Class'    => q(1.23),
                              'Class::Null'         => q(1.09),
@@ -34,7 +33,7 @@ my $build = Module::Build->new
      dist_version_from  => q(lib/Data/Validation.pm),
      license            => q(perl),
      module_name        => q(Data::Validation),
-     notes              => { cpan_testers_cond    => $cond,
+     notes              => { cpan_testers_off     => 1,
                              cpan_testers_version => 1 },
      requires           => $requires,
      sign               => 1 );
