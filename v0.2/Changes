@@ -1,5 +1,8 @@
 Revision history for Data::Validation
 
+0.2.60   18/10/2008
+         - Switched off CPAN testing
+
 0.2.58   03/10/2008
          - Bumped revision in POD
 
