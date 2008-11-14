@@ -25,6 +25,7 @@ my $build = Module::Build->new
                              'Class::Null'         => q(1.09),
                              'Test::Harness'       => q(2.64),
                              'Test::More'          => q(0.74),
+                             'Test::Pod'           => q(1.14),
                              'version'             => q(0.74) },
      configure_requires => { 'ExtUtils::MakeMaker' => q(6.42),
                              'version'             => q(0.74) },
