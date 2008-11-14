@@ -23,6 +23,7 @@ my $requires = { 'perl'                         => q(5.008),
 my $build = Module::Build->new
    ( build_requires     => { 'Exception::Class'    => q(1.23),
                              'Class::Null'         => q(1.09),
+                             'Test::Harness'       => q(2.64),
                              'Test::More'          => q(0.74),
                              'version'             => q(0.74) },
      configure_requires => { 'ExtUtils::MakeMaker' => q(6.42),
@@ -33,8 +34,7 @@ my $build = Module::Build->new
      dist_version_from  => q(lib/Data/Validation.pm),
      license            => q(perl),
      module_name        => q(Data::Validation),
-     notes              => { cpan_testers_off     => 1,
-                             cpan_testers_version => 1 },
+     notes              => { cpan_testers_version => 1 },
      requires           => $requires,
      sign               => 1 );
 

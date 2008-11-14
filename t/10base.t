@@ -9,11 +9,17 @@ use English qw(-no_match_vars);
 use FindBin qw($Bin);
 use lib qq($Bin/../lib);
 use Exception::Class ( q(TestException) => { fields => [ qw(arg1 arg2) ] } );
-use Test::More tests => 46;
+use Test::More;
 
 use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
 
-BEGIN { use_ok q(Data::Validation) }
+if ($ENV{AUTOMATED_TESTING} || ($ENV{PERL5OPT} || q()) =~ m{ CPAN-Reporter }mx) {
+   plan skip_all => q(CPAN Testing stopped);
+}
+
+plan tests => 46;
+
+use_ok q(Data::Validation);
 
 sub test_val {
    my $config    = shift; $config->{exception} = q(TestException);
