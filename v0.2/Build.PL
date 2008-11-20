@@ -21,7 +21,9 @@ my $requires = { 'perl'                         => q(5.008),
                  'Scalar::Util'                 => q(1.19) };
 #my $cond  = q($ENV{PERL5LIB} =~ m{ icerider }imx or $^O =~ m{ irix }imx);
 my $build = Module::Build->new
-   ( build_requires     => { 'Exception::Class'    => q(1.23),
+   ( add_to_cleanup     => [ 'Data-Validation-*',
+                             map { ( '*/' x $_ ) . '*~' } 0..5 ],
+     build_requires     => { 'Exception::Class'    => q(1.23),
                              'Class::Null'         => q(1.09),
                              'Test::Harness'       => q(2.64),
                              'Test::More'          => q(0.74),
