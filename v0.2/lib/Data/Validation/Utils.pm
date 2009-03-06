@@ -37,6 +37,8 @@ sub _will {
    return $method ? defined &{ $self->blessed.q(::).$method } : 0;
 }
 
+no Moose::Role; no Moose::Util::TypeConstraints;
+
 1;
 
 __END__
