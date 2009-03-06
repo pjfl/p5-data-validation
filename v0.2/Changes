@@ -1,5 +1,8 @@
 Revision history for Data::Validation
 
+0.2.70   06/03/2009
+         - Added make immutable and no moose
+
 0.2.66   14/11/2008
          - New approach to CPAN testing
 
