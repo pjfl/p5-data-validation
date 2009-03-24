@@ -1,5 +1,8 @@
 Revision history for Data::Validation
 
+0.2.72   24/03/2009
+         - Fixed class name in date validation
+
 0.2.70   06/03/2009
          - Added make immutable and no moose
 

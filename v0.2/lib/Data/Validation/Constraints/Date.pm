@@ -13,7 +13,7 @@ extends 'Data::Validation::Constraints';
 override '_validate' => sub {
    my ($self, $val) = @_;
 
-   return defined CatalystX::Usul::Class::Time->str2time( $val ) ? 1 : 0;
+   return defined CatalystX::Usul::Time->str2time( $val ) ? 1 : 0;
 };
 
 1;
