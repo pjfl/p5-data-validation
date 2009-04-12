@@ -4,11 +4,8 @@
 
 use strict;
 use warnings;
-use Class::Null;
-use English qw(-no_match_vars);
 use FindBin qw($Bin);
 use lib qq($Bin/../lib);
-use Exception::Class ( q(TestException) => { fields => [ qw(arg1 arg2) ] } );
 use Test::More;
 
 use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
@@ -22,6 +19,10 @@ BEGIN {
 
    plan tests => 46;
 }
+
+use Class::Null;
+use English qw(-no_match_vars);
+use Exception::Class ( q(TestException) => { fields => [ qw(arg1 arg2) ] } );
 
 use_ok q(Data::Validation);
 
