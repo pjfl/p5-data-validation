@@ -1,11 +1,11 @@
-#!/usr/bin/perl
-
 # @(#)$Id$
 
 use strict;
 use warnings;
-use FindBin qw($Bin);
-use lib qq($Bin/../lib);
+use File::Spec::Functions;
+use English  qw( -no_match_vars );
+use FindBin  qw( $Bin );
+use lib (catdir( $Bin, updir, q(lib) ));
 use Test::More;
 
 use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
@@ -21,7 +21,6 @@ BEGIN {
 }
 
 use Class::Null;
-use English qw(-no_match_vars);
 use Exception::Class ( q(TestException) => { fields => [ qw(arg1 arg2) ] } );
 
 use_ok q(Data::Validation);
@@ -181,3 +180,8 @@ ok( test_val( $f, q(test), q(hello world) ) eq q(HELLO WORLD),
 $f->{fields}->{test}->{filters} = q(filterWhiteSpace);
 $f->{constraints}->{test} = { pattern => q(\A \d+ \z) };
 ok( test_val( $f, q(test), q(123 456) ) == 123456, q(Filter WhiteSpace) );
+
+# Local Variables:
+# mode: perl
+# tab-width: 3
+# End:
