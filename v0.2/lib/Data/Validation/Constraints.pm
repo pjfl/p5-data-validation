@@ -1,16 +1,17 @@
-package Data::Validation::Constraints;
-
 # @(#)$Id$
 
+package Data::Validation::Constraints;
+
 use strict;
+use charnames qw(:full);
+use namespace::autoclean;
+use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
+
 use Moose;
-use charnames      qw(:full);
 use Regexp::Common qw(number);
 use Scalar::Util   qw(looks_like_number);
 
-use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
-
-with 'Data::Validation::Utils';
+with q(Data::Validation::Utils);
 
 has 'max_length' => ( is => q(rw), isa => q(Int) );
 has 'max_value'  => ( is => q(rw), isa => q(Int) );
@@ -23,18 +24,18 @@ sub validate {
    my ($self, $val) = @_; my $method = $self->method; my $class;
 
    return 0 if (!$val && $self->required);
+
    return 1 if (!$val && !$self->required && $method ne q(isMandatory));
-   return $self->$method( $val ) if ($self->_will( $method ));
 
-   my $plugin = $self->_load_class( q(isValid), $method );
+   return $self->$method( $val ) if ($self->can( $method ));
 
-   return $plugin->_validate( $val );
+   return $self->_load_class( q(isValid), $method )->_validate( $val );
 }
 
 # Private methods
 
 sub _validate {
-   shift->exception->throw( q(eNoConstraintOverride) ); return;
+   shift->exception->throw( 'Method _validate not overridden' ); return;
 }
 
 # Builtin factory validation methods
@@ -42,8 +43,8 @@ sub _validate {
 sub isBetweenValues {
    my ($self, $val) = @_;
 
-   return 0 if (defined $self->min_value and $val < $self->min_value);
-   return 0 if (defined $self->max_value and $val > $self->max_value);
+   return 0 if (defined $self->min_value && $val < $self->min_value);
+   return 0 if (defined $self->max_value && $val > $self->max_value);
    return 1;
 }
 
@@ -114,8 +115,8 @@ sub isValidInteger {
 sub isValidLength {
    my ($self, $val) = @_;
 
-   return 0 if (defined $self->min_length and length $val < $self->min_length);
-   return 0 if (defined $self->max_length and length $val > $self->max_length);
+   return 0 if (defined $self->min_length && length $val < $self->min_length);
+   return 0 if (defined $self->max_length && length $val > $self->max_length);
    return 1;
 }
 
@@ -307,8 +308,6 @@ None
 =item L<Moose>
 
 =item L<Regexp::Common>
-
-=item L<Scalar::Util>
 
 =back
 

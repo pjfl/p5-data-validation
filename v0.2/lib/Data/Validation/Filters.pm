@@ -1,13 +1,14 @@
-package Data::Validation::Filters;
-
 # @(#)$Id$
 
-use strict;
-use Moose;
+package Data::Validation::Filters;
 
+use strict;
+use namespace::autoclean;
 use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
 
-with 'Data::Validation::Utils';
+use Moose;
+
+with q(Data::Validation::Utils);
 
 has 'replace' => ( is => q(rw), isa => q(Str) );
 
@@ -15,17 +16,16 @@ sub filter {
    my ($self, $val) = @_; my $method = $self->method; my $class;
 
    return unless (defined $val);
-   return $self->$method( $val ) if ($self->_will( $method ));
 
-   my $plugin = $self->_load_class( q(filter), $method );
+   return $self->$method( $val ) if ($self->can( $method ));
 
-   return $plugin->_filter( $val );
+   return $self->_load_class( q(filter), $method )->_filter( $val );
 }
 
 # Private methods
 
 sub _filter {
-   shift->exception->throw( q(eNoFilterOverride) ); return;
+   shift->exception->throw( 'Method _filter not overridden' ); return;
 }
 
 # Builtin factory filter methods

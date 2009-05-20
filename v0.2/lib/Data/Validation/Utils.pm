@@ -1,14 +1,16 @@
-package Data::Validation::Utils;
-
 # @(#)$Id$
 
+package Data::Validation::Utils;
+
 use strict;
+use namespace::autoclean;
+use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
+
 use Class::MOP;
 use English qw(-no_match_vars);
 use Moose::Role;
 use Moose::Util::TypeConstraints;
-
-use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
+use Scalar::Util qw(blessed);
 
 subtype 'Exception' => as 'ClassName' => where { $_->can( q(throw) ) };
 
@@ -22,19 +24,13 @@ sub _load_class {
    $class =~ s{ \A $prefix }{}mx;
 
    if ($class =~ m{ \A \+ }mx) { $class =~ s{ \A \+ }{}mx }
-   else { $class = $self->blessed.q(::).(ucfirst $class) }
+   else { $class = blessed( $self ).q(::).(ucfirst $class) }
 
    eval { Class::MOP::load_class( $class ) };
 
    $self->exception->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
 
    return bless $self, $class;
-}
-
-sub _will {
-   my ($self, $method) = @_;
-
-   return $method ? defined &{ $self->blessed.q(::).$method } : 0;
 }
 
 no Moose::Role; no Moose::Util::TypeConstraints;
@@ -91,10 +87,6 @@ then call L</isMathchingRegex> to perform the actual validation
 =head2 _load_class
 
 Load the external plugin subclass at run time
-
-=head2 _will
-
-Tests to see if the given method is a defined subroutine
 
 =head1 Diagnostics
 
