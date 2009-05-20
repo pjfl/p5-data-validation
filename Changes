@@ -1,5 +1,6 @@
 Revision history for Data::Validation
 
+0.2.78   20/05/2009
          - Removed stupid _will method
          - Added namespace::autoclean
          - Improved testing idioms
