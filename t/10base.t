@@ -2,13 +2,13 @@
 
 use strict;
 use warnings;
+use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
 use File::Spec::Functions;
-use English  qw( -no_match_vars );
 use FindBin  qw( $Bin );
 use lib (catdir( $Bin, updir, q(lib) ));
-use Test::More;
 
-use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
+use English  qw( -no_match_vars );
+use Test::More;
 
 BEGIN {
    if ($ENV{AUTOMATED_TESTING} || $ENV{PERL_CR_SMOKER_CURRENT}
@@ -33,13 +33,15 @@ sub test_val {
 
    return $e->error if ($e = TestException->caught());
 
+   die $EVAL_ERROR  if ($EVAL_ERROR);
+
    return $value;
 }
 
 my $f = {};
-ok( test_val( $f, undef, 1 ) eq q(eNoFieldDefinition),
+ok( test_val( $f, undef, 1 ) eq q(No definition for field),
     q(No field definition 1) );
-ok( test_val( $f, q(test), 1 ) eq q(eNoFieldDefinition),
+ok( test_val( $f, q(test), 1 ) eq q(No definition for field),
     q(No field definition 2) );
 
 $f->{fields}->{test}->{validate} = q(isHexadecimal);

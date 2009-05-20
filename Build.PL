@@ -1,15 +1,14 @@
-#!/usr/bin/perl
-
 # @(#)$Id$
 
 use strict;
 use warnings;
-use Module::Build;
-
 use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev$ =~ /\d+/gmx );
+
+use Module::Build;
 
 my $requires = { 'perl'                         => q(5.008),
                  'charnames'                    => q(1.05),
+                 'namespace::autoclean'         => q(0.05),
                  'version'                      => q(0.74),
                  'Class::MOP'                   => q(0.53),
                  'Email::Valid'                 => q(0.179),

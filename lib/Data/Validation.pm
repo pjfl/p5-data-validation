@@ -1,15 +1,15 @@
-package Data::Validation;
-
 # @(#)$Id$
 
+package Data::Validation;
+
 use strict;
-use Moose;
-use Data::Validation::Utils;
+use namespace::autoclean;
+use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
+
 use Data::Validation::Constraints;
 use Data::Validation::Filters;
 use English qw(-no_match_vars);
-
-use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
+use Moose;
 
 has 'exception'   => ( is => q(ro), isa => q(Exception), required => 1 );
 has 'constraints' => ( is => q(ro), isa => q(HashRef), default => sub { {} } );
@@ -21,7 +21,7 @@ sub check_form {
    my ($self, $prefix, $form) = @_; $prefix ||= q(); my $field;
 
    unless ($form && ref $form eq q(HASH)) {
-      $self->exception->throw( q(eNoFormValues) );
+      $self->exception->throw( 'Form has no values' );
    }
 
    for my $name (keys %{ $form }) {
@@ -41,7 +41,7 @@ sub check_field {
    my (%config, $constraint_ref, $error, $field, $filter_ref, $method);
 
    unless ($id and $field = $self->fields->{ $id } and $field->{validate}) {
-      $self->exception->throw( error => q(eNoFieldDefinition),
+      $self->exception->throw( error => 'No definition for field',
                                arg1  => $id, arg2 => $value );
    }
 
@@ -88,7 +88,7 @@ __END__
 
 =head1 Name
 
-Data::Validation - Check data values for conformance with constraints
+Data::Validation - Filter and check data values
 
 =head1 Version
 
@@ -182,7 +182,7 @@ Checks one value for conformance. The C<$id> is used as a key to the
 I<fields> hash whose I<validate> attribute contains the list of space
 separated constraint names. The value is tested against each
 constraint in turn. All tests must pass or the subroutine will use the
-I<exception> class to I<throw> an error
+I<exception> class to C<throw> an error
 
 =head1 Diagnostics
 
@@ -193,8 +193,6 @@ None
 =over 3
 
 =item L<Moose>
-
-=item L<Moose::Util::TypeConstraints>
 
 =item L<Data::Validation::Constraints>
 
