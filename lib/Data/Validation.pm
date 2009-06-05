@@ -42,7 +42,7 @@ sub check_field {
 
    unless ($id and $field = $self->fields->{ $id } and $field->{validate}) {
       $self->exception->throw( error => 'No definition for field',
-                               arg1  => $id, arg2 => $value );
+                               args  => [ $id, $value ] );
    }
 
    if ($field->{filters}) {
@@ -68,8 +68,7 @@ sub check_field {
 
       unless ($constraint_ref->validate( $value )) {
          ($error = $method) =~ s{ \A is }{e}imx;
-         $self->exception->throw( error => $error,
-                                  arg1  => $id, arg2 => $value );
+         $self->exception->throw( error => $error, args => [ $id, $value ] );
       }
    }
 
