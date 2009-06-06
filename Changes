@@ -1,5 +1,8 @@
 Revision history for Data::Validation
 
+0.2.84   06/06/2009
+         - Enhanced exception messages
+
 0.2.81   05/06/2009
          - Exception class API changed
 
