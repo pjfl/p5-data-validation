@@ -4,8 +4,8 @@ use strict;
 use warnings;
 use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
 use File::Spec::Functions;
-use FindBin  qw( $Bin );
-use lib (catdir( $Bin, updir, q(lib) ));
+use FindBin qw( $Bin );
+use lib catdir( $Bin, updir, q(lib) );
 
 use English  qw( -no_match_vars );
 use Test::More;
@@ -21,7 +21,7 @@ BEGIN {
 }
 
 use Class::Null;
-use Exception::Class ( q(TestException) => { fields => [ qw(arg1 arg2) ] } );
+use Exception::Class ( q(TestException) => { fields => [ qw(args) ] } );
 
 use_ok q(Data::Validation);
 
