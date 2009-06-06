@@ -35,7 +35,11 @@ sub validate {
 # Private methods
 
 sub _validate {
-   shift->exception->throw( 'Method _validate not overridden' ); return;
+   my $self = shift; my $exception = $self->exception;
+
+   $exception->throw( error => 'Method [_1] not overridden in class [_2]',
+                      args  => [ q(_validate), ref $self || $self ] );
+   return;
 }
 
 # Builtin factory validation methods
