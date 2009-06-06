@@ -1,6 +1,7 @@
 Revision history for Data::Validation
 
-0.2.84   06/06/2009
+0.2.85   06/06/2009
+         - Fixed tests
          - Enhanced exception messages
 
 0.2.81   05/06/2009
