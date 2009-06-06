@@ -25,7 +25,11 @@ sub filter {
 # Private methods
 
 sub _filter {
-   shift->exception->throw( 'Method _filter not overridden' ); return;
+   my $self = shift; my $exception = $self->exception;
+
+   $exception->throw( error => 'Method [_1] not overridden in class [_2]',
+                      args  => [ q(_filter), ref $self || $self ] );
+   return;
 }
 
 # Builtin factory filter methods
