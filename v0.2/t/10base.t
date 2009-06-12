@@ -7,7 +7,7 @@ use File::Spec::Functions;
 use FindBin qw( $Bin );
 use lib catdir( $Bin, updir, q(lib) );
 
-use English  qw( -no_match_vars );
+use English qw( -no_match_vars );
 use Test::More;
 
 BEGIN {
