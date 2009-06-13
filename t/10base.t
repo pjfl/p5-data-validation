@@ -30,9 +30,7 @@ sub test_val {
    my $value     = eval { $validator->check_field( @_ ) };
    my $e;
 
-   return $e->error if ($e = TestException->caught());
-
-   die $EVAL_ERROR  if ($EVAL_ERROR);
+   return $e->error if ($e = Exception::Class->caught());
 
    return $value;
 }
