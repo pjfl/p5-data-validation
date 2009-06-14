@@ -5,7 +5,7 @@ package Data::Validation::Constraints::Path;
 use strict;
 use Moose;
 
-use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.3.%d', q$Rev$ =~ /\d+/gmx );
 
 extends 'Data::Validation::Constraints';
 

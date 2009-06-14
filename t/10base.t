@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.3.%d', q$Rev$ =~ /\d+/gmx );
 use File::Spec::Functions;
 use FindBin qw( $Bin );
 use lib catdir( $Bin, updir, q(lib) );
@@ -36,9 +36,9 @@ sub test_val {
 }
 
 my $f = {};
-ok( test_val( $f, undef, 1 ) eq q(No definition for field),
+ok( test_val( $f, undef, 1 ) eq q(No definition for field [_1]),
     q(No field definition 1) );
-ok( test_val( $f, q(test), 1 ) eq q(No definition for field),
+ok( test_val( $f, q(test), 1 ) eq q(No definition for field [_1]),
     q(No field definition 2) );
 
 $f->{fields}->{test}->{validate} = q(isHexadecimal);

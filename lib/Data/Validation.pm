@@ -4,7 +4,7 @@ package Data::Validation;
 
 use strict;
 use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev$ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.3.%d', q$Rev$ =~ /\d+/gmx );
 
 use Data::Validation::Constraints;
 use Data::Validation::Filters;
@@ -41,7 +41,7 @@ sub check_field {
    my (%config, $constraint_ref, $error, $field, $filter_ref, $method);
 
    unless ($id and $field = $self->fields->{ $id } and $field->{validate}) {
-      $self->exception->throw( error => 'No definition for field',
+      $self->exception->throw( error => 'No definition for field [_1]',
                                args  => [ $id, $value ] );
    }
 
@@ -91,7 +91,7 @@ Data::Validation - Filter and check data values
 
 =head1 Version
 
-0.2.$Rev$
+0.3.$Rev$
 
 =head1 Synopsis
 

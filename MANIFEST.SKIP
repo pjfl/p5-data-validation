@@ -33,6 +33,7 @@
 \#$
 \.#
 \.rej$
+\.releaserc
 
 # Avoid OS-specific files/dirs
 #   Mac OSX metadata
