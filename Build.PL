@@ -26,6 +26,7 @@ my $build = Module::Build->new
    ( add_to_cleanup     => [ 'Debian_CPANTS.txt',
                              'Data-Validation-*',
                              'Makefile',
+                             'pm_to_blib',
                              map { ( '*/' x $_ ) . '*~' } 0..5 ],
      build_requires     => { 'Exception::Class'    => q(1.23),
                              'Class::Null'         => q(1.09),
