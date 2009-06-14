@@ -36,6 +36,7 @@ sub test_val {
 }
 
 my $f = {};
+
 ok( test_val( $f, undef, 1 ) eq q(No definition for field [_1]),
     q(No field definition 1) );
 ok( test_val( $f, q(test), 1 ) eq q(No definition for field [_1]),
@@ -134,8 +135,11 @@ my $vals = { field_name  => q(SW1A 4WW),
              field_name2 => q(qw3erty),
              field_name3 => q(a@b.c),
              field_name4 => q(qwe) };
+
 eval { $validator->check_form( q(subr_), $vals ) };
+
 my $e = TestException->caught() || Class::Null->new();
+
 ok( !$e->error, q(Valid form) );
 
 $vals->{field_name2} = q(tooeasy);
