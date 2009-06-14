@@ -23,7 +23,9 @@ my $requires   = {
 };
 #my $cond  = q($ENV{PERL5LIB} =~ m{ icerider }imx or $^O =~ m{ irix }imx);
 my $build = Module::Build->new
-   ( add_to_cleanup     => [ 'Data-Validation-*',
+   ( add_to_cleanup     => [ 'Debian_CPANTS.txt',
+                             'Data-Validation-*',
+                             'Makefile',
                              map { ( '*/' x $_ ) . '*~' } 0..5 ],
      build_requires     => { 'Exception::Class'    => q(1.23),
                              'Class::Null'         => q(1.09),
