@@ -1,5 +1,6 @@
 Revision history for Data::Validation
 
+         - Use Class::MOP in ensure_class_loaded
          - Added field comparisson
 
 0.3.     14/06/2009
