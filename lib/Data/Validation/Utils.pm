@@ -26,11 +26,28 @@ sub _load_class {
    if ($class =~ m{ \A \+ }mx) { $class =~ s{ \A \+ }{}mx }
    else { $class = blessed( $self ).q(::).(ucfirst $class) }
 
+   $self->_ensure_class_loaded( $class );
+
+   return bless $self, $class;
+}
+
+sub _ensure_class_loaded {
+   my ($self, $class, $opts) = @_; $opts ||= {};
+
+   my $is_class_loaded = sub { Class::MOP::is_class_loaded( $class ) };
+
+   return 1 if (not $opts->{ignore_loaded} and $is_class_loaded->());
+
    eval { Class::MOP::load_class( $class ) };
 
    $self->exception->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
 
-   return bless $self, $class;
+   unless ($is_class_loaded->()) {
+      $self->exception->throw( error => 'Class [_1] failed to load',
+                               args  => [ $class ] );
+   }
+
+   return 1;
 }
 
 no Moose::Role; no Moose::Util::TypeConstraints;
@@ -86,7 +103,11 @@ then call L</isMathchingRegex> to perform the actual validation
 
 =head2 _load_class
 
-Load the external plugin subclass at run time
+Load the external plugin subclass at run time and rebless self to that class
+
+=head2 _ensure_class_loaded
+
+Throws if class cannot be loaded
 
 =head1 Diagnostics
 
