@@ -15,6 +15,15 @@ has 'exception'   => ( is => q(ro), isa => q(Exception), required => 1 );
 has 'constraints' => ( is => q(ro), isa => q(HashRef), default => sub { {} } );
 has 'fields'      => ( is => q(ro), isa => q(HashRef), default => sub { {} } );
 has 'filters'     => ( is => q(ro), isa => q(HashRef), default => sub { {} } );
+has 'operators'   => ( is => q(ro), isa => q(HashRef), default => sub {
+   return { 'eq' => sub { return $_[0] eq $_[1] },
+            '==' => sub { return $_[0] == $_[1] },
+            'ne' => sub { return $_[0] ne $_[1] },
+            '!=' => sub { return $_[0] != $_[1] },
+            '>'  => sub { return $_[0] >  $_[1] },
+            '>=' => sub { return $_[0] >= $_[1] },
+            '<'  => sub { return $_[0] <  $_[1] },
+            '<=' => sub { return $_[0] <= $_[1] }, } } );
 
 sub check_form {
    # Validate all the fields on a form by repeated calling check_field
@@ -88,15 +97,20 @@ sub _compare_fields {
 
    my $id         = $prefix.$name1;
    my $constraint = $self->constraints->{ $id } || {};
-   my $op         = $constraint->{operator} || q(eq);
 
    unless ($name2 = $constraint->{other_field}) {
-      my $error = 'Constraint [_1] has no comparisson field';
+      my $error = 'Constraint [_1] has no comparison field';
 
       $self->exception->throw( error => $error, args => [ $id ] );
    }
 
-   unless ($self->_eval_op( $form->{ $name1 }, $op, $form->{ $name2 } )) {
+   my $lhs  = $form->{ $name1 } || q();
+   my $rhs  = $form->{ $name2 } || q();
+   my $op   = $constraint->{operator} || q(eq);
+   my $bool = exists $self->operators->{ $op }
+            ? $self->operators->{ $op }->( $lhs, $rhs ) : 0;
+
+   unless ($bool) {
       my $error = 'Field [_1] [_2] field [_3]';
 
       $self->exception->throw( error => $error,
@@ -106,20 +120,6 @@ sub _compare_fields {
    return;
 }
 
-sub _eval_op {
-   my ($self, $lhs, $op, $rhs) = @_;
-
-   return $lhs eq $rhs ? 1 : 0 if ($op eq q(eq));
-   return $lhs == $rhs ? 1 : 0 if ($op eq q(==));
-   return $lhs ne $rhs ? 1 : 0 if ($op eq q(ne));
-   return $lhs != $rhs ? 1 : 0 if ($op eq q(!=));
-   return $lhs >  $rhs ? 1 : 0 if ($op eq q(>) );
-   return $lhs >= $rhs ? 1 : 0 if ($op eq q(>=));
-   return $lhs <  $rhs ? 1 : 0 if ($op eq q(<) );
-   return $lhs <= $rhs ? 1 : 0 if ($op eq q(<=));
-
-   return;
-}
 __PACKAGE__->meta->make_immutable;
 
 no Moose;
@@ -186,7 +186,7 @@ The following are passed to the constructor
 
 =item exception
 
-Class capable of throwing an exception
+Class capable of throwing an exception. Should provide an I<args> attribute
 
 =item constraints
 
@@ -205,6 +205,13 @@ be accepted
 
 Hash containing filter attributes. Keys are the C<$id> values passed
 to L</check_field>. See L<Data::Validation::Filters>
+
+=item operators
+
+Hash containing operator code refs. The keys of the hash ref are comparison
+operators and their values are the anonymous code refs that compare
+the operands and return a boolean. Used by the I<compare> form validation
+method
 
 =back
 
