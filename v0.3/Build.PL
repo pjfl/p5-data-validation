@@ -40,6 +40,7 @@ my $build = Module::Build->new
      dist_version_from  => q(lib/Data/Validation.pm),
      license            => q(perl),
      module_name        => q(Data::Validation),
+     no_index           => { directory => [ q(t) ] },
      notes              => { cpan_testers_version => 1 },
      recommends         => $recommends,
      requires           => $requires,
