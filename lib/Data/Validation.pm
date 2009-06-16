@@ -18,18 +18,22 @@ has 'filters'     => ( is => q(ro), isa => q(HashRef), default => sub { {} } );
 
 sub check_form {
    # Validate all the fields on a form by repeated calling check_field
-   my ($self, $prefix, $form) = @_; $prefix ||= q(); my $field;
+   my ($self, $prefix, $form) = @_; $prefix ||= q(); my $methods;
 
    unless ($form && ref $form eq q(HASH)) {
       $self->exception->throw( 'Form has no values' );
    }
 
    for my $name (keys %{ $form }) {
-      my $id = $prefix.$name;
+      my $id = $prefix.$name; my $field = $self->fields->{ $id };
 
-      next unless ($field = $self->fields->{ $id } and $field->{validate});
+      next unless ($field and $methods = $field->{validate});
 
       $form->{ $name } = $self->check_field( $id, $form->{ $name } );
+
+      if (-1 < index $methods, q(compare)) {
+         $self->_compare_fields( $prefix, $form, $name );
+      }
    }
 
    return $form;
@@ -59,6 +63,8 @@ sub check_field {
    }
 
    for $method (split q( ), $field->{validate}) {
+      next if ($method eq q(compare));
+
       %config = ( method => $method,
                   exception => $self->exception,
                   %{ $self->constraints->{ $id } || {} }, );
@@ -75,6 +81,45 @@ sub check_field {
    return $value;
 }
 
+# Private methods
+
+sub _compare_fields {
+   my ($self, $prefix, $form, $name1) = @_; my $name2;
+
+   my $id         = $prefix.$name1;
+   my $constraint = $self->constraints->{ $id } || {};
+   my $op         = $constraint->{operator} || q(eq);
+
+   unless ($name2 = $constraint->{other_field}) {
+      my $error = 'Constraint [_1] has no comparisson field';
+
+      $self->exception->throw( error => $error, args => [ $id ] );
+   }
+
+   unless ($self->_eval_op( $form->{ $name1 }, $op, $form->{ $name2 } )) {
+      my $error = 'Field [_1] [_2] field [_3]';
+
+      $self->exception->throw( error => $error,
+                               args  => [ $name1, $op, $name2 ] );
+   }
+
+   return;
+}
+
+sub _eval_op {
+   my ($self, $lhs, $op, $rhs) = @_;
+
+   return $lhs eq $rhs ? 1 : 0 if ($op eq q(eq));
+   return $lhs == $rhs ? 1 : 0 if ($op eq q(==));
+   return $lhs ne $rhs ? 1 : 0 if ($op eq q(ne));
+   return $lhs != $rhs ? 1 : 0 if ($op eq q(!=));
+   return $lhs >  $rhs ? 1 : 0 if ($op eq q(>) );
+   return $lhs >= $rhs ? 1 : 0 if ($op eq q(>=));
+   return $lhs <  $rhs ? 1 : 0 if ($op eq q(<) );
+   return $lhs <= $rhs ? 1 : 0 if ($op eq q(<=));
+
+   return;
+}
 __PACKAGE__->meta->make_immutable;
 
 no Moose;
