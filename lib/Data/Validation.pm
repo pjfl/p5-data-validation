@@ -50,41 +50,20 @@ sub check_form {
 
 sub check_field {
    # Validate form field values
-   my ($self, $id, $value) = @_;
-   my (%config, $constraint_ref, $error, $field, $filter_ref, $method);
+   my ($self, $id, $value) = @_; my $field;
 
-   unless ($id and $field = $self->fields->{ $id } and $field->{validate}) {
+   unless ($id and $field = $self->fields->{ $id }
+           and ($field->{filters} or $field->{validate})) {
       $self->exception->throw( error => 'No definition for field [_1]',
                                args  => [ $id, $value ] );
    }
 
    if ($field->{filters}) {
-      for $method (split q( ), $field->{filters}) {
-         %config = ( method => $method,
-                     exception => $self->exception,
-                     %{ $self->filters->{ $id } || {} }, );
-         $filter_ref = eval { Data::Validation::Filters->new( %config ) };
-
-         $self->exception->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
-
-         $value = $filter_ref->filter( $value );
-      }
+      $value = $self->_filter( $field->{filters}, $id, $value );
    }
 
-   for $method (split q( ), $field->{validate}) {
-      next if ($method eq q(compare));
-
-      %config = ( method => $method,
-                  exception => $self->exception,
-                  %{ $self->constraints->{ $id } || {} }, );
-      $constraint_ref = eval { Data::Validation::Constraints->new( %config ) };
-
-      $self->exception->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
-
-      unless ($constraint_ref->validate( $value )) {
-         ($error = $method) =~ s{ \A is }{e}imx;
-         $self->exception->throw( error => $error, args => [ $id, $value ] );
-      }
+   for my $method (split q( ), $field->{validate}) {
+      $self->_validate( $method, $id, $value );
    }
 
    return $value;
@@ -115,6 +94,44 @@ sub _compare_fields {
 
       $self->exception->throw( error => $error,
                                args  => [ $name1, $op, $name2 ] );
+   }
+
+   return;
+}
+
+sub _filter {
+   my ($self, $filters, $id, $value) = @_;
+
+   for my $method (split q( ), $filters) {
+      my %config = ( method    => $method,
+                     exception => $self->exception,
+                     %{ $self->filters->{ $id } || {} }, );
+      my $filter_ref = eval { Data::Validation::Filters->new( %config ) };
+
+      $self->exception->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
+
+      $value = $filter_ref->filter( $value );
+   }
+
+   return $value;
+}
+
+sub _validate {
+   my ($self, $method, $id, $value) = @_;
+
+   return if ($method eq q(compare));
+
+   my %config = ( method    => $method,
+                  exception => $self->exception,
+                  %{ $self->constraints->{ $id } || {} }, );
+   my $constraint_ref = eval { Data::Validation::Constraints->new( %config ) };
+
+   $self->exception->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
+
+   unless ($constraint_ref->validate( $value )) {
+      (my $error = $method) =~ s{ \A is }{e}imx;
+
+      $self->exception->throw( error => $error, args => [ $id, $value ] );
    }
 
    return;
