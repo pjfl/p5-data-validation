@@ -4,7 +4,7 @@ package Data::Validation;
 
 use strict;
 use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.3.%d', q$Rev$ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.4.%d', q$Rev$ =~ /\d+/gmx );
 
 use Data::Validation::Constraints;
 use Data::Validation::Filters;
@@ -153,7 +153,7 @@ Data::Validation - Filter and check data values
 
 =head1 Version
 
-0.3.$Rev$
+0.4.$Rev$
 
 =head1 Synopsis
 
