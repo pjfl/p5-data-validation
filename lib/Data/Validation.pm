@@ -16,14 +16,14 @@ has 'constraints' => ( is => q(ro), isa => q(HashRef), default => sub { {} } );
 has 'fields'      => ( is => q(ro), isa => q(HashRef), default => sub { {} } );
 has 'filters'     => ( is => q(ro), isa => q(HashRef), default => sub { {} } );
 has 'operators'   => ( is => q(ro), isa => q(HashRef), default => sub {
-   return { 'eq' => sub { return $_[0] eq $_[1] },
-            '==' => sub { return $_[0] == $_[1] },
-            'ne' => sub { return $_[0] ne $_[1] },
-            '!=' => sub { return $_[0] != $_[1] },
-            '>'  => sub { return $_[0] >  $_[1] },
-            '>=' => sub { return $_[0] >= $_[1] },
-            '<'  => sub { return $_[0] <  $_[1] },
-            '<=' => sub { return $_[0] <= $_[1] }, } } );
+   return { q(eq) => sub { return $_[0] eq $_[1] },
+            q(==) => sub { return $_[0] == $_[1] },
+            q(ne) => sub { return $_[0] ne $_[1] },
+            q(!=) => sub { return $_[0] != $_[1] },
+            q(>)  => sub { return $_[0] >  $_[1] },
+            q(>=) => sub { return $_[0] >= $_[1] },
+            q(<)  => sub { return $_[0] <  $_[1] },
+            q(<=) => sub { return $_[0] <= $_[1] }, } }, );
 
 sub check_form {
    # Validate all the fields on a form by repeated calling check_field
