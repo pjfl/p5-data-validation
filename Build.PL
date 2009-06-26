@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.3.%d', q$Rev$ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.4.%d', q$Rev$ =~ /\d+/gmx );
 
 use Module::Build;
 
@@ -44,7 +44,7 @@ my $build = Module::Build->new
      notes              => { cpan_testers_version => 1 },
      recommends         => $recommends,
      requires           => $requires,
-     sign               => 1 );
+     sign               => 1, );
 
 $build->create_build_script();
 

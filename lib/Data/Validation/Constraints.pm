@@ -5,7 +5,7 @@ package Data::Validation::Constraints;
 use strict;
 use charnames qw(:full);
 use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.3.%d', q$Rev$ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.4.%d', q$Rev$ =~ /\d+/gmx );
 
 use Moose;
 use Regexp::Common qw(number);
@@ -148,7 +148,7 @@ Data::Validation::Constraints - Test data values for conformance with constraint
 
 =head1 Version
 
-0.3.$Revision$
+0.4.$Revision$
 
 =head1 Synopsis
 

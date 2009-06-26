@@ -4,7 +4,7 @@ package Data::Validation::Utils;
 
 use strict;
 use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.3.%d', q$Rev$ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.4.%d', q$Rev$ =~ /\d+/gmx );
 
 use Class::MOP;
 use English qw(-no_match_vars);
@@ -32,19 +32,22 @@ sub _load_class {
 }
 
 sub _ensure_class_loaded {
-   my ($self, $class, $opts) = @_; $opts ||= {};
+   my ($self, $class, $opts) = @_; my $error; $opts ||= {};
 
    my $is_class_loaded = sub { Class::MOP::is_class_loaded( $class ) };
 
    return 1 if (not $opts->{ignore_loaded} and $is_class_loaded->());
 
-   eval { Class::MOP::load_class( $class ) };
+   {  local $EVAL_ERROR = undef;
+      eval { Class::MOP::load_class( $class ) };
+      $error = $EVAL_ERROR;
+   }
 
-   $self->exception->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
+   $self->exception->throw( $error ) if ($error);
 
    unless ($is_class_loaded->()) {
-      $self->exception->throw( error => 'Class [_1] failed to load',
-                               args  => [ $class ] );
+      $error = 'Class [_1] loaded but package undefined';
+      $self->exception->throw( error => $error, args => [ $class ] );
    }
 
    return 1;
@@ -64,7 +67,7 @@ Data::Validation::Utils - Code and attribute reuse
 
 =head1 Version
 
-0.3.$Revision$
+0.4.$Revision$
 
 =head1 Synopsis
 

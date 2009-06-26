@@ -6,7 +6,7 @@ use strict;
 use Moose;
 use CatalystX::Usul::Time;
 
-use version; our $VERSION = qv( sprintf '0.3.%d', q$Rev$ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.4.%d', q$Rev$ =~ /\d+/gmx );
 
 extends 'Data::Validation::Constraints';
 
