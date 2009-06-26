@@ -43,7 +43,8 @@ my $build = Module::Build->new
      no_index           => { directory => [ q(t) ] },
      notes              => { cpan_testers_version => 1 },
      recommends         => $recommends,
-     requires           => $requires, );
+     requires           => $requires,
+     sign               => 1, );
 
 $build->create_build_script();
 
