@@ -14,6 +14,7 @@ my $requires   = {
    'version'                      => q(0.74),
    'Class::MOP'                   => q(0.53),
    'Email::Valid'                 => q(0.179),
+   'List::Util'                   => q(1.19),
    'LWP::UserAgent'               => q(2.036),
    'Moose'                        => q(0.38),
    'Moose::Role'                  => q(0.55),

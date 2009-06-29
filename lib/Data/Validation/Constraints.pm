@@ -13,6 +13,7 @@ use Scalar::Util   qw(looks_like_number);
 
 with q(Data::Validation::Utils);
 
+has 'error'      => ( is => q(rw), isa => q(Str) );
 has 'max_length' => ( is => q(rw), isa => q(Int) );
 has 'max_value'  => ( is => q(rw), isa => q(Int) );
 has 'min_length' => ( is => q(rw), isa => q(Int) );
@@ -172,6 +173,11 @@ Uses the L<Data::Validation::Utils> L<Moose::Role>. Defines the
 following attributes:
 
 =over 3
+
+=item error
+
+A string containing the error message that is thrown if the validation
+fails
 
 =item max_length
 

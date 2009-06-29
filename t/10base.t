@@ -37,9 +37,9 @@ sub test_val {
 
 my $f = {};
 
-ok( test_val( $f, undef, 1 ) eq q(No definition for field [_1]),
+ok( test_val( $f, undef, 1 ) eq q(Field [_1] undefined),
     q(No field definition 1) );
-ok( test_val( $f, q(test), 1 ) eq q(No definition for field [_1]),
+ok( test_val( $f, q(test), 1 ) eq q(Field [_1] undefined),
     q(No field definition 2) );
 
 $f->{fields}->{test}->{validate} = q(isHexadecimal);

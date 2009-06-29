@@ -8,7 +8,8 @@ use version; our $VERSION = qv( sprintf '0.4.%d', q$Rev$ =~ /\d+/gmx );
 
 use Data::Validation::Constraints;
 use Data::Validation::Filters;
-use English qw(-no_match_vars);
+use English    qw( -no_match_vars );
+use List::Util qw( first );
 use Moose;
 
 has 'exception'   => ( is => q(ro), isa => q(Exception), required => 1 );
@@ -27,20 +28,20 @@ has 'operators'   => ( is => q(ro), isa => q(HashRef), default => sub {
 
 sub check_form {
    # Validate all the fields on a form by repeated calling check_field
-   my ($self, $prefix, $form) = @_; $prefix ||= q(); my $methods;
+   my ($self, $prefix, $form) = @_; $prefix ||= q();
 
-   unless ($form && ref $form eq q(HASH)) {
+   unless ($form and ref $form eq q(HASH)) {
       $self->exception->throw( 'Form has no values' );
    }
 
    for my $name (keys %{ $form }) {
       my $id = $prefix.$name; my $field = $self->fields->{ $id };
 
-      next unless ($field and $methods = $field->{validate});
+      next unless ($field and ($field->{filters} or $field->{validate}));
 
       $form->{ $name } = $self->check_field( $id, $form->{ $name } );
 
-      if (-1 < index $methods, q(compare)) {
+      if ($self->_should_compare( $field )) {
          $self->_compare_fields( $prefix, $form, $name );
       }
    }
@@ -54,7 +55,7 @@ sub check_field {
 
    unless ($id and $field = $self->fields->{ $id }
            and ($field->{filters} or $field->{validate})) {
-      $self->exception->throw( error => 'No definition for field [_1]',
+      $self->exception->throw( error => 'Field [_1] undefined',
                                args  => [ $id, $value ] );
    }
 
@@ -62,8 +63,8 @@ sub check_field {
       $value = $self->_filter( $field->{filters}, $id, $value );
    }
 
-   for my $method (split q( ), $field->{validate}) {
-      $self->_validate( $method, $id, $value );
+   for my $method ($self->_get_methods( $field->{validate} )) {
+      $self->_validate( $method, $id, $value ) unless ($method eq q(compare));
    }
 
    return $value;
@@ -90,7 +91,7 @@ sub _compare_fields {
             ? $self->operators->{ $op }->( $lhs, $rhs ) : 0;
 
    unless ($bool) {
-      my $error = 'Field [_1] [_2] field [_3]';
+      my $error = $constraint->{error} || 'Field [_1] [_2] field [_3]';
 
       $self->exception->throw( error => $error,
                                args  => [ $name1, $op, $name2 ] );
@@ -102,10 +103,10 @@ sub _compare_fields {
 sub _filter {
    my ($self, $filters, $id, $value) = @_;
 
-   for my $method (split q( ), $filters) {
-      my %config = ( method    => $method,
-                     exception => $self->exception,
-                     %{ $self->filters->{ $id } || {} }, );
+   for my $method ($self->_get_methods( $filters )) {
+      my $config     = $self->filters->{ $id } || {};
+      my %config     =
+         ( method => $method, exception => $self->exception, %{ $config }, );
       my $filter_ref = eval { Data::Validation::Filters->new( %config ) };
 
       $self->exception->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
@@ -116,20 +117,31 @@ sub _filter {
    return $value;
 }
 
+sub _get_methods {
+   my ($self, $methods) = @_; return split q( ), $methods;
+}
+
+sub _should_compare {
+   my ($self, $field) = @_;
+
+   my @methods = $self->_get_methods( $field->{validate} );
+
+   return first { $_ eq q(compare) } @methods;
+}
+
 sub _validate {
    my ($self, $method, $id, $value) = @_;
 
-   return if ($method eq q(compare));
-
-   my %config = ( method    => $method,
-                  exception => $self->exception,
-                  %{ $self->constraints->{ $id } || {} }, );
-   my $constraint_ref = eval { Data::Validation::Constraints->new( %config ) };
+   my $config     = $self->constraints->{ $id } || {};
+   my $error      = $config->{error};
+   my %config     =
+      ( method => $method, exception => $self->exception, %{ $config }, );
+   my $constraint = eval { Data::Validation::Constraints->new( %config ) };
 
    $self->exception->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
 
-   unless ($constraint_ref->validate( $value )) {
-      (my $error = $method) =~ s{ \A is }{e}imx;
+   unless ($constraint->validate( $value )) {
+      ($error = $method) =~ s{ \A is }{e}imx unless ($error);
 
       $self->exception->throw( error => $error, args => [ $id, $value ] );
    }
@@ -242,6 +254,12 @@ Calls L</check_field> for each of the keys in the C<$form> hash. In
 the calls to L</check_field> the C<$form> keys have the C<$prefix>
 prepended to them to create the key to the C<$fields> hash
 
+If one of the fields constraint names is I<compare>, then the fields
+value is compared with the value for another field. The constraint
+attribute I<other_field> determines which field to compare and the
+I<operator> constraint attribute gives the comparison operator which
+defaults to C<eq>
+
 =head2 check_field
 
    $value = $dv->check_field( $id, $value );
@@ -265,6 +283,8 @@ None
 =item L<Data::Validation::Constraints>
 
 =item L<Data::Validation::Filters>
+
+=item L<List::Util>
 
 =back
 
@@ -299,4 +319,3 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
 # mode: perl
 # tab-width: 3
 # End:
-
