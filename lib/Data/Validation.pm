@@ -12,7 +12,7 @@ use English    qw( -no_match_vars );
 use List::Util qw( first );
 use Moose;
 
-has 'exception'   => ( is => q(ro), isa => q(Exception), required => 1 );
+has 'exception'   => ( is => q(ro), isa => q(D_V_Exception), required => 1 );
 has 'constraints' => ( is => q(ro), isa => q(HashRef), default => sub { {} } );
 has 'fields'      => ( is => q(ro), isa => q(HashRef), default => sub { {} } );
 has 'filters'     => ( is => q(ro), isa => q(HashRef), default => sub { {} } );

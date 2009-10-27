@@ -1,5 +1,9 @@
 Revision history for Data::Validation
 
+0.4.115  27/10/2009
+         - Made D_V_Exception constraint name more unique as constraint
+         names in Moose are fucking GLOBAL
+
 0.4.114  29/06/2009
          - Added POD for field comparison
          - Fixed signature key

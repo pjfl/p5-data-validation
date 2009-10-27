@@ -12,9 +12,9 @@ use Moose::Role;
 use Moose::Util::TypeConstraints;
 use Scalar::Util qw(blessed);
 
-subtype 'Exception' => as 'ClassName' => where { $_->can( q(throw) ) };
+subtype 'D_V_Exception' => as 'ClassName' => where { $_->can( q(throw) ) };
 
-has 'exception' => ( is => q(ro), isa => q(Exception), required => 1 );
+has 'exception' => ( is => q(ro), isa => q(D_V_Exception), required => 1 );
 has 'method'    => ( is => q(ro), isa => q(Str), required => 1 );
 has 'pattern'   => ( is => q(rw), isa => q(Str) );
 
