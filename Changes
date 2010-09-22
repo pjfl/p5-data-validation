@@ -1,6 +1,6 @@
 Revision history for Data::Validation
 
-0.5.118  2010-09-22
+0.5.120  2010-09-22
          - Changed str2time call in Constraints::Date
 
 0.4.116  27/10/2009
