@@ -1,5 +1,8 @@
 Revision history for Data::Validation
 
+0.6.122  2010-09-22
+         - Switched to M::B for installs
+
 0.5.120  2010-09-22
          - Changed str2time call in Constraints::Date
 

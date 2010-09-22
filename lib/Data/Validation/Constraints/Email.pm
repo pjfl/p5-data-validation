@@ -6,7 +6,7 @@ use strict;
 use Moose;
 use Email::Valid;
 
-use version; our $VERSION = qv( sprintf '0.5.%d', q$Rev$ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.6.%d', q$Rev$ =~ /\d+/gmx );
 
 extends 'Data::Validation::Constraints';
 
