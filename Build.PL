@@ -4,18 +4,23 @@ use strict;
 use warnings;
 use version; our $VERSION = qv( sprintf '0.6.%d', q$Rev$ =~ /\d+/gmx );
 
+use English qw( -no_match_vars );
 use Module::Build;
+
+sub whimper { my $text = shift; print {*STDOUT} $text."\n"; exit 0 }
+
+BEGIN {
+   eval { require 5.008; }; $EVAL_ERROR and whimper 'Perl minimum 5.8';
+}
 
 Module::Build->new
    ( add_to_cleanup     => [ 'Debian_CPANTS.txt', 'Data-Validation-*',
-                             'Makefile', 'pm_to_blib',
                              map { ( '*/' x $_ ) . '*~' } 0..5 ],
-     build_requires     => { 'Exception::Class'    => q(1.23),
-                             'Class::Null'         => q(1.09),
-                             'Test::More'          => q(0.74),
-                             'Test::Pod'           => q(1.26), },
-     configure_requires => { 'ExtUtils::MakeMaker' => q(6.42),
-                             'version'             => q(0.74), },
+     build_requires     => { 'Exception::Class' => q(1.23),
+                             'Class::Null'      => q(1.09),
+                             'Test::More'       => q(0.74),
+                             'Test::Pod'        => q(1.26), },
+     configure_requires => { 'version'          => q(0.74), },
      create_readme      => 1,
      create_packlist    => 0,
      dist_version_from  => q(lib/Data/Validation.pm),
