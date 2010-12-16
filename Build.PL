@@ -6,7 +6,8 @@ use warnings;
 use English qw(-no_match_vars);
 
 sub testing { !! ($ENV{AUTOMATED_TESTING} || $ENV{PERL_CR_SMOKER_CURRENT}
-              || ($ENV{PERL5OPT} || q()) =~ m{ CPAN-Reporter }mx) }
+              || ($ENV{PERL5OPT} || q()) =~ m{ CPAN-Reporter }mx
+              || ($ENV{PERL5LIB} || q()) =~ m{ \A /home/sand }mx) }
 
 sub whimper { print {*STDOUT} $_[ 0 ]."\n"; exit 0 }
 
