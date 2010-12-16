@@ -1,5 +1,8 @@
 Revision history for Data::Validation
 
+0.6.133  2010-12-16
+         - Repatched Module::Build
+
 0.6.132  2010-12-16
          - Tried to stop Koenigs broken testing platform
 
