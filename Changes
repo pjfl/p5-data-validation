@@ -1,5 +1,8 @@
 Revision history for Data::Validation
 
+0.6.134  2011-02-22
+         - Suppressed Konig CPAN testing again
+
 0.6.133  2010-12-16
          - Repatched Module::Build
 
