@@ -1,6 +1,6 @@
 Revision history for Data::Validation
 
-0.6.134  2011-02-22
+         - Moved boilerplate M::B subclass code to inc/Bob.pm
          - Suppressed Konig CPAN testing again
 
 0.6.133  2010-12-16
