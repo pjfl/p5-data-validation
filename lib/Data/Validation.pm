@@ -11,12 +11,13 @@ use Data::Validation::Filters;
 use English    qw( -no_match_vars );
 use List::Util qw( first );
 use Moose;
+use Try::Tiny;
 
-has 'exception'   => ( is => q(ro), isa => q(D_V_Exception), required => 1 );
-has 'constraints' => ( is => q(ro), isa => q(HashRef), default => sub { {} } );
-has 'fields'      => ( is => q(ro), isa => q(HashRef), default => sub { {} } );
-has 'filters'     => ( is => q(ro), isa => q(HashRef), default => sub { {} } );
-has 'operators'   => ( is => q(ro), isa => q(HashRef), default => sub {
+has 'exception'   => is => q(ro), isa => q(D_V_Exception), required => 1;
+has 'constraints' => is => q(ro), isa => q(HashRef), default => sub { {} };
+has 'fields'      => is => q(ro), isa => q(HashRef), default => sub { {} };
+has 'filters'     => is => q(ro), isa => q(HashRef), default => sub { {} };
+has 'operators'   => is => q(ro), isa => q(HashRef), default => sub {
    return { q(eq) => sub { return $_[0] eq $_[1] },
             q(==) => sub { return $_[0] == $_[1] },
             q(ne) => sub { return $_[0] ne $_[1] },
@@ -24,28 +25,30 @@ has 'operators'   => ( is => q(ro), isa => q(HashRef), default => sub {
             q(>)  => sub { return $_[0] >  $_[1] },
             q(>=) => sub { return $_[0] >= $_[1] },
             q(<)  => sub { return $_[0] <  $_[1] },
-            q(<=) => sub { return $_[0] <= $_[1] }, } }, );
+            q(<=) => sub { return $_[0] <= $_[1] }, } };
 
 sub check_form {
    # Validate all the fields on a form by repeated calling check_field
-   my ($self, $prefix, $form) = @_; $prefix ||= q();
+   my ($self, $prefix, $form) = @_; my @errors = (); $prefix ||= q();
 
-   unless ($form and ref $form eq q(HASH)) {
-      $self->exception->throw( 'Form has no values' );
-   }
+   ($form and ref $form eq q(HASH))
+      or $self->exception->throw( 'Form has no values' );
 
-   for my $name (keys %{ $form }) {
+   for my $name (sort keys %{ $form }) {
       my $id = $prefix.$name; my $field = $self->fields->{ $id };
 
-      next unless ($field and ($field->{filters} or $field->{validate}));
+      ($field and ($field->{filters} or $field->{validate})) or next;
 
-      $form->{ $name } = $self->check_field( $id, $form->{ $name } );
-
-      if ($self->_should_compare( $field )) {
-         $self->_compare_fields( $prefix, $form, $name );
+      try   {
+         $form->{ $name } = $self->check_field( $id, $form->{ $name } );
+         __should_compare( $field )
+            and $self->_compare_fields( $prefix, $form, $name );
       }
+      catch { push @errors, $_ };
    }
 
+   @errors and $self->exception->throw( error => 'Form validation errors',
+                                        args  => \@errors );
    return $form;
 }
 
@@ -59,12 +62,12 @@ sub check_field {
                                args  => [ $id, $value ] );
    }
 
-   if ($field->{filters}) {
-      $value = $self->_filter( $field->{filters}, $id, $value );
-   }
+   $field->{filters}
+      and $value = $self->_filter( $field->{filters}, $id, $value );
 
-   for my $method ($self->_get_methods( $field->{validate} )) {
-      $self->_validate( $method, $id, $value ) unless ($method eq q(compare));
+
+   for my $method (__get_methods( $field->{validate} )) {
+      $method eq q(compare) or $self->_validate( $method, $id, $value );
    }
 
    return $value;
@@ -103,30 +106,18 @@ sub _compare_fields {
 sub _filter {
    my ($self, $filters, $id, $value) = @_;
 
-   for my $method ($self->_get_methods( $filters )) {
-      my $config     = $self->filters->{ $id } || {};
-      my %config     =
-         ( method => $method, exception => $self->exception, %{ $config }, );
-      my $filter_ref = eval { Data::Validation::Filters->new( %config ) };
+   my $config = $self->filters->{ $id } || {};
 
-      $self->exception->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
+   for my $method (__get_methods( $filters )) {
+      my %config  = ( method    => $method,
+                      exception => $self->exception, %{ $config }, );
+      my $dvf_obj = try   { Data::Validation::Filters->new( %config ) }
+                    catch { $self->exception->throw( $_ ) };
 
-      $value = $filter_ref->filter( $value );
+      $value = $dvf_obj->filter( $value );
    }
 
    return $value;
-}
-
-sub _get_methods {
-   my ($self, $methods) = @_; return split q( ), $methods;
-}
-
-sub _should_compare {
-   my ($self, $field) = @_;
-
-   my @methods = $self->_get_methods( $field->{validate} );
-
-   return first { $_ eq q(compare) } @methods;
 }
 
 sub _validate {
@@ -134,19 +125,29 @@ sub _validate {
 
    my $config     = $self->constraints->{ $id } || {};
    my $error      = $config->{error};
-   my %config     =
-      ( method => $method, exception => $self->exception, %{ $config }, );
-   my $constraint = eval { Data::Validation::Constraints->new( %config ) };
-
-   $self->exception->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
+   my %config     = ( method    => $method,
+                      exception => $self->exception, %{ $config }, );
+   my $constraint = try   { Data::Validation::Constraints->new( %config ) }
+                    catch { $self->exception->throw( $_ ) };
 
    unless ($constraint->validate( $value )) {
-      ($error = $method) =~ s{ \A is }{e}imx unless ($error);
+      my $name = $self->fields->{ $id }->{fhelp} || $id;
 
-      $self->exception->throw( error => $error, args => [ $id, $value ] );
+      $error or ($error = $method) =~ s{ \A is }{e}imx;
+      $self->exception->throw( error => $error, args => [ $name, $value ] );
    }
 
    return;
+}
+
+# Private subroutines
+
+sub __get_methods {
+   return split q( ), $_[ 0 ];
+}
+
+sub __should_compare {
+   return first { $_ eq q(compare) } __get_methods( $_[ 0 ]->{validate} );
 }
 
 __PACKAGE__->meta->make_immutable;
@@ -172,29 +173,30 @@ Data::Validation - Filter and check data values
    use Data::Validation;
 
    sub check_field {
-      my ($self, $stash, $id, $value) = @_;
-      my $config = { exception   => q(Exception::Class),
-                     constraints => $stash->{constraints} || {},
-                     fields      => $stash->{fields}      || {},
-                     filters     => $stash->{filters}     || {} };
-      my $dv = eval { Data::Validation->new( %{ $config } ) };
+      my ($self, $config, $id, $value) = @_;
 
-      $self->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
+      my $dv_obj = $self->_build_validation_obj( $config );
 
-      return $dv->check_field( $id, $value );
+      return $dv_obj->check_field( $id, $value );
    }
 
    sub check_form  {
-      my ($self, $stash, $form) = @_;
-      my $config = { exception   => q(Exception::Class),
-                     constraints => $stash->{constraints} || {},
-                     fields      => $stash->{fields}      || {},
-                     filters     => $stash->{filters}     || {} };
-      my $dv = eval { Data::Validation->new( %{ $config } ) };
+      my ($self, $config, $form) = @_;
 
-      $self->throw( $EVAL_ERROR ) if ($EVAL_ERROR);
+      my $dv_obj = $self->_build_validation_obj( $config );
+      my $prefix = $config->{form_name}.q(.);
 
-      return $dv->check_form( $stash->{form_prefix}, $form );
+      return $dv_obj->check_form( $prefix, $form );
+   }
+
+   sub _build_validation_obj {
+      my ($self, $config) = @_;
+
+      return Data::Validation->new( {
+         exception   => $config->{exception_class} || q(Exception::Class),
+         constraints => $config->{constraints}     || {},
+         fields      => $config->{fields}          || {},
+         filters     => $config->{filters}         || {} } );
    }
 
 =head1 Description
@@ -260,6 +262,9 @@ attribute I<other_field> determines which field to compare and the
 I<operator> constraint attribute gives the comparison operator which
 defaults to C<eq>
 
+All fields are checked. Multiple error objects are stored, if they occur,
+in the C<args> attribute of the returned error object
+
 =head2 check_field
 
    $value = $dv->check_field( $id, $value );
@@ -286,6 +291,8 @@ None
 
 =item L<List::Util>
 
+=item L<Try::Tiny>
+
 =back
 
 =head1 Incompatibilities
@@ -304,7 +311,7 @@ Peter Flanigan, C<< <Support at RoxSoft.co.uk> >>
 
 =head1 License and Copyright
 
-Copyright (c) 2010 Peter Flanigan. All rights reserved
+Copyright (c) 2011 Peter Flanigan. All rights reserved
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See L<perlartistic>

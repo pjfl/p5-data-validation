@@ -11,6 +11,7 @@ use English qw(-no_match_vars);
 use Moose::Role;
 use Moose::Util::TypeConstraints;
 use Scalar::Util qw(blessed);
+use Try::Tiny;
 
 subtype 'D_V_Exception' => as 'ClassName' => where { $_->can( q(throw) ) };
 
@@ -32,25 +33,21 @@ sub _load_class {
 }
 
 sub _ensure_class_loaded {
-   my ($self, $class, $opts) = @_; my $error; $opts ||= {};
+   my ($self, $class, $opts) = @_; $opts ||= {};
 
-   my $is_class_loaded = sub { Class::MOP::is_class_loaded( $class ) };
+   my $package_defined = sub { Class::MOP::is_class_loaded( $class ) };
 
-   return 1 if (not $opts->{ignore_loaded} and $is_class_loaded->());
+   not $opts->{ignore_loaded} and $package_defined->() and return 1;
 
-   {  local $EVAL_ERROR = undef;
-      eval { Class::MOP::load_class( $class ) };
-      $error = $EVAL_ERROR;
-   }
+   try   { Class::MOP::load_class( $class ) }
+   catch { $self->exception->throw( $_ ) };
 
-   $self->exception->throw( $error ) if ($error);
+   $package_defined->() and return 1;
 
-   unless ($is_class_loaded->()) {
-      $error = 'Class [_1] loaded but package undefined';
-      $self->exception->throw( error => $error, args => [ $class ] );
-   }
+   my $e = 'Class [_1] loaded but package undefined';
 
-   return 1;
+   $self->exception->throw( error => $e, args => [ $class ] );
+   return;
 }
 
 no Moose::Role; no Moose::Util::TypeConstraints;

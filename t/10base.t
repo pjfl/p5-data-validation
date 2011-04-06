@@ -147,11 +147,11 @@ ok( !$e->error, q(Valid form) );
 $vals->{field_name5} = q(not_the_same_as_field4);
 eval { $validator->check_form( q(subr_), $vals ) };
 $e = TestException->caught() || Class::Null->new();
-ok( $e->error eq 'Field [_1] [_2] field [_3]', q(Non matching fields) );
+ok( $e->args->[0] eq 'Field [_1] [_2] field [_3]', q(Non matching fields) );
 
-ok( $e->args->[0] eq q(field_name5)
- && $e->args->[1] eq q(eq)
- && $e->args->[2] eq q(field_name4), q(Field comparison args) );
+ok( $e->args->[0]->args->[0] eq q(field_name5)
+ && $e->args->[0]->args->[1] eq q(eq)
+ && $e->args->[0]->args->[2] eq q(field_name4), q(Field comparison args) );
 
 $f->{constraints}->{subr_field_name5}->{operator} = q(ne);
 eval { $validator->check_form( q(subr_), $vals ) };
@@ -163,14 +163,14 @@ $vals->{field_name5} = q(qwe);
 delete $f->{constraints}->{subr_field_name5}->{other_field};
 eval { $validator->check_form( q(subr_), $vals ) };
 $e = TestException->caught() || Class::Null->new();
-ok( $e->error eq 'Constraint [_1] has no comparison field',
+ok( $e->args->[0]->error eq 'Constraint [_1] has no comparison field',
     q(No comparison field) );
 
 $f->{constraints}->{subr_field_name5}->{other_field} = q(field_name4);
 $vals->{field_name2} = q(tooeasy);
 eval { $validator->check_form( q(subr_), $vals ) };
 $e = TestException->caught() || Class::Null->new();
-ok( $e->error eq q(eValidPassword), q(Invalid form) );
+ok( $e->args->[0]->error eq q(eValidPassword), q(Invalid form) );
 
 $f->{fields}->{test}->{validate} = q(isMatchingRegex);
 $f->{constraints}->{test} = { pattern => q(\A \d+ \z) };

@@ -1,5 +1,7 @@
 Revision history for Data::Validation
 
+         - Checks all fields in a form. Returns multiple errors
+         - Now uses Try::Tiny
          - Moved boilerplate M::B subclass code to inc/Bob.pm
          - Suppressed Konig CPAN testing again
 
