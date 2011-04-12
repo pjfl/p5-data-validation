@@ -1,5 +1,7 @@
 Revision history for Data::Validation
 
+0.6.141  2011-04-12
+         - Suppressed dcollins CPAN testing
          - Checks all fields in a form. Returns multiple errors
          - Now uses Try::Tiny
          - Moved boilerplate M::B subclass code to inc/Bob.pm
