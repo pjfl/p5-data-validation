@@ -1,5 +1,6 @@
 Revision history for Data::Validation
 
+         - Updated Moose / Class::MOP / MRO::Compat dependencies
          - Updated inc::Bob
 
 0.6.141  2011-04-12
