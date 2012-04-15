@@ -1,5 +1,6 @@
 Revision history for Data::Validation
 
+         - Updated inc::Bob to 1.3
          - Updated inc::Bob. Added inc::CPANTesting
          - Updated Moose / Class::MOP / MRO::Compat dependencies
          - Updated inc::Bob
