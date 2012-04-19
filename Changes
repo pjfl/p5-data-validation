@@ -1,5 +1,8 @@
 Revision history for Data::Validation
 
+0.7.150  2012-04-19
+         - Turned CPAN testing on
+         - Changed D_V_Exception constriant name to current standard
          - Updated inc::Bob to 1.3
          - Updated inc::Bob. Added inc::CPANTesting
          - Updated Moose / Class::MOP / MRO::Compat dependencies

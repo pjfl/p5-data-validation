@@ -4,20 +4,24 @@ package Data::Validation::Utils;
 
 use strict;
 use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.6.%d', q$Rev$ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.7.%d', q$Rev$ =~ /\d+/gmx );
 
-use Class::MOP;
-use English qw(-no_match_vars);
 use Moose::Role;
 use Moose::Util::TypeConstraints;
+use English      qw(-no_match_vars);
 use Scalar::Util qw(blessed);
+use Class::MOP;
 use Try::Tiny;
 
-subtype 'D_V_Exception' => as 'ClassName' => where { $_->can( q(throw) ) };
+subtype 'Data::Validation::Exception' => as 'ClassName' =>
+   where { $_->can( q(throw) ) };
 
-has 'exception' => ( is => q(ro), isa => q(D_V_Exception), required => 1 );
-has 'method'    => ( is => q(ro), isa => q(Str), required => 1 );
-has 'pattern'   => ( is => q(rw), isa => q(Str) );
+has 'exception' => is => 'ro', isa => 'Data::Validation::Exception',
+   required     => 1;
+
+has 'method'    => is => 'ro', isa => 'Str', required => 1;
+
+has 'pattern'   => is => 'rw', isa => 'Str';
 
 sub _load_class {
    my ($self, $prefix, $class) = @_;
@@ -50,7 +54,8 @@ sub _ensure_class_loaded {
    return;
 }
 
-no Moose::Role; no Moose::Util::TypeConstraints;
+no Moose::Role;
+no Moose::Util::TypeConstraints;
 
 1;
 
@@ -64,7 +69,7 @@ Data::Validation::Utils - Code and attribute reuse
 
 =head1 Version
 
-0.6.$Revision$
+0.7.$Revision$
 
 =head1 Synopsis
 

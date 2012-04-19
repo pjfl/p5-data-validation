@@ -4,28 +4,29 @@ package Data::Validation;
 
 use strict;
 use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.6.%d', q$Rev$ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.7.%d', q$Rev$ =~ /\d+/gmx );
 
+use Moose;
 use Data::Validation::Constraints;
 use Data::Validation::Filters;
 use English    qw( -no_match_vars );
 use List::Util qw( first );
-use Moose;
 use Try::Tiny;
 
-has 'exception'   => is => q(ro), isa => q(D_V_Exception), required => 1;
-has 'constraints' => is => q(ro), isa => q(HashRef), default => sub { {} };
-has 'fields'      => is => q(ro), isa => q(HashRef), default => sub { {} };
-has 'filters'     => is => q(ro), isa => q(HashRef), default => sub { {} };
-has 'operators'   => is => q(ro), isa => q(HashRef), default => sub {
-   return { q(eq) => sub { return $_[0] eq $_[1] },
-            q(==) => sub { return $_[0] == $_[1] },
-            q(ne) => sub { return $_[0] ne $_[1] },
-            q(!=) => sub { return $_[0] != $_[1] },
-            q(>)  => sub { return $_[0] >  $_[1] },
-            q(>=) => sub { return $_[0] >= $_[1] },
-            q(<)  => sub { return $_[0] <  $_[1] },
-            q(<=) => sub { return $_[0] <= $_[1] }, } };
+has 'exception'   => is => 'ro', isa => 'Data::Validation::Exception',
+   required       => 1;
+has 'constraints' => is => 'ro', isa => 'HashRef', default => sub { {} };
+has 'fields'      => is => 'ro', isa => 'HashRef', default => sub { {} };
+has 'filters'     => is => 'ro', isa => 'HashRef', default => sub { {} };
+has '_operators'  => is => 'ro', isa => 'HashRef',
+   default        => sub { { q(eq) => sub { $_[ 0 ] eq $_[ 1 ] },
+                             q(==) => sub { $_[ 0 ] == $_[ 1 ] },
+                             q(ne) => sub { $_[ 0 ] ne $_[ 1 ] },
+                             q(!=) => sub { $_[ 0 ] != $_[ 1 ] },
+                             q(>)  => sub { $_[ 0 ] >  $_[ 1 ] },
+                             q(>=) => sub { $_[ 0 ] >= $_[ 1 ] },
+                             q(<)  => sub { $_[ 0 ] <  $_[ 1 ] },
+                             q(<=) => sub { $_[ 0 ] <= $_[ 1 ] }, } };
 
 sub check_form {
    # Validate all the fields on a form by repeated calling check_field
@@ -52,8 +53,7 @@ sub check_form {
    return $form;
 }
 
-sub check_field {
-   # Validate form field values
+sub check_field { # Validate form field values
    my ($self, $id, $value) = @_; my $field;
 
    unless ($id and $field = $self->fields->{ $id }
@@ -76,28 +76,28 @@ sub check_field {
 # Private methods
 
 sub _compare_fields {
-   my ($self, $prefix, $form, $name1) = @_; my $name2;
+   my ($self, $prefix, $form, $lhs_name) = @_; my $rhs_name;
 
-   my $id         = $prefix.$name1;
+   my $id         = $prefix.$lhs_name;
    my $constraint = $self->constraints->{ $id } || {};
 
-   unless ($name2 = $constraint->{other_field}) {
+   unless ($rhs_name = $constraint->{other_field}) {
       my $error = 'Constraint [_1] has no comparison field';
 
       $self->exception->throw( error => $error, args => [ $id ] );
    }
 
-   my $lhs  = $form->{ $name1 } || q();
-   my $rhs  = $form->{ $name2 } || q();
+   my $lhs  = $form->{ $lhs_name } || q();
+   my $rhs  = $form->{ $rhs_name } || q();
    my $op   = $constraint->{operator} || q(eq);
-   my $bool = exists $self->operators->{ $op }
-            ? $self->operators->{ $op }->( $lhs, $rhs ) : 0;
+   my $bool = exists $self->_operators->{ $op }
+            ? $self->_operators->{ $op }->( $lhs, $rhs ) : 0;
 
    unless ($bool) {
       my $error = $constraint->{error} || 'Field [_1] [_2] field [_3]';
 
       $self->exception->throw( error => $error,
-                               args  => [ $name1, $op, $name2 ] );
+                               args  => [ $lhs_name, $op, $rhs_name ] );
    }
 
    return;
@@ -166,7 +166,7 @@ Data::Validation - Filter and check data values
 
 =head1 Version
 
-0.6.$Rev$
+0.7.$Rev$
 
 =head1 Synopsis
 
@@ -311,7 +311,7 @@ Peter Flanigan, C<< <Support at RoxSoft.co.uk> >>
 
 =head1 License and Copyright
 
-Copyright (c) 2011 Peter Flanigan. All rights reserved
+Copyright (c) 2012 Peter Flanigan. All rights reserved
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See L<perlartistic>
