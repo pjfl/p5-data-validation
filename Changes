@@ -1,5 +1,11 @@
 Revision history for Data::Validation
 
+0.7.151  2012-04-29
+         - Stopped Konig CPAN testing. Compare
+           2874f920-91ca-11e1-a09c-f66955de7b98 with
+           542b6056-8ca0-11e1-951f-159b42b6749c same OS, OS version,
+           architecture and Perl version, different results. Random
+
 0.7.150  2012-04-19
          - Turned CPAN testing on
          - Changed D_V_Exception constriant name to current standard
