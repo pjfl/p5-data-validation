@@ -1,5 +1,8 @@
 Revision history for Data::Validation
 
+0.7.152  2012-05-02
+         - Fixed expression detecting Konig's smoker
+
 0.7.151  2012-04-29
          - Stopped Konig CPAN testing. Compare
            2874f920-91ca-11e1-a09c-f66955de7b98 with
