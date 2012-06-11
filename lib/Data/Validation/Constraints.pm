@@ -5,7 +5,7 @@ package Data::Validation::Constraints;
 use strict;
 use charnames qw(:full);
 use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.7.%d', q$Rev$ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.8.%d', q$Rev$ =~ /\d+/gmx );
 
 use Moose;
 use Regexp::Common qw(number);
@@ -73,7 +73,7 @@ sub isHexadecimal {
 }
 
 sub isMandatory {
-   shift; return ((shift) ? 1 : 0);
+   return defined $_[ 1 ] && length $_[ 1 ] ? 1 : 0;
 }
 
 sub isMatchingRegex {
@@ -83,28 +83,22 @@ sub isMatchingRegex {
 }
 
 sub isPrintable {
-   my ($self, $val) = @_;
-
-   $self->pattern( '\A \p{IsPrint}+ \z' );
-   return $self->isMatchingRegex( $val );
+   $_[ 0 ]->pattern( '\A \p{IsPrint}+ \z' );
+   return $_[ 0 ]->isMatchingRegex( $_[ 1 ] );
 }
 
 sub isSimpleText {
-   my ($self, $val) = @_;
-
-   $self->pattern( '\A [a-zA-Z0-9_ \-\.]+ \z' );
-   return $self->isMatchingRegex( $val );
+   $_[ 0 ]->pattern( '\A [a-zA-Z0-9_ \-\.]+ \z' );
+   return $_[ 0 ]->isMatchingRegex( $_[ 1 ] );
 }
 
 sub isValidHostname {
-   my ($self, $val) = @_; return (gethostbyname $val)[0] ? 1 : 0;
+   return (gethostbyname $_[ 1 ])[ 0 ] ? 1 : 0;
 }
 
 sub isValidIdentifier {
-   my ($self, $val) = @_;
-
-   $self->pattern( '\A [a-zA-Z_] \w* \z' );
-   return $self->isMatchingRegex( $val );
+   $_[ 0 ]->pattern( '\A [a-zA-Z_] \w* \z' );
+   return $_[ 0 ]->isMatchingRegex( $_[ 1 ] );
 }
 
 sub isValidInteger {
@@ -126,10 +120,8 @@ sub isValidLength {
 }
 
 sub isValidNumber {
-   my ($self, $val) = @_;
-
-   return 0 unless (defined $val);
-   return 1 if     (looks_like_number( $val ));
+   return 0 unless (defined $_[ 1 ]);
+   return 1 if     (looks_like_number( $_[ 1 ] ));
    return 0;
 }
 
@@ -149,7 +141,7 @@ Data::Validation::Constraints - Test data values for conformance with constraint
 
 =head1 Version
 
-0.7.$Revision$
+0.8.$Revision$
 
 =head1 Synopsis
 
@@ -342,7 +334,7 @@ Peter Flanigan, C<< <Support at RoxSoft.co.uk> >>
 
 =head1 License and Copyright
 
-Copyright (c) 2008-2010 Peter Flanigan. All rights reserved
+Copyright (c) 2008-2012 Peter Flanigan. All rights reserved
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See L<perlartistic>

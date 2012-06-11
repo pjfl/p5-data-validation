@@ -4,13 +4,13 @@ package Data::Validation::Filters;
 
 use strict;
 use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.7.%d', q$Rev$ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.8.%d', q$Rev$ =~ /\d+/gmx );
 
 use Moose;
 
 with q(Data::Validation::Utils);
 
-has 'replace' => ( is => q(rw), isa => q(Str) );
+has 'replace' => is => 'rw', isa => 'Str';
 
 sub filter {
    my ($self, $val) = @_; defined $val or return; my $method = $self->method;
@@ -75,6 +75,10 @@ sub filterWhiteSpace {
    my ($self, $val) = @_; $val =~ s{ \s+ }{}gmx; return $val;
 }
 
+sub filterZeroLength {
+   return defined $_[ 1 ] && length $_[ 1 ] ? $_[ 1 ] : undef;
+}
+
 __PACKAGE__->meta->make_immutable;
 
 no Moose;
@@ -91,7 +95,7 @@ Data::Validation::Filters - Filter data values
 
 =head1 Version
 
-0.7.$Revision$
+0.8.$Revision$
 
 =head1 Synopsis
 
@@ -162,6 +166,10 @@ Upper cases the data value
 
 Removes all whitespace
 
+=head2 filterZeroLength
+
+Returns undef if value is zero length
+
 =head1 Diagnostics
 
 None
@@ -192,7 +200,7 @@ Peter Flanigan, C<< <Support at RoxSoft.co.uk> >>
 
 =head1 License and Copyright
 
-Copyright (c) 2008 Peter Flanigan. All rights reserved
+Copyright (c) 2012 Peter Flanigan. All rights reserved
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See L<perlartistic>

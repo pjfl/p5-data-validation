@@ -4,7 +4,7 @@ package Data::Validation;
 
 use strict;
 use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.7.%d', q$Rev$ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.8.%d', q$Rev$ =~ /\d+/gmx );
 
 use Moose;
 use Data::Validation::Constraints;
@@ -143,7 +143,7 @@ sub _validate {
 # Private subroutines
 
 sub __get_methods {
-   return split q( ), $_[ 0 ];
+   return split q( ), $_[ 0 ] || q();
 }
 
 sub __should_compare {
@@ -166,7 +166,7 @@ Data::Validation - Filter and check data values
 
 =head1 Version
 
-0.7.$Rev$
+0.8.$Rev$
 
 =head1 Synopsis
 

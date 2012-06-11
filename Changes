@@ -1,5 +1,8 @@
 Revision history for Data::Validation
 
+         - Added filterZeroLength
+         - Fixed bug when filters but no validations
+
 0.7.152  2012-05-02
          - Fixed expression detecting Konig's smoker
 

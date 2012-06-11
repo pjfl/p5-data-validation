@@ -3,7 +3,7 @@
 package Data::Validation::Constraints::Date;
 
 use strict;
-use version; our $VERSION = qv( sprintf '0.7.%d', q$Rev$ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.8.%d', q$Rev$ =~ /\d+/gmx );
 
 use Moose;
 use CatalystX::Usul::Time qw(str2time);
