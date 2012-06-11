@@ -1,5 +1,6 @@
 Revision history for Data::Validation
 
+0.8.153  2012-06-11
          - Added filterZeroLength
          - Fixed bug when filters but no validations
 
