@@ -20,13 +20,13 @@ Bob->new( {
       'Regexp::Common'       => 2.120,
       'Scalar::Util'         => 1.19,
       'Try::Tiny'            => 0.09, },
-   recommends         => { 'CatalystX::Usul::Time' => q(0.7.0), },
-   configure_requires => { 'version'          => 0.74,
-                           'Module::Build'    => 0.32, },
-   build_requires     => { 'Class::Null'      => 1.09,
-                           'Exception::Class' => 1.23,
-                           'Test::More'       => 0.74,
-                           'Test::Pod'        => 1.26, },
+   recommends         => { 'Class::Usul::Time' => q(0.1.0), },
+   configure_requires => { 'version'           => 0.74,
+                           'Module::Build'     => 0.32, },
+   build_requires     => { 'Class::Null'       => 1.09,
+                           'Exception::Class'  => 1.23,
+                           'Test::More'        => 0.74,
+                           'Test::Pod'         => 1.26, },
 } )->create_build_script; # Goal!
 
 # Local Variables:
