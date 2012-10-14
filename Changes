@@ -1,5 +1,8 @@
 Revision history for Data::Validation
 
+         - Improved detection of andk's smoker with the broken resolver
+           d22233d2-157a-11e2-a919-2d6bb4e8b0a6
+
 0.8.155  2012-09-06
          - Added POD spelling tests
          - Updated inc::Bob to 1.5

@@ -16,9 +16,9 @@ sub test_exceptions {
 
    $p->{stop_tests} and return 'CPAN Testing stopped in Build.PL';
 
-   $osname eq q(mirbsd)            and return 'Mirbsd OS unsupported';
-   $uname  =~ m{ linux \s+ k83 }mx and return 'Stopped andk k83';
-   $uname  =~ m{ profvince.com }mx and return 'Stopped vpit profvince';
+   $osname eq q(mirbsd) and return 'Mirbsd OS unsupported';
+   $osname eq q(linux)  and ($ENV{PATH} || q()) =~ m{ \A /home/sand/bin }msx
+                        and return 'Stopped andk linux - broken resolver';
    return 0;
 }
 
