@@ -5,7 +5,9 @@ package CPANTesting;
 use strict;
 use warnings;
 
-my $osname = lc $^O; my $uname = qx(uname -a);
+use Sys::Hostname;
+
+my $osname = lc $^O; my $host = lc hostname;
 
 sub should_abort {
    return 0;
