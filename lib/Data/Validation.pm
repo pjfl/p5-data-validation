@@ -4,7 +4,7 @@ package Data::Validation;
 
 use strict;
 use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.8.%d', q$Rev$ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.9.%d', q$Rev$ =~ /\d+/gmx );
 
 use Moose;
 use Data::Validation::Constraints;
@@ -131,7 +131,9 @@ sub _validate {
                     catch { $self->exception->throw( $_ ) };
 
    unless ($constraint->validate( $value )) {
-      my $name = $self->fields->{ $id }->{fhelp} || $id;
+      my $name = $self->fields->{ $id }->{label}
+              || $self->fields->{ $id }->{fhelp} # Deprecated
+              || $id;
 
       $error or ($error = $method) =~ s{ \A is }{e}imx;
       $self->exception->throw( error => $error, args => [ $name, $value ] );
@@ -166,7 +168,7 @@ Data::Validation - Filter and check data values
 
 =head1 Version
 
-0.8.$Rev$
+0.9.$Rev$
 
 =head1 Synopsis
 

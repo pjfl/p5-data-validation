@@ -1,5 +1,8 @@
 Revision history for Data::Validation
 
+0.9.160  2012-10-20
+         - Deprecated the description field name attribute fhelp in favour
+           of label
          - Improved detection of andk's smoker with the broken resolver
            d22233d2-157a-11e2-a919-2d6bb4e8b0a6
 

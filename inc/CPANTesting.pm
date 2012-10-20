@@ -5,9 +5,7 @@ package CPANTesting;
 use strict;
 use warnings;
 
-use Sys::Hostname;
-
-my $osname = lc $^O; my $host = lc hostname;
+use Sys::Hostname; my $host = lc hostname; my $osname = lc $^O;
 
 sub should_abort {
    return 0;
@@ -26,6 +24,7 @@ sub test_exceptions {
 
 # Private functions
 
+# Is this an attempted install on a CPAN testing platform?
 sub __is_testing { !! ($ENV{AUTOMATED_TESTING} || $ENV{PERL_CR_SMOKER_CURRENT}
                    || ($ENV{PERL5OPT} || q()) =~ m{ CPAN-Reporter }mx) }
 
