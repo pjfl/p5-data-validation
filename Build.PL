@@ -30,6 +30,7 @@ Bob->new( {
 } )->create_build_script; # Goal!
 
 # Local Variables:
+# eval: (load-project-state "data-validation")
 # mode: perl
 # tab-width: 3
 # End:
