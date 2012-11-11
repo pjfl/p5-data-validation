@@ -32,5 +32,6 @@ Bob->new( {
 # Local Variables:
 # eval: (load-project-state "data-validation")
 # mode: perl
+# tab-title: Validation
 # tab-width: 3
 # End:

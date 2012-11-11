@@ -1,5 +1,9 @@
 Revision history for Data::Validation
 
+         - Added grahamc linux grosics to test exception. Broken resolver
+           49ebef50-1ad2-11e2-ab43-8db1a6229e16
+         - Updated inc::Bob to 1.6
+
 0.9.160  2012-10-20
          - Deprecated the description field name attribute fhelp in favour
            of label
