@@ -1,5 +1,7 @@
 Revision history for Data::Validation
 
+         - Compare error args translated to l10n labels
+
 0.9.164  2012-11-11
          - Added grahamc linux grosics to test exception. Broken resolver
            49ebef50-1ad2-11e2-ab43-8db1a6229e16

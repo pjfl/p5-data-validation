@@ -94,7 +94,10 @@ sub _compare_fields {
             ? $self->_operators->{ $op }->( $lhs, $rhs ) : 0;
 
    unless ($bool) {
-      my $error = $constraint->{error} || 'Field [_1] [_2] field [_3]';
+      my $error = $constraint->{error} || 'Field [_1] does not [_2] field [_3]';
+
+      $lhs_name = $self->fields->{ $prefix.$lhs_name }->{label} || $lhs_name;
+      $rhs_name = $self->fields->{ $prefix.$rhs_name }->{label} || $rhs_name;
 
       $self->exception->throw( error => $error,
                                args  => [ $lhs_name, $op, $rhs_name ] );
