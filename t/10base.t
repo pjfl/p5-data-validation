@@ -135,7 +135,7 @@ ok !$e->error, 'Valid form';
 $vals->{field_name5} = q(not_the_same_as_field4);
 eval { $validator->check_form( q(subr_), $vals ) };
 $e = TestException->caught() || Class::Null->new();
-is $e->args->[0], q(Field [_1] [_2] field [_3]), 'Non matching fields';
+is $e->args->[0], q(Field [_1] does not [_2] field [_3]), 'Non matching fields';
 
 ok $e->args->[0]->args->[0] eq q(field_name5)
    && $e->args->[0]->args->[1] eq q(eq)
