@@ -1,5 +1,7 @@
 Revision history for Data::Validation
 
+0.9.166  2012-11-13
+         - Updated inc::Bob to 1.7. Removed defined ors
          - Compare error args translated to l10n labels
 
 0.9.164  2012-11-11
