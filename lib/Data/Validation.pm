@@ -48,7 +48,7 @@ sub check_form {
       catch { push @errors, $_ };
    }
 
-   @errors and $self->exception->throw( error => 'Form validation errors',
+   @errors and $self->exception->throw( error => 'Validation errors',
                                         args  => \@errors );
    return $form;
 }
@@ -331,3 +331,4 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
 # mode: perl
 # tab-width: 3
 # End:
+

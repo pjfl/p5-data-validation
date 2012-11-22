@@ -1,5 +1,9 @@
 Revision history for Data::Validation
 
+0.9.168  2012-11-22
+         - Added jlavallee openbsd minimunch to test exception. Broken resolver
+           0eb5f38a-2f69-11e2-8c64-eb58c9467480
+
 0.9.166  2012-11-13
          - Updated inc::Bob to 1.7. Removed defined ors
          - Compare error args translated to l10n labels
