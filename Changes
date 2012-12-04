@@ -1,23 +1,24 @@
 Revision history for Data::Validation
 
+0.9.169  2012-12-04
+         - Broken ValidHostname smokers now only skip one test
+         - Stopped Kimmel ValidHostname 157e3292-38c2-11e2-8ee7-bb3f1c5ae6b4
+
 0.9.168  2012-11-22
-         - Added jlavallee openbsd minimunch to test exception. Broken resolver
-           0eb5f38a-2f69-11e2-8c64-eb58c9467480
+         - Stopped jlavallee ValidHostname 0eb5f38a-2f69-11e2-8c64-eb58c9467480
 
 0.9.166  2012-11-13
          - Updated inc::Bob to 1.7. Removed defined ors
          - Compare error args translated to l10n labels
 
 0.9.164  2012-11-11
-         - Added grahamc linux grosics to test exception. Broken resolver
-           49ebef50-1ad2-11e2-ab43-8db1a6229e16
+         - Stopped grahamc ValidHostname 49ebef50-1ad2-11e2-ab43-8db1a6229e16
          - Updated inc::Bob to 1.6
 
 0.9.160  2012-10-20
          - Deprecated the description field name attribute fhelp in favour
            of label
-         - Improved detection of andk's smoker with the broken resolver
-           d22233d2-157a-11e2-a919-2d6bb4e8b0a6
+         - Stopped andk ValidHostname d22233d2-157a-11e2-a919-2d6bb4e8b0a6
 
 0.8.155  2012-09-06
          - Added POD spelling tests

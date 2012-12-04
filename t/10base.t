@@ -11,11 +11,14 @@ use English qw( -no_match_vars );
 use Module::Build;
 use Test::More;
 
+my $reason;
+
 BEGIN {
    my $current = eval { Module::Build->current };
 
-   $current and $current->notes->{stop_tests}
-            and plan skip_all => $current->notes->{stop_tests};
+   $current and $reason = $current->notes->{stop_tests};
+
+   $reason and $reason !~ m{ ValidHostname }msx and plan skip_all => $reason;
 }
 
 use Class::Null;
@@ -26,9 +29,7 @@ sub test_val {
    my $config    = shift; $config->{exception} = q(TestException);
    my $validator = Data::Validation->new( %{ $config } );
    my $value     = eval { $validator->check_field( @_ ) };
-   my $e;
-
-   $e = Exception::Class->caught() and return $e->error;
+   my $e; $e     = Exception::Class->caught() and return $e->error;
 
    return $value;
 }
@@ -54,11 +55,14 @@ $f->{fields}->{test}->{validate} = q(isSimpleText);
 is test_val( $f, q(test), q(*3$%^) ),        q(eSimpleText),  'Not simple text';
 is test_val( $f, q(test), q(this is text) ), q(this is text), 'Simple text';
 
-$f->{fields}->{test}->{validate} = q(isValidHostname);
-is test_val( $f, q(test), q(does_not_exist) ), q(eValidHostname),
-   'Not valid hostname';
-is test_val( $f, q(test), q(localhost) ), q(localhost), 'Valid hostname 1';
-is test_val( $f, q(test), q(127.0.0.1) ), q(127.0.0.1), 'Valid hostname 2';
+if ($reason and $reason =~ m{ ValidHostname }msx) { warn "${reason}\n" }
+else {
+   $f->{fields}->{test}->{validate} = q(isValidHostname);
+   is test_val( $f, q(test), q(does_not_exist) ), q(eValidHostname),
+      'Not valid hostname';
+   is test_val( $f, q(test), q(localhost) ), q(localhost), 'Valid hostname 1';
+   is test_val( $f, q(test), q(127.0.0.1) ), q(127.0.0.1), 'Valid hostname 2';
+}
 
 $f->{fields}->{test}->{validate} = q(isValidIdentifier);
 is test_val( $f, q(test), 1 ),    q(eValidIdentifier), 'Invalid Identifier';
