@@ -1,5 +1,8 @@
 Revision history for Data::Validation
 
+0.9.170  2012-12-06
+         - Stopped SZABGAB ValidHostname b205ae2e-6bf6-1014-b3ec-ac592aa2da19
+
 0.9.169  2012-12-04
          - Broken ValidHostname smokers now only skip one test
          - Stopped Kimmel ValidHostname 157e3292-38c2-11e2-8ee7-bb3f1c5ae6b4

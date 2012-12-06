@@ -30,6 +30,8 @@ sub test_exceptions {
       and return "Stopped jlavallee ${osname} ${host} - ValidHostname";
    $osname eq q(linux)   and $host =~ m{ linux-siva }msx
       and return "Stopped Kimmel ${osname} ${host} - ValidHostname";
+   $osname eq q(win32)   and $host =~ m{ xpsmoker }msx
+      and return "Stopped SZABGAB ${osname} ${host} - ValidHostname";
    return 0;
 }
 
