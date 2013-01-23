@@ -302,7 +302,10 @@ None
 
 =head1 Incompatibilities
 
-There are no known incompatibilities in this module
+OpenDNS. I have received reports that hosts configured to use OpenDNS fail the
+C<isValidHostname> test. Apparently OpenDNS causes the core Perl function
+C<gethostbyname> to return it's argument rather than undefined as per the
+documentation
 
 =head1 Bugs and Limitations
 

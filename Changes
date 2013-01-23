@@ -1,5 +1,7 @@
 Revision history for Data::Validation
 
+         - Added OpenDNS incompatability warning to documentation
+
 0.9.172  2012-12-12
          - Fixed test exception expression for SZABGAB
 
