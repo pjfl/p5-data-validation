@@ -1,5 +1,8 @@
 Revision history for Data::Validation
 
+0.9.174  2013-01-23
+         - Rewrote ValidHostname tests to skip if we can detect a broken
+           resolver
          - Added OpenDNS incompatability warning to documentation
 
 0.9.172  2012-12-12

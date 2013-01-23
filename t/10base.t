@@ -55,14 +55,31 @@ $f->{fields}->{test}->{validate} = q(isSimpleText);
 is test_val( $f, q(test), q(*3$%^) ),        q(eSimpleText),  'Not simple text';
 is test_val( $f, q(test), q(this is text) ), q(this is text), 'Simple text';
 
+$f->{fields}->{test}->{validate} = q(isValidHostname);
+
 if ($reason and $reason =~ m{ ValidHostname }msx) { warn "${reason}\n" }
 else {
-   $f->{fields}->{test}->{validate} = q(isValidHostname);
-   is test_val( $f, q(test), q(does_not_exist) ), q(eValidHostname),
-      'Not valid hostname';
-   is test_val( $f, q(test), q(localhost) ), q(localhost), 'Valid hostname 1';
-   is test_val( $f, q(test), q(127.0.0.1) ), q(127.0.0.1), 'Valid hostname 2';
+   if (test_val( $f, q(test), q(does_not_exist) ) eq q(eValidHostname)) {
+      is test_val( $f, q(test), q(does_not_exist) ), q(eValidHostname),
+         'Invalid hostname - does_not_exist';
+      is test_val( $f, q(test), q(does_not_exist.com) ), q(eValidHostname),
+         'Invalid hostname - does_not_exist.com';
+      is test_val( $f, q(test), q(does.not.exist.com) ), q(eValidHostname),
+         'Invalid hostname - does.not.exist.com';
+      is test_val( $f, q(test), q(does.not.exist.example.com) ),
+         q(eValidHostname), 'Invalid hostname - does.not.exist.example.com';
+   }
+   else { warn "Broken resolver detected - maybe OpenDNS\n" }
 }
+
+is test_val( $f, q(test), q(127.0.0.1) ), q(127.0.0.1),
+   'Valid hostname - 127.0.0.1';
+is test_val( $f, q(test), q(example.com) ), q(example.com),
+   'Valid hostname - example.com';
+is test_val( $f, q(test), q(localhost) ), q(localhost),
+   'Valid hostname - localhost';
+is test_val( $f, q(test), q(google.com) ), q(google.com),
+   'Valid hostname - google.com';
 
 $f->{fields}->{test}->{validate} = q(isValidIdentifier);
 is test_val( $f, q(test), 1 ),    q(eValidIdentifier), 'Invalid Identifier';
