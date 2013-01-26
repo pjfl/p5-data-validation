@@ -59,7 +59,8 @@ $f->{fields}->{test}->{validate} = q(isValidHostname);
 
 if ($reason and $reason =~ m{ ValidHostname }msx) { warn "${reason}\n" }
 else {
-   if (test_val( $f, q(test), q(does_not_exist) ) eq q(eValidHostname)) {
+   if (test_val( $f, q(test), q(does_not_exist) ) eq q(eValidHostname) and
+       test_val( $f, q(test), q(does_not_exist.com) ) eq q(eValidHostname)) {
       is test_val( $f, q(test), q(does_not_exist) ), q(eValidHostname),
          'Invalid hostname - does_not_exist';
       is test_val( $f, q(test), q(does_not_exist.com) ), q(eValidHostname),
