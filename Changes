@@ -1,5 +1,9 @@
 Revision history for Data::Validation
 
+0.9.176  2013-02-10
+         - Rewrote ValidHostname tests to skip if we can detect a broken
+           resolver - part 3
+
 0.9.175  2013-01-26
          - Rewrote ValidHostname tests to skip if we can detect a broken
            resolver - part 2

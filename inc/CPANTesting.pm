@@ -19,19 +19,8 @@ sub should_abort {
 sub test_exceptions {
    my $p = shift; is_testing() or return 0;
 
-   $p->{stop_tests} and return 'CPAN Testing stopped in Build.PL';
-
-   $osname eq q(mirbsd)  and return 'Mirbsd  OS unsupported';
-   $osname eq q(linux)   and $host =~ m{ k83 }msx
-      and return "Stopped andk ${osname} ${host} - ValidHostname";
-   $osname eq q(linux)   and $host =~ m{ grosics }msx
-      and return "Stopped grahmac ${osname} ${host} - ValidHostname";
-   $osname eq q(openbsd) and $host =~ m{ minimunch }msx
-      and return "Stopped jlavallee ${osname} ${host} - ValidHostname";
-   $osname eq q(linux)   and $host =~ m{ linux-siva }msx
-      and return "Stopped Kimmel ${osname} ${host} - ValidHostname";
-   $osname eq q(mswin32) and $host =~ m{ xpsmoker }msx
-      and return "Stopped SZABGAB ${osname} ${host} - ValidHostname";
+   $p->{stop_tests}     and return 'CPAN Testing stopped in Build.PL';
+   $osname eq q(mirbsd) and return 'Mirbsd  OS unsupported';
    return 0;
 }
 
