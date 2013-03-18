@@ -1,5 +1,7 @@
 Revision history for Data::Validation
 
+         - Added google.com to ValidHostname skip test
+
 0.9.176  2013-02-10
          - Rewrote ValidHostname tests to skip if we can detect a broken
            resolver - part 3

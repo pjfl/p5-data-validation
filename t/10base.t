@@ -58,7 +58,8 @@ is test_val( $f, q(test), q(this is text) ), q(this is text), 'Simple text';
 SKIP: {
    $f->{fields}->{test}->{validate} = q(isValidHostname);
 
-   (test_val( $f, q(test), q(does_not_exist)     ) eq q(eValidHostname) and
+   (test_val( $f, q(test), q(google.com)         ) eq q(eValidHostname) and
+    test_val( $f, q(test), q(does_not_exist)     ) eq q(eValidHostname) and
     test_val( $f, q(test), q(does_not_exist.com) ) eq q(eValidHostname) and
     test_val( $f, q(test), q(does.not.exist.com) ) eq q(eValidHostname) and
     test_val( $f, q(test), q(does.not.exist.example.com) ) eq q(eValidHostname))
