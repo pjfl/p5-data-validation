@@ -4,13 +4,13 @@ package Data::Validation;
 
 use strict;
 use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.9.%d', q$Rev$ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.10.%d', q$Rev$ =~ /\d+/gmx );
 
 use Moose;
 use Data::Validation::Constraints;
 use Data::Validation::Filters;
-use English    qw( -no_match_vars );
-use List::Util qw( first );
+use English    qw(-no_match_vars);
+use List::Util qw(first);
 use Try::Tiny;
 
 has 'exception'   => is => 'ro', isa => 'Data::Validation::Exception',
@@ -94,7 +94,8 @@ sub _compare_fields {
             ? $self->_operators->{ $op }->( $lhs, $rhs ) : 0;
 
    unless ($bool) {
-      my $error = $constraint->{error} || 'Field [_1] does not [_2] field [_3]';
+      my $error = $constraint->{error_compare}
+               || 'Field [_1] does not [_2] field [_3]';
 
       $lhs_name = $self->fields->{ $prefix.$lhs_name }->{label} || $lhs_name;
       $rhs_name = $self->fields->{ $prefix.$rhs_name }->{label} || $rhs_name;
@@ -127,7 +128,7 @@ sub _validate {
    my ($self, $method, $id, $value) = @_;
 
    my $config     = $self->constraints->{ $id } || {};
-   my $error      = $config->{error};
+   my $error      = $config->{ "error_${method}" } || q();
    my %config     = ( method    => $method,
                       exception => $self->exception, %{ $config }, );
    my $constraint = try   { Data::Validation::Constraints->new( %config ) }
@@ -171,7 +172,7 @@ Data::Validation - Filter and check data values
 
 =head1 Version
 
-0.9.$Rev$
+0.10.$Rev$
 
 =head1 Synopsis
 
@@ -315,7 +316,7 @@ Patches are welcome
 
 =head1 Author
 
-Peter Flanigan, C<< @ <Support at RoxSoft dot co dot uk> >>
+Peter Flanigan, C<< <pjfl@cpan.org> >>
 
 =head1 License and Copyright
 

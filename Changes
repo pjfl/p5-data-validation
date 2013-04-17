@@ -1,5 +1,8 @@
 Revision history for Data::Validation
 
+0.10.179 2013-04-17
+         - Made constraint attributes readonly
+         - Added method name to constraint error messages
          - Added google.com to ValidHostname skip test
 
 0.9.176  2013-02-10
