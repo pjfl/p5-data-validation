@@ -1,10 +1,9 @@
-# @(#)$Id$
+# @(#)$Ident: Filters.pm 2013-05-16 21:13 pjf ;
 
 package Data::Validation::Filters;
 
-use strict;
 use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.10.%d', q$Rev$ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.11.%d', q$Rev: 1 $ =~ /\d+/gmx );
 
 use Moose;
 
@@ -95,7 +94,7 @@ Data::Validation::Filters - Filter data values
 
 =head1 Version
 
-0.10.$Revision$
+0.10.$Rev: 1 $
 
 =head1 Synopsis
 

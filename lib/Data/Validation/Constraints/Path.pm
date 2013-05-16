@@ -1,11 +1,11 @@
 package Data::Validation::Constraints::Path;
 
-# @(#)$Id$
+# @(#)$Ident: ;
 
 use strict;
 use Moose;
 
-use version; our $VERSION = qv( sprintf '0.10.%d', q$Rev$ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.11.%d', q$Rev: 1 $ =~ /\d+/gmx );
 
 extends 'Data::Validation::Constraints';
 

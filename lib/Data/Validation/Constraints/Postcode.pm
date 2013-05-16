@@ -1,11 +1,11 @@
+# @(#)$Ident: Postcode.pm 2013-05-16 21:13 pjf ;
+
 package Data::Validation::Constraints::Postcode;
 
-# @(#)$Id$
+use namespace::autoclean;
+use version; our $VERSION = qv( sprintf '0.11.%d', q$Rev: 1 $ =~ /\d+/gmx );
 
-use strict;
 use Moose;
-
-use version; our $VERSION = qv( sprintf '0.10.%d', q$Rev$ =~ /\d+/gmx );
 
 extends 'Data::Validation::Constraints';
 

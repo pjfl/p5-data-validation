@@ -1,153 +1,156 @@
 Revision history for Data::Validation
 
-0.10.179 2013-04-17
-         - Made constraint attributes readonly
-         - Added method name to constraint error messages
-         - Added google.com to ValidHostname skip test
+0.11.1    2013-05-16 22:24:21
+          - Converted from SVN to Git
 
-0.9.176  2013-02-10
-         - Rewrote ValidHostname tests to skip if we can detect a broken
-           resolver - part 3
+0.10.179  2013-04-17
+          - Made constraint attributes readonly
+          - Added method name to constraint error messages
+          - Added google.com to ValidHostname skip test
 
-0.9.175  2013-01-26
-         - Rewrote ValidHostname tests to skip if we can detect a broken
-           resolver - part 2
+0.9.176   2013-02-10
+          - Rewrote ValidHostname tests to skip if we can detect a broken
+            resolver - part 3
 
-0.9.174  2013-01-23
-         - Rewrote ValidHostname tests to skip if we can detect a broken
-           resolver
-         - Added OpenDNS incompatability warning to documentation
+0.9.175   2013-01-26
+          - Rewrote ValidHostname tests to skip if we can detect a broken
+            resolver - part 2
 
-0.9.172  2012-12-12
-         - Fixed test exception expression for SZABGAB
+0.9.174   2013-01-23
+          - Rewrote ValidHostname tests to skip if we can detect a broken
+            resolver
+          - Added OpenDNS incompatability warning to documentation
 
-0.9.171  2012-12-06
-         - Stopped SZABGAB ValidHostname b205ae2e-6bf6-1014-b3ec-ac592aa2da19
+0.9.172   2012-12-12
+          - Fixed test exception expression for SZABGAB
 
-0.9.169  2012-12-04
-         - Broken ValidHostname smokers now only skip one test
-         - Stopped Kimmel ValidHostname 157e3292-38c2-11e2-8ee7-bb3f1c5ae6b4
+0.9.171   2012-12-06
+          - Stopped SZABGAB ValidHostname b205ae2e-6bf6-1014-b3ec-ac592aa2da19
 
-0.9.168  2012-11-22
-         - Stopped jlavallee ValidHostname 0eb5f38a-2f69-11e2-8c64-eb58c9467480
+0.9.169   2012-12-04
+          - Broken ValidHostname smokers now only skip one test
+          - Stopped Kimmel ValidHostname 157e3292-38c2-11e2-8ee7-bb3f1c5ae6b4
 
-0.9.166  2012-11-13
-         - Updated inc::Bob to 1.7. Removed defined ors
-         - Compare error args translated to l10n labels
+0.9.168   2012-11-22
+          - Stopped jlavallee ValidHostname 0eb5f38a-2f69-11e2-8c64-eb58c9467480
 
-0.9.164  2012-11-11
-         - Stopped grahamc ValidHostname 49ebef50-1ad2-11e2-ab43-8db1a6229e16
-         - Updated inc::Bob to 1.6
+0.9.166   2012-11-13
+          - Updated inc::Bob to 1.7. Removed defined ors
+          - Compare error args translated to l10n labels
 
-0.9.160  2012-10-20
-         - Deprecated the description field name attribute fhelp in favour
-           of label
-         - Stopped andk ValidHostname d22233d2-157a-11e2-a919-2d6bb4e8b0a6
+0.9.164   2012-11-11
+          - Stopped grahamc ValidHostname 49ebef50-1ad2-11e2-ab43-8db1a6229e16
+          - Updated inc::Bob to 1.6
 
-0.8.155  2012-09-06
-         - Added POD spelling tests
-         - Updated inc::Bob to 1.5
+0.9.160   2012-10-20
+          - Deprecated the description field name attribute fhelp in favour
+            of label
+          - Stopped andk ValidHostname d22233d2-157a-11e2-a919-2d6bb4e8b0a6
 
-0.8.153  2012-06-11
-         - Added filterZeroLength
-         - Fixed bug when filters but no validations
+0.8.155   2012-09-06
+          - Added POD spelling tests
+          - Updated inc::Bob to 1.5
 
-0.7.152  2012-05-02
-         - Fixed expression detecting Konig's smoker
+0.8.153   2012-06-11
+          - Added filterZeroLength
+          - Fixed bug when filters but no validations
 
-0.7.151  2012-04-29
-         - Stopped Konig CPAN testing. Compare
-           2874f920-91ca-11e1-a09c-f66955de7b98 with
-           542b6056-8ca0-11e1-951f-159b42b6749c same OS, OS version,
-           architecture and Perl version, different results. Random
+0.7.152   2012-05-02
+          - Fixed expression detecting Konig's smoker
 
-0.7.150  2012-04-19
-         - Turned CPAN testing on
-         - Changed D_V_Exception constriant name to current standard
-         - Updated inc::Bob to 1.3
-         - Updated inc::Bob. Added inc::CPANTesting
-         - Updated Moose / Class::MOP / MRO::Compat dependencies
-         - Updated inc::Bob
+0.7.151   2012-04-29
+          - Stopped Konig CPAN testing. Compare
+            2874f920-91ca-11e1-a09c-f66955de7b98 with
+            542b6056-8ca0-11e1-951f-159b42b6749c same OS, OS version,
+            architecture and Perl version, different results. Random
 
-0.6.141  2011-04-12
-         - Suppressed dcollins CPAN testing
-         - Checks all fields in a form. Returns multiple errors
-         - Now uses Try::Tiny
-         - Moved boilerplate M::B subclass code to inc/Bob.pm
-         - Suppressed Konig CPAN testing again
+0.7.150   2012-04-19
+          - Turned CPAN testing on
+          - Changed D_V_Exception constriant name to current standard
+          - Updated inc::Bob to 1.3
+          - Updated inc::Bob. Added inc::CPANTesting
+          - Updated Moose / Class::MOP / MRO::Compat dependencies
+          - Updated inc::Bob
 
-0.6.133  2010-12-16
-         - Repatched Module::Build
+0.6.141   2011-04-12
+          - Suppressed dcollins CPAN testing
+          - Checks all fields in a form. Returns multiple errors
+          - Now uses Try::Tiny
+          - Moved boilerplate M::B subclass code to inc/Bob.pm
+          - Suppressed Konig CPAN testing again
 
-0.6.132  2010-12-16
-         - Tried to stop Koenigs broken testing platform
+0.6.133   2010-12-16
+          - Repatched Module::Build
 
-0.6.123  2010-09-22
-         - Switched to M::B for installs
+0.6.132   2010-12-16
+          - Tried to stop Koenigs broken testing platform
 
-0.5.120  2010-09-22
-         - Changed str2time call in Constraints::Date
+0.6.123   2010-09-22
+          - Switched to M::B for installs
 
-0.4.116  27/10/2009
-         - Made D_V_Exception constraint name more unique as constraint
-         names in Moose are fucking GLOBAL
+0.5.120   2010-09-22
+          - Changed str2time call in Constraints::Date
 
-0.4.114  29/06/2009
-         - Added POD for field comparison
-         - Fixed signature key
+0.4.116   27/10/2009
+          - Made D_V_Exception constraint name more unique as constraint
+            names in Moose are fucking GLOBAL
 
-0.3.104  24/06/2009
-         - Use Class::MOP in ensure_class_loaded
-         - Added field comparison
-         - Added more tests
+0.4.114   29/06/2009
+          - Added POD for field comparison
+          - Fixed signature key
 
-0.2.85   06/06/2009
-         - Fixed tests
-         - Enhanced exception messages
+0.3.104   24/06/2009
+          - Use Class::MOP in ensure_class_loaded
+          - Added field comparison
+          - Added more tests
 
-0.2.81   05/06/2009
-         - Exception class API changed
+0.2.85    06/06/2009
+          - Fixed tests
+          - Enhanced exception messages
 
-0.2.78   20/05/2009
-         - Removed stupid _will method
-         - Added namespace::autoclean
-         - Improved testing idioms
+0.2.81    05/06/2009
+          - Exception class API changed
 
-0.2.72   24/03/2009
-         - Fixed class name in date validation
+0.2.78    20/05/2009
+          - Removed stupid _will method
+          - Added namespace::autoclean
+          - Improved testing idioms
 
-0.2.70   06/03/2009
-         - Added make immutable and no moose
+0.2.72    24/03/2009
+          - Fixed class name in date validation
 
-0.2.66   14/11/2008
-         - New approach to CPAN testing
+0.2.70    06/03/2009
+          - Added make immutable and no moose
 
-0.2.64   25/10/2008
-         - Switched off CPAN testing some more
+0.2.66    14/11/2008
+          - New approach to CPAN testing
 
-0.2.60   18/10/2008
-         - Switched off CPAN testing
+0.2.64    25/10/2008
+          - Switched off CPAN testing some more
 
-0.2.58   03/10/2008
-         - Bumped revision in POD
+0.2.60    18/10/2008
+          - Switched off CPAN testing
 
-         05/09/2008
-         - Added use strict because CPANTS doesn't recognise that use Moose is
-           the same thing
-         - Excluded nekoware because it's gethostbyname function is broken
-         - Improved the testing methodology
+0.2.58    03/10/2008
+          - Bumped revision in POD
 
-         24/08/2008
-         - Here Moosey, Moosey, Moosey
+          05/09/2008
+          - Added use strict because CPANTS doesn't recognise that use Moose is
+            the same thing
+          - Excluded nekoware because it's gethostbyname function is broken
+          - Improved the testing methodology
 
-         22/08/2008
-         - Introduced constructor which means an API change
-         - Added filters
+          24/08/2008
+          - Here Moosey, Moosey, Moosey
 
-         02/06/2008
-         - Made version a build requirement
+          22/08/2008
+          - Introduced constructor which means an API change
+          - Added filters
 
-         23/05/2008
-         - Added POD tests
+          02/06/2008
+          - Made version a build requirement
+
+          23/05/2008
+          - Added POD tests
 
 

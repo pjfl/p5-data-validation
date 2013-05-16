@@ -1,11 +1,11 @@
-# @(#)$Id$
+# @(#)$Ident: Validation.pm 2013-05-16 21:17 pjf ;
 
 package Data::Validation;
 
-use strict;
 use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.10.%d', q$Rev$ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.11.%d', q$Rev: 1 $ =~ /\d+/gmx );
 
+use 5.01;
 use Moose;
 use Data::Validation::Constraints;
 use Data::Validation::Filters;
@@ -172,7 +172,7 @@ Data::Validation - Filter and check data values
 
 =head1 Version
 
-0.10.$Rev$
+Describes version v0.11.$Rev: 1 $ L<Data::Validation>
 
 =head1 Synopsis
 
