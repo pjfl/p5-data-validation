@@ -1,6 +1,10 @@
 Revision history for Data::Validation
 
-0.12.0    2013-07-29 16:57:38
+0.12.1    2013-07-30 00:46:45
+          - Added fremen and frogman to tier gruber
+          - Aborting Bingoes failed see df276fba-f57c-11e2-8c80-50d7c5c10595
+            No choice but to send this smoker to sleep 10 while 1.
+            Chris Williams, put my pause id in your stop list
           - Mooified
 
 0.11.1    2013-05-16 22:24:21
