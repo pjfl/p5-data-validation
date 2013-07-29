@@ -1,17 +1,17 @@
-# @(#)$Ident: Date.pm 2013-05-16 21:18 pjf ;
+# @(#)$Ident: Date.pm 2013-07-29 14:38 pjf ;
 
 package Data::Validation::Constraints::Date;
 
-use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.11.%d', q$Rev: 1 $ =~ /\d+/gmx );
+use namespace::sweep;
+use version; our $VERSION = qv( sprintf '0.12.%d', q$Rev: 0 $ =~ /\d+/gmx );
 
-use Moose;
-use Class::Usul::Time qw(str2time);
+use Moo;
+use Class::Usul::Time qw( str2time );
 
 extends q(Data::Validation::Constraints);
 
-override '_validate' => sub {
-   my $self = shift; return defined str2time( $_[ 0 ] ) ? 1 : 0;
+around '_validate' => sub {
+   return defined str2time( $_[ 2 ] ) ? 1 : 0;
 };
 
 1;

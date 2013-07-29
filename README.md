@@ -1,10 +1,10 @@
 # Name
 
-Data::Validation - Filter and check data values
+Data::Validation - Filter and validate data values
 
 # Version
 
-Describes version v0.11.$Rev: 1 $ [Data::Validation](https://metacpan.org/module/Data::Validation)
+Describes version v0.12.$Rev: 0 $ of [Data::Validation](https://metacpan.org/module/Data::Validation)
 
 # Synopsis
 
@@ -115,11 +115,9 @@ None
 
 # Dependencies
 
-- [Moose](https://metacpan.org/module/Moose)
-- [Data::Validation::Constraints](https://metacpan.org/module/Data::Validation::Constraints)
-- [Data::Validation::Filters](https://metacpan.org/module/Data::Validation::Filters)
-- [List::Util](https://metacpan.org/module/List::Util)
+- [Moo](https://metacpan.org/module/Moo)
 - [Try::Tiny](https://metacpan.org/module/Try::Tiny)
+- [Unexpected::Types](https://metacpan.org/module/Unexpected::Types)
 
 # Incompatibilities
 

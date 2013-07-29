@@ -1,15 +1,16 @@
-# @(#)$Ident: Filters.pm 2013-05-16 21:13 pjf ;
+# @(#)$Ident: Filters.pm 2013-07-29 15:52 pjf ;
 
 package Data::Validation::Filters;
 
-use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.11.%d', q$Rev: 1 $ =~ /\d+/gmx );
+use namespace::sweep;
+use version; our $VERSION = qv( sprintf '0.12.%d', q$Rev: 0 $ =~ /\d+/gmx );
 
-use Moose;
+use Moo;
+use Unexpected::Types qw( Str );
 
 with q(Data::Validation::Utils);
 
-has 'replace' => is => 'rw', isa => 'Str';
+has 'replace' => is => 'rw', isa => Str;
 
 sub filter {
    my ($self, $val) = @_; defined $val or return; my $method = $self->method;
@@ -20,7 +21,6 @@ sub filter {
 }
 
 # Private methods
-
 sub _filter {
    my $self = shift; my $exception = $self->exception;
 
@@ -30,7 +30,6 @@ sub _filter {
 }
 
 # Builtin factory filter methods
-
 sub filterEscapeHTML {
    my ($self, $val) = @_;
 
@@ -78,10 +77,6 @@ sub filterZeroLength {
    return defined $_[ 1 ] && length $_[ 1 ] ? $_[ 1 ] : undef;
 }
 
-__PACKAGE__->meta->make_immutable;
-
-no Moose;
-
 1;
 
 __END__
@@ -94,7 +89,7 @@ Data::Validation::Filters - Filter data values
 
 =head1 Version
 
-0.10.$Rev: 1 $
+Describes version v0.12.$Rev: 0 $ of L<Data::Validation::Filters>
 
 =head1 Synopsis
 
@@ -115,7 +110,7 @@ value
 
 =head1 Configuration and Environment
 
-Uses the L<Data::Validation::Utils> L<Moose::Role>. Defines the
+Uses the L<Moo::Role> L<Data::Validation::Utils>. Defines the
 following attributes:
 
 =over 3
@@ -177,9 +172,9 @@ None
 
 =over 3
 
-=item L<Data::Validation::Utils>
+=item L<Moo>
 
-=item L<Moose>
+=item L<Unexpected::Types>
 
 =back
 

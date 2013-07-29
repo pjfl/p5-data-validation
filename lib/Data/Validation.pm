@@ -1,24 +1,30 @@
-# @(#)$Ident: Validation.pm 2013-05-16 21:17 pjf ;
+# @(#)$Ident: Validation.pm 2013-07-29 15:53 pjf ;
 
 package Data::Validation;
 
-use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.11.%d', q$Rev: 1 $ =~ /\d+/gmx );
+use namespace::sweep;
+use version; our $VERSION = qv( sprintf '0.12.%d', q$Rev: 0 $ =~ /\d+/gmx );
 
 use 5.01;
-use Moose;
 use Data::Validation::Constraints;
 use Data::Validation::Filters;
-use English    qw(-no_match_vars);
-use List::Util qw(first);
+use English           qw( -no_match_vars );
+use List::Util        qw( first );
+use Moo;
 use Try::Tiny;
+use Unexpected::Types qw( HashRef );
 
-has 'exception'   => is => 'ro', isa => 'Data::Validation::Exception',
+has 'exception'   => is => 'ro', isa => sub {
+   $_[ 0 ] and $_[ 0 ]->can( 'throw' ) or die 'Exception class cannot throw' },
    required       => 1;
-has 'constraints' => is => 'ro', isa => 'HashRef', default => sub { {} };
-has 'fields'      => is => 'ro', isa => 'HashRef', default => sub { {} };
-has 'filters'     => is => 'ro', isa => 'HashRef', default => sub { {} };
-has '_operators'  => is => 'ro', isa => 'HashRef',
+
+has 'constraints' => is => 'ro', isa => HashRef, default => sub { {} };
+
+has 'fields'      => is => 'ro', isa => HashRef, default => sub { {} };
+
+has 'filters'     => is => 'ro', isa => HashRef, default => sub { {} };
+
+has '_operators'  => is => 'ro', isa => HashRef,
    default        => sub { { q(eq) => sub { $_[ 0 ] eq $_[ 1 ] },
                              q(==) => sub { $_[ 0 ] == $_[ 1 ] },
                              q(ne) => sub { $_[ 0 ] ne $_[ 1 ] },
@@ -32,7 +38,7 @@ sub check_form {
    # Validate all the fields on a form by repeated calling check_field
    my ($self, $prefix, $form) = @_; my @errors = (); $prefix ||= q();
 
-   ($form and ref $form eq q(HASH))
+   ($form and ref $form eq 'HASH')
       or $self->exception->throw( 'Form has no values' );
 
    for my $name (sort keys %{ $form }) {
@@ -74,7 +80,6 @@ sub check_field { # Validate form field values
 }
 
 # Private methods
-
 sub _compare_fields {
    my ($self, $prefix, $form, $lhs_name) = @_; my $rhs_name;
 
@@ -89,7 +94,7 @@ sub _compare_fields {
 
    my $lhs  = $form->{ $lhs_name } || q();
    my $rhs  = $form->{ $rhs_name } || q();
-   my $op   = $constraint->{operator} || q(eq);
+   my $op   = $constraint->{operator} || 'eq';
    my $bool = exists $self->_operators->{ $op }
             ? $self->_operators->{ $op }->( $lhs, $rhs ) : 0;
 
@@ -147,18 +152,13 @@ sub _validate {
 }
 
 # Private subroutines
-
 sub __get_methods {
    return split q( ), $_[ 0 ] || q();
 }
 
 sub __should_compare {
-   return first { $_ eq q(compare) } __get_methods( $_[ 0 ]->{validate} );
+   return first { $_ eq 'compare' } __get_methods( $_[ 0 ]->{validate} );
 }
-
-__PACKAGE__->meta->make_immutable;
-
-no Moose;
 
 1;
 
@@ -168,11 +168,11 @@ __END__
 
 =head1 Name
 
-Data::Validation - Filter and check data values
+Data::Validation - Filter and validate data values
 
 =head1 Version
 
-Describes version v0.11.$Rev: 1 $ L<Data::Validation>
+Describes version v0.12.$Rev: 0 $ of L<Data::Validation>
 
 =head1 Synopsis
 
@@ -289,15 +289,11 @@ None
 
 =over 3
 
-=item L<Moose>
-
-=item L<Data::Validation::Constraints>
-
-=item L<Data::Validation::Filters>
-
-=item L<List::Util>
+=item L<Moo>
 
 =item L<Try::Tiny>
+
+=item L<Unexpected::Types>
 
 =back
 

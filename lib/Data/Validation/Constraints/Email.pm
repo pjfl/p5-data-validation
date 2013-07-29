@@ -1,17 +1,17 @@
-# @(#)$Ident: Email.pm 2013-05-16 21:14 pjf ;
+# @(#)$Ident: Email.pm 2013-07-29 14:37 pjf ;
 
 package Data::Validation::Constraints::Email;
 
-use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.11.%d', q$Rev: 1 $ =~ /\d+/gmx );
+use namespace::sweep;
+use version; our $VERSION = qv( sprintf '0.12.%d', q$Rev: 0 $ =~ /\d+/gmx );
 
-use Moose;
+use Moo;
 use Email::Valid;
 
-extends 'Data::Validation::Constraints';
+extends q(Data::Validation::Constraints);
 
-override '_validate' => sub {
-   my ($self, $val) = @_; return Email::Valid->address( $val ) ? 1 : 0;
+around '_validate' => sub {
+   return Email::Valid->address( $_[ 2 ] ) ? 1 : 0;
 };
 
 1;

@@ -1,34 +1,30 @@
-# @(#)$Ident: Utils.pm 2013-05-16 21:13 pjf ;
+# @(#)$Ident: Utils.pm 2013-07-29 15:52 pjf ;
 
 package Data::Validation::Utils;
 
-use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.11.%d', q$Rev: 1 $ =~ /\d+/gmx );
+use namespace::sweep;
+use version; our $VERSION = qv( sprintf '0.12.%d', q$Rev: 0 $ =~ /\d+/gmx );
 
-use Moose::Role;
-use Moose::Util::TypeConstraints;
-use English      qw(-no_match_vars);
-use Scalar::Util qw(blessed);
-use Class::MOP;
+use Class::Load       qw( is_class_loaded load_class);
+use English           qw( -no_match_vars );
+use Moo::Role;
+use Scalar::Util      qw( blessed );
 use Try::Tiny;
+use Unexpected::Types qw( Str );
 
-subtype 'Data::Validation::Exception' => as 'ClassName' =>
-   where { $_->can( q(throw) ) };
-
-has 'exception' => is => 'ro', isa => 'Data::Validation::Exception',
+has 'exception' => is => 'ro', isa => sub {
+   $_[ 0 ] and $_[ 0 ]->can( 'throw' ) or die 'Exception class cannot throw' },
    required     => 1;
 
-has 'method'    => is => 'ro', isa => 'Str', required => 1;
+has 'method'    => is => 'ro', isa => Str, required => 1;
 
-has 'pattern'   => is => 'rw', isa => 'Str';
+has 'pattern'   => is => 'rw', isa => Str;
 
 sub _load_class {
-   my ($self, $prefix, $class) = @_;
-
-   $class =~ s{ \A $prefix }{}mx;
+   my ($self, $prefix, $class) = @_; $class =~ s{ \A $prefix }{}mx;
 
    if ($class =~ m{ \A \+ }mx) { $class =~ s{ \A \+ }{}mx }
-   else { $class = blessed( $self ).q(::).(ucfirst $class) }
+   else { $class = blessed( $self ).'::'.(ucfirst $class) }
 
    $self->_ensure_class_loaded( $class );
 
@@ -38,11 +34,11 @@ sub _load_class {
 sub _ensure_class_loaded {
    my ($self, $class, $opts) = @_; $opts ||= {};
 
-   my $package_defined = sub { Class::MOP::is_class_loaded( $class ) };
+   my $package_defined = sub { is_class_loaded( $class ) };
 
    not $opts->{ignore_loaded} and $package_defined->() and return 1;
 
-   try   { Class::MOP::load_class( $class ) }
+   try   { load_class( $class ) }
    catch { $self->exception->throw( $_ ) };
 
    $package_defined->() and return 1;
@@ -53,9 +49,6 @@ sub _ensure_class_loaded {
    return;
 }
 
-no Moose::Role;
-no Moose::Util::TypeConstraints;
-
 1;
 
 __END__
@@ -64,15 +57,15 @@ __END__
 
 =head1 Name
 
-Data::Validation::Utils - Code and attribute reuse
+Data::Validation::Utils - Utility methods
 
 =head1 Version
 
-0.10.$Rev: 1 $
+Describes version v0.12.$Rev: 0 $ of L<Data::Validation::Utils>
 
 =head1 Synopsis
 
-   use Moose;
+   use Moo;
 
    with 'Data::Validation::Utils';
 
@@ -121,11 +114,13 @@ None
 
 =over 3
 
-=item L<Class::MOP>
+=item L<Class::Load>
 
-=item L<Moose::Role>
+=item L<Moo::Role>
 
-=item L<Moose::Util::TypeConstraints>
+=item L<Try::Tiny>
+
+=item L<Unexpected::Types>
 
 =back
 
@@ -141,7 +136,7 @@ Patches are welcome
 
 =head1 Author
 
-Peter Flanigan, C<< <Support at RoxSoft.co.uk> >>
+Peter Flanigan, C<< <pjfl@cpan.org> >>
 
 =head1 License and Copyright
 

@@ -1,72 +1,72 @@
-# @(#)$Ident: Constraints.pm 2013-05-16 21:14 pjf ;
+# @(#)$Ident: Constraints.pm 2013-07-29 15:53 pjf ;
 
 package Data::Validation::Constraints;
 
-use charnames qw(:full);
-use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.11.%d', q$Rev: 1 $ =~ /\d+/gmx );
+use charnames qw( :full );
+use namespace::sweep;
+use version; our $VERSION = qv( sprintf '0.12.%d', q$Rev: 0 $ =~ /\d+/gmx );
 
-use Moose;
-use Regexp::Common qw(number);
-use Scalar::Util   qw(looks_like_number);
+use Moo;
+use Regexp::Common    qw( number );
+use Scalar::Util      qw( blessed looks_like_number );
+use Unexpected::Types qw( Any Bool Int );
 
 with q(Data::Validation::Utils);
 
-has 'max_length' => is => 'ro', isa => 'Int';
-has 'max_value'  => is => 'ro', isa => 'Int';
-has 'min_length' => is => 'ro', isa => 'Int';
-has 'min_value'  => is => 'ro', isa => 'Int';
-has 'required'   => is => 'ro', isa => 'Bool';
-has 'value'      => is => 'ro', isa => 'Any';
+has 'max_length' => is => 'ro', isa => Int;
+
+has 'max_value'  => is => 'ro', isa => Int;
+
+has 'min_length' => is => 'ro', isa => Int;
+
+has 'min_value'  => is => 'ro', isa => Int;
+
+has 'required'   => is => 'ro', isa => Bool;
+
+has 'value'      => is => 'ro', isa => Any;
 
 sub validate {
    my ($self, $val) = @_; my $method = $self->method; my $class;
 
-   return 0 if (!$val && $self->required);
+   return 0 if (not $val and $self->required);
 
-   return 1 if (!$val && !$self->required && $method ne q(isMandatory));
+   return 1 if (not $val and not $self->required and $method ne 'isMandatory');
 
    return $self->$method( $val ) if ($self->can( $method ));
 
-   return $self->_load_class( q(isValid), $method )->_validate( $val );
+   return $self->_load_class( 'isValid', $method )->_validate( $val );
 }
 
 # Private methods
-
 sub _validate {
    my $self = shift; my $exception = $self->exception;
 
    $exception->throw( error => 'Method [_1] not overridden in class [_2]',
-                      args  => [ q(_validate), ref $self || $self ] );
+                      args  => [ '_validate', blessed $self || $self ] );
    return;
 }
 
 # Builtin factory validation methods
-
 sub isBetweenValues {
    my ($self, $val) = @_;
 
-   return 0 if (defined $self->min_value && $val < $self->min_value);
-   return 0 if (defined $self->max_value && $val > $self->max_value);
+   defined $self->min_value and $val < $self->min_value and return 0;
+   defined $self->max_value and $val > $self->max_value and return 0;
    return 1;
 }
 
 sub isEqualTo {
    my ($self, $val) = @_;
 
-   if ($self->isValidNumber( $val ) && $self->isValidNumber( $self->value )) {
-      return 1 if ($val == $self->value);
-      return 0;
-   }
+   $self->isValidNumber( $val ) and $self->isValidNumber( $self->value )
+      and return $val == $self->value ? 1 : 0;
 
-   return 1 if ($val eq $self->value);
-   return 0;
+   return $val eq $self->value ? 1 : 0;
 }
 
 sub isHexadecimal {
-   my ($self, $val) = @_;
+   my ($self, $val) = @_; $self->pattern( '\A '.$RE{num}{hex}.' \z' );
 
-   $self->pattern( '\A '.$RE{num}{hex}.' \z' );
    return $self->isMatchingRegex( $val );
 }
 
@@ -103,29 +103,24 @@ sub isValidInteger {
    my ($self, $val) = @_;
 
    $self->pattern( '\A '.$RE{num}{int}{-sep=>'[_]?'}.' \z' );
-
-   return 0 unless ($self->isMatchingRegex( $val ));
-   return 0 unless (int $val == $val);
+   $self->isMatchingRegex( $val ) or return 0;
+   int $val == $val or return 0;
    return 1;
 }
 
 sub isValidLength {
    my ($self, $val) = @_;
 
-   return 0 if (defined $self->min_length && length $val < $self->min_length);
-   return 0 if (defined $self->max_length && length $val > $self->max_length);
+   defined $self->min_length and length $val < $self->min_length and return 0;
+   defined $self->max_length and length $val > $self->max_length and return 0;
    return 1;
 }
 
 sub isValidNumber {
-   return 0 unless (defined $_[ 1 ]);
-   return 1 if     (looks_like_number( $_[ 1 ] ));
+   defined $_[ 1 ] or return 0;
+   looks_like_number( $_[ 1 ] ) and return 1;
    return 0;
 }
-
-__PACKAGE__->meta->make_immutable;
-
-no Moose;
 
 1;
 
@@ -139,7 +134,7 @@ Data::Validation::Constraints - Test data values for conformance with constraint
 
 =head1 Version
 
-0.10.$Rev: 1 $
+Describes version v0.12.$Rev: 0 $ of L<Data::Validation::Constraints>
 
 =head1 Synopsis
 
@@ -159,7 +154,7 @@ Tests a single data value for conformance with a constraint
 
 =head1 Configuration and Environment
 
-Uses the L<Data::Validation::Utils> L<Moose::Role>. Defines the
+Uses the L<Moo::Role> L<Data::Validation::Utils>. Defines the
 following attributes:
 
 =over 3
@@ -303,11 +298,11 @@ None
 
 =item L<charnames>
 
-=item L<Data::Validation::Utils>
-
-=item L<Moose>
+=item L<Moo>
 
 =item L<Regexp::Common>
+
+=item L<Unexpected::Types>
 
 =back
 
@@ -328,7 +323,7 @@ Patches are welcome
 
 =head1 Author
 
-Peter Flanigan, C<< <Support at RoxSoft.co.uk> >>
+Peter Flanigan, C<< <pjfl@cpan.org> >>
 
 =head1 License and Copyright
 

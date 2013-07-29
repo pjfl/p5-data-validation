@@ -1,22 +1,21 @@
+# @(#)$Ident: URL.pm 2013-07-29 15:53 pjf ;
+
 package Data::Validation::Constraints::URL;
 
-# @(#)$Ident: ;
+use namespace:sweep;
+use version; our $VERSION = qv( sprintf '0.12.%d', q$Rev: 0 $ =~ /\d+/gmx );
 
-use strict;
-use Moose;
+use Moo;
 use LWP::UserAgent;
 
-use version; our $VERSION = qv( sprintf '0.11.%d', q$Rev: 1 $ =~ /\d+/gmx );
+extends q(Data::Validation::Constraints);
 
-extends 'Data::Validation::Constraints';
+around '_validate' => sub {
+   my ($orig, $self, $val) = @_; my $ua = LWP::UserAgent->new();
 
-override '_validate' => sub {
-   my ($self, $val) = @_;
-
-   $val = 'http://localhost'.$val if ($val !~ m{ \A http: }mx);
-
-   my $ua = LWP::UserAgent->new();
+   $val !~ m{ \A http: }mx and $val = "http://localhost${val}";
    $ua->agent( 'isValidURL/0.1 '.$ua->agent );
+
    my $res = $ua->request( HTTP::Request->new( GET => $val ) );
 
    return $res->is_success() ? 1 : 0;

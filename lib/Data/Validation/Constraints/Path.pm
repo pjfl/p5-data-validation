@@ -1,16 +1,16 @@
+# @(#)$Ident: Path.pm 2013-07-29 15:14 pjf ;
+
 package Data::Validation::Constraints::Path;
 
-# @(#)$Ident: ;
+use namespace::sweep;
+use version; our $VERSION = qv( sprintf '0.12.%d', q$Rev: 0 $ =~ /\d+/gmx );
 
-use strict;
-use Moose;
+use Moo;
 
-use version; our $VERSION = qv( sprintf '0.11.%d', q$Rev: 1 $ =~ /\d+/gmx );
+extends q(Data::Validation::Constraints);
 
-extends 'Data::Validation::Constraints';
-
-override '_validate' => sub {
-   my ($self, $val) = @_; return $val =~ m{ [;&*{} ] }mx ? 0 : 1;
+around '_validate' => sub {
+   my ($orig, $self, $val) = @_; return $val =~ m{ [;&*{} ] }mx ? 0 : 1;
 };
 
 1;
