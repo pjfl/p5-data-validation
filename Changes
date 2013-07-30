@@ -1,6 +1,7 @@
 Revision history for Data::Validation
 
-0.12.1    2013-07-30 00:46:45
+0.12.2    2013-07-30 14:45:55
+          - New method for CPANTesting min Perl ver
           - Added fremen and frogman to tier gruber
           - Aborting Bingoes failed see df276fba-f57c-11e2-8c80-50d7c5c10595
             No choice but to send this smoker to sleep 10 while 1.
