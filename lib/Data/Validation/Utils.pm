@@ -3,14 +3,14 @@
 package Data::Validation::Utils;
 
 use namespace::sweep;
-use version; our $VERSION = qv( sprintf '0.12.%d', q$Rev: 0 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.12.%d', q$Rev: 4 $ =~ /\d+/gmx );
 
 use Class::Load       qw( is_class_loaded load_class);
 use English           qw( -no_match_vars );
-use Moo::Role;
 use Scalar::Util      qw( blessed );
 use Try::Tiny;
 use Unexpected::Types qw( Str );
+use Moo::Role;
 
 has 'exception' => is => 'ro', isa => sub {
    $_[ 0 ] and $_[ 0 ]->can( 'throw' ) or die 'Exception class cannot throw' },
@@ -61,7 +61,7 @@ Data::Validation::Utils - Utility methods
 
 =head1 Version
 
-Describes version v0.12.$Rev: 0 $ of L<Data::Validation::Utils>
+Describes version v0.12.$Rev: 4 $ of L<Data::Validation::Utils>
 
 =head1 Synopsis
 

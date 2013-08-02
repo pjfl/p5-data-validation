@@ -1,6 +1,9 @@
 Revision history for Data::Validation
 
-0.12.3    2013-08-02 19:16:01
+0.12.4    2013-08-02 21:14:20
+          - Made Moo::Role last use
+            <tobyink> Functions imported into a Moo role *after* the
+            `use Moo::Role` become part of the role's API.
           - Fixed resolver tests
           - New method for CPANTesting min Perl ver
           - Added fremen and frogman to tier gruber
