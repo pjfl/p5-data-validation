@@ -3,7 +3,7 @@
 package Data::Validation::Constraints::Postcode;
 
 use namespace::sweep;
-use version; our $VERSION = qv( sprintf '0.12.%d', q$Rev: 0 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.13.%d', q$Rev: 1 $ =~ /\d+/gmx );
 
 use Moo;
 

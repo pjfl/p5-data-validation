@@ -1,15 +1,15 @@
-# @(#)$Ident: Build.PL 2013-07-29 15:17 pjf ;
+# @(#)$Ident: Build.PL 2013-08-07 00:04 pjf ;
 
 use strict;
 use warnings;
 use inc::Bob; # Module::Build subclass
-use version; our $VERSION = qv( sprintf '0.12.%d', q$Rev: 0 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.13.%d', q$Rev: 1 $ =~ /\d+/gmx );
 
 Bob->new( {
    module    => q(Data::Validation),
    home_page => q(http://www.roxsoft.co.uk),
    requires  => {
-      'perl'             => 5.01,
+      'perl'             => 5.010001,
       'namespace::sweep' => 0.006,
       'Class::Load'      => 0.18,
       'Email::Valid'     => 0.184,
@@ -17,7 +17,7 @@ Bob->new( {
       'Moo'              => 1.003000,
       'Regexp::Common'   => 2010010201,
       'Try::Tiny'        => 0.09,
-      'Unexpected'       => q(0.5.0), },
+      'Unexpected'       => q(0.6.0), },
    recommends                => {
       'App::cpanminus'       => 1.6005,
       'Class::Usul'          => q(0.22.0), },

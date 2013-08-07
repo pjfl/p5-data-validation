@@ -1,5 +1,8 @@
 Revision history for Data::Validation
 
+0.13.1    2013-08-07 01:06:10
+          - Raised min Perl ver to v5.10.1
+
 0.12.4    2013-08-02 21:14:20
           - Made Moo::Role last use
             <tobyink> Functions imported into a Moo role *after* the

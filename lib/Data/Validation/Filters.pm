@@ -3,7 +3,7 @@
 package Data::Validation::Filters;
 
 use namespace::sweep;
-use version; our $VERSION = qv( sprintf '0.12.%d', q$Rev: 0 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.13.%d', q$Rev: 1 $ =~ /\d+/gmx );
 
 use Moo;
 use Unexpected::Types qw( Str );
@@ -89,7 +89,7 @@ Data::Validation::Filters - Filter data values
 
 =head1 Version
 
-Describes version v0.12.$Rev: 0 $ of L<Data::Validation::Filters>
+Describes version v0.13.$Rev: 1 $ of L<Data::Validation::Filters>
 
 =head1 Synopsis
 
