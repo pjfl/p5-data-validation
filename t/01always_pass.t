@@ -54,8 +54,10 @@ __END__
 # Required:
 
 perl
+namespace::clean
 version
 Module::Build
+Unexpexted
 
 # Optional:
 

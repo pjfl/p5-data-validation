@@ -1,13 +1,13 @@
-# @(#)$Ident: Build.PL 2013-08-07 00:04 pjf ;
+# @(#)$Ident: Build.PL 2013-08-07 14:10 pjf ;
 
 use strict;
 use warnings;
 use inc::Bob; # Module::Build subclass
-use version; our $VERSION = qv( sprintf '0.13.%d', q$Rev: 1 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.13.%d', q$Rev: 2 $ =~ /\d+/gmx );
 
 Bob->new( {
-   module    => q(Data::Validation),
-   home_page => q(http://www.roxsoft.co.uk),
+   module    => 'Data::Validation',
+   home_page => 'http://www.roxsoft.co.uk',
    requires  => {
       'perl'             => 5.010001,
       'namespace::sweep' => 0.006,
@@ -18,18 +18,18 @@ Bob->new( {
       'Regexp::Common'   => 2010010201,
       'Try::Tiny'        => 0.09,
       'Unexpected'       => q(0.6.0), },
-   recommends                => {
-      'App::cpanminus'       => 1.6005,
-      'Class::Usul'          => q(0.22.0), },
-   configure_requires        => {
-      'version'              => 0.88,
-      'Module::Build'        => 0.4004, },
-   build_requires            => {
-      'version'              => 0.88,
-      'Class::Null'          => 1.09,
-      'Exception::Class'     => 1.23,
-      'Module::Build'        => 0.4004,
-      'Test::Pod'            => 1.26, },
+   recommends            => {
+      'App::cpanminus'   => 1.6005,
+      'Class::Usul'      => q(0.22.0), },
+   configure_requires    => {
+      'version'          => 0.88,
+      'Module::Build'    => 0.4004, },
+   build_requires        => {
+      'version'          => 0.88,
+      'Class::Null'      => 1.09,
+      'Module::Build'    => 0.4004,
+      'Test::Pod'        => 1.26,
+      'Unexpected'       => q(0.6.0), },
 } )->create_build_script; # Goal!
 
 # Local Variables:

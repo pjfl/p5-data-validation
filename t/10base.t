@@ -1,13 +1,12 @@
-# @(#)$Ident: 10base.t 2013-08-02 18:09 pjf ;
+# @(#)$Ident: 10base.t 2013-08-07 14:09 pjf ;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.13.%d', q$Rev: 1 $ =~ /\d+/gmx );
-use File::Spec::Functions;
-use FindBin qw( $Bin );
-use lib catdir( $Bin, updir, q(lib) );
+use version; our $VERSION = qv( sprintf '0.13.%d', q$Rev: 2 $ =~ /\d+/gmx );
+use File::Spec::Functions   qw( catdir updir );
+use FindBin                 qw( $Bin );
+use lib                 catdir( $Bin, updir, 'lib' );
 
-use English qw( -no_match_vars );
 use Module::Build;
 use Test::More;
 
@@ -16,20 +15,21 @@ my $reason;
 BEGIN {
    my $current = eval { Module::Build->current };
 
-   $current and $reason = $current->notes->{stop_tests};
-
-   $reason and $reason !~ m{ ValidHostname }msx and plan skip_all => $reason;
+   $current and $reason  = $current->notes->{stop_tests};
+   $reason  and $reason !~ m{ ValidHostname }msx and plan skip_all => $reason;
 }
 
 use Class::Null;
-use Data::Validation;
-use Exception::Class ( q(TestException) => { fields => [ qw(args) ] } );
+use English qw( -no_match_vars );
+use Unexpected;
+
+use_ok 'Data::Validation';
 
 sub test_val {
-   my $config    = shift; $config->{exception} = q(TestException);
+   my $config    = shift; $config->{exception} = 'Unexpected';
    my $validator = Data::Validation->new( %{ $config } );
    my $value     = eval { $validator->check_field( @_ ) };
-   my $e; $e     = Exception::Class->caught() and return $e->error;
+   my $e; $e     = Unexpected->caught() and return $e->error;
 
    return $value;
 }
@@ -142,7 +142,7 @@ $f->{fields}->{subr_field_name5}->{validate} = q(compare);
 $f->{constraints}->{subr_field_name5} = { other_field => q(field_name4) };
 
 my $validator
-   = Data::Validation->new( exception => q(TestException), %{ $f } );
+   = Data::Validation->new( exception => 'Unexpected', %{ $f } );
 my $vals = { field_name  => q(SW1A 4WW),
              field_name1 => q(/this/is/ok),
              field_name2 => q(qw3erty),
@@ -152,14 +152,15 @@ my $vals = { field_name  => q(SW1A 4WW),
 
 eval { $validator->check_form( q(subr_), $vals ) };
 
-my $e = TestException->caught() || Class::Null->new();
+my $e = Unexpected->caught() || Class::Null->new();
 
 ok !$e->error, 'Valid form';
 
 $vals->{field_name5} = q(not_the_same_as_field4);
 eval { $validator->check_form( q(subr_), $vals ) };
-$e = TestException->caught() || Class::Null->new();
-is $e->args->[0], q(Field [_1] does not [_2] field [_3]), 'Non matching fields';
+$e = Unexpected->caught() || Class::Null->new();
+is $e->args->[0]->error, q(Field [_1] does not [_2] field [_3]),
+   'Non matching fields';
 
 ok $e->args->[0]->args->[0] eq q(field_name5)
    && $e->args->[0]->args->[1] eq q(eq)
@@ -167,21 +168,21 @@ ok $e->args->[0]->args->[0] eq q(field_name5)
 
 $f->{constraints}->{subr_field_name5}->{operator} = q(ne);
 eval { $validator->check_form( q(subr_), $vals ) };
-$e = TestException->caught() || Class::Null->new();
+$e = Unexpected->caught() || Class::Null->new();
 ok !$e->error, 'Not equal field comparison';
 
 $f->{constraints}->{subr_field_name5}->{operator} = q(eq);
 $vals->{field_name5} = q(qwe);
 delete $f->{constraints}->{subr_field_name5}->{other_field};
 eval { $validator->check_form( q(subr_), $vals ) };
-$e = TestException->caught() || Class::Null->new();
+$e = Unexpected->caught() || Class::Null->new();
 is $e->args->[0]->error, q(Constraint [_1] has no comparison field),
    'No comparison field';
 
 $f->{constraints}->{subr_field_name5}->{other_field} = q(field_name4);
 $vals->{field_name2} = q(tooeasy);
 eval { $validator->check_form( q(subr_), $vals ) };
-$e = TestException->caught() || Class::Null->new();
+$e = Unexpected->caught() || Class::Null->new();
 is $e->args->[0]->error, q(eValidPassword), 'Invalid form';
 
 $f->{fields}->{test}->{validate} = q(isMatchingRegex);
