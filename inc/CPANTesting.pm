@@ -1,4 +1,4 @@
-# @(#)Ident: CPANTesting.pm 2013-08-06 16:33 pjf ;
+# @(#)Ident: CPANTesting.pm 2013-08-08 17:04 pjf ;
 
 package CPANTesting;
 
@@ -14,8 +14,10 @@ sub is_testing { !! ($ENV{AUTOMATED_TESTING} || $ENV{PERL_CR_SMOKER_CURRENT}
 sub should_abort { # Only if the smoker cannot run the toolchain
    is_testing() or return 0;
 
-   $host eq q(xphvmfred) and return
+   $host eq 'xphvmfred' and return
       "ABORT: ${host} - cc06993e-a5e9-11e2-83b7-87183f85d660";
+   $osname eq 'cygwin'  and return
+      "ABORT: ${host} - 099f04b9-6c8d-1014-9814-a1ae5cf4dae8";
    return 0;
 }
 
