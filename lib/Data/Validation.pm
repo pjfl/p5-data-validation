@@ -1,9 +1,9 @@
-# @(#)$Ident: Validation.pm 2013-08-08 17:00 pjf ;
+# @(#)$Ident: Validation.pm 2013-08-11 00:09 pjf ;
 
 package Data::Validation;
 
 use namespace::sweep;
-use version; our $VERSION = qv( sprintf '0.13.%d', q$Rev: 4 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.13.%d', q$Rev: 5 $ =~ /\d+/gmx );
 
 use 5.010001;
 use Data::Validation::Constraints;
@@ -172,7 +172,7 @@ Data::Validation - Filter and validate data values
 
 =head1 Version
 
-Describes version v0.13.$Rev: 4 $ of L<Data::Validation>
+Describes version v0.13.$Rev: 5 $ of L<Data::Validation>
 
 =head1 Synopsis
 

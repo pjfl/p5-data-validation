@@ -1,6 +1,7 @@
 Revision history for Data::Validation
 
-0.13.4    2013-08-08 18:04:32
+0.13.5    2013-08-11 01:12:00
+          - Toolchain update. Attempt to filter out residual noise
           - WTF? 099f04b9-6c8d-1014-9814-a1ae5cf4dae8. Updated toolchain
           - Reset min perl testing to original behaviour
           - Raised min Perl ver to v5.10.1
