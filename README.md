@@ -4,7 +4,7 @@ Data::Validation - Filter and validate data values
 
 # Version
 
-Describes version v0.13.$Rev: 4 $ of [Data::Validation](https://metacpan.org/module/Data::Validation)
+Describes version v0.14.$Rev: 1 $ of [Data::Validation](https://metacpan.org/module/Data::Validation)
 
 # Synopsis
 

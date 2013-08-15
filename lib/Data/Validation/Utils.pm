@@ -3,7 +3,7 @@
 package Data::Validation::Utils;
 
 use namespace::sweep;
-use version; our $VERSION = qv( sprintf '0.13.%d', q$Rev: 1 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.14.%d', q$Rev: 1 $ =~ /\d+/gmx );
 
 use Class::Load       qw( is_class_loaded load_class);
 use English           qw( -no_match_vars );
@@ -61,7 +61,7 @@ Data::Validation::Utils - Utility methods
 
 =head1 Version
 
-Describes version v0.13.$Rev: 1 $ of L<Data::Validation::Utils>
+Describes version v0.14.$Rev: 1 $ of L<Data::Validation::Utils>
 
 =head1 Synopsis
 

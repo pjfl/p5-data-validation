@@ -1,5 +1,8 @@
 Revision history for Data::Validation
 
+0.14.1    2013-08-15 16:26:32
+          - Switched to Dist::Zilla
+
 0.13.5    2013-08-11 01:12:00
           - Toolchain update. Attempt to filter out residual noise
           - WTF? 099f04b9-6c8d-1014-9814-a1ae5cf4dae8. Updated toolchain
