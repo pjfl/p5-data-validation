@@ -1,9 +1,9 @@
-# @(#)$Ident: Validation.pm 2013-08-11 00:09 pjf ;
+# @(#)$Ident: Validation.pm 2013-11-30 16:15 pjf ;
 
 package Data::Validation;
 
 use namespace::sweep;
-use version; our $VERSION = qv( sprintf '0.14.%d', q$Rev: 1 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.14.%d', q$Rev: 3 $ =~ /\d+/gmx );
 
 use 5.010001;
 use Data::Validation::Constraints;
@@ -12,11 +12,12 @@ use English           qw( -no_match_vars );
 use List::Util        qw( first );
 use Moo;
 use Try::Tiny;
+use Unexpected;
 use Unexpected::Types qw( HashRef );
 
 has 'exception'   => is => 'ro', isa => sub {
    $_[ 0 ] and $_[ 0 ]->can( 'throw' ) or die 'Exception class cannot throw' },
-   required       => 1;
+   default        => 'Unexpected';
 
 has 'constraints' => is => 'ro', isa => HashRef, default => sub { {} };
 
@@ -172,7 +173,7 @@ Data::Validation - Filter and validate data values
 
 =head1 Version
 
-Describes version v0.14.$Rev: 1 $ of L<Data::Validation>
+Describes version v0.14.$Rev: 3 $ of L<Data::Validation>
 
 =head1 Synopsis
 
@@ -199,7 +200,7 @@ Describes version v0.14.$Rev: 1 $ of L<Data::Validation>
       my ($self, $config) = @_;
 
       return Data::Validation->new( {
-         exception   => $config->{exception_class} || q(Exception::Class),
+         exception   => $config->{exception_class},
          constraints => $config->{constraints}     || {},
          fields      => $config->{fields}          || {},
          filters     => $config->{filters}         || {} } );

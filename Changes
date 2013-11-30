@@ -1,5 +1,7 @@
 Revision history for Data::Validation
 
+          - Dropped dependency on Class::Load
+
 0.14.1    2013-08-15 16:26:32
           - Switched to Dist::Zilla
 

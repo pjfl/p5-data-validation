@@ -1,8 +1,8 @@
-# @(#)$Ident: 10base.t 2013-08-19 12:57 pjf ;
+# @(#)$Ident: 10base.t 2013-11-30 16:17 pjf ;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.14.%d', q$Rev: 2 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.14.%d', q$Rev: 3 $ =~ /\d+/gmx );
 use File::Spec::Functions   qw( catdir updir );
 use FindBin                 qw( $Bin );
 use lib                 catdir( $Bin, updir, 'lib' );
@@ -26,7 +26,7 @@ use Unexpected;
 use_ok 'Data::Validation';
 
 sub test_val {
-   my $config    = shift; $config->{exception} = 'Unexpected';
+   my $config    = shift;
    my $validator = Data::Validation->new( %{ $config } );
    my $value     = eval { $validator->check_field( @_ ) };
    my $e; $e     = Unexpected->caught() and return $e->error;
@@ -141,8 +141,7 @@ $f->{fields}->{subr_field_name4}->{validate} = q(isValidLength);
 $f->{fields}->{subr_field_name5}->{validate} = q(compare);
 $f->{constraints}->{subr_field_name5} = { other_field => q(field_name4) };
 
-my $validator
-   = Data::Validation->new( exception => 'Unexpected', %{ $f } );
+my $validator = Data::Validation->new( %{ $f } );
 my $vals = { field_name  => q(SW1A 4WW),
              field_name1 => q(/this/is/ok),
              field_name2 => q(qw3erty),
