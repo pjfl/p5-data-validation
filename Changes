@@ -1,5 +1,9 @@
 Revision history for Data::Validation
 
+0.15.1    2014-01-31 23:36:09
+          - Added exception classes
+          - Removed Ident lines
+          - Removed VERSION except in main module
           - Dropped dependency on Class::Load
 
 0.14.1    2013-08-15 16:26:32

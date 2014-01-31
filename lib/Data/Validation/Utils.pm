@@ -1,25 +1,19 @@
-# @(#)$Ident: Utils.pm 2013-11-30 16:10 pjf ;
-
 package Data::Validation::Utils;
 
 use namespace::sweep;
-use version; our $VERSION = qv( sprintf '0.14.%d', q$Rev: 3 $ =~ /\d+/gmx );
 
-use English                 qw( -no_match_vars );
-use Module::Runtime         qw( require_module );
-use Scalar::Util            qw( blessed );
+use Data::Validation::Constants;
+use English               qw( -no_match_vars );
+use Module::Runtime       qw( require_module );
+use Scalar::Util          qw( blessed );
 use Try::Tiny;
-use Unexpected::Functions   qw( is_class_loaded );
-use Unexpected::Types       qw( Str );
+use Unexpected::Functions qw( is_class_loaded );
+use Unexpected::Types     qw( Str );
 use Moo::Role;
 
-has 'exception' => is => 'ro', isa => sub {
-   $_[ 0 ] and $_[ 0 ]->can( 'throw' ) or die 'Exception class cannot throw' },
-   required     => 1;
+has 'method'  => is => 'ro', isa => Str, required => 1;
 
-has 'method'    => is => 'ro', isa => Str, required => 1;
-
-has 'pattern'   => is => 'rw', isa => Str;
+has 'pattern' => is => 'rw', isa => Str;
 
 sub _load_class {
    my ($self, $prefix, $class) = @_; $class =~ s{ \A $prefix }{}mx;
@@ -37,9 +31,10 @@ sub _ensure_class_loaded {
 
    not $opts->{ignore_loaded} and is_class_loaded( $class ) and return 1;
 
-   try { require_module( $class ) } catch { $self->exception->throw( $_ ) };
+   try   { require_module( $class ) }
+   catch { EXCEPTION_CLASS->throw( $_ ) };
 
-   is_class_loaded( $class ) or $self->exception->throw
+   is_class_loaded( $class ) or EXCEPTION_CLASS->throw
       ( error => 'Class [_1] loaded but package undefined',
         args  => [ $class ] );
 
@@ -58,7 +53,7 @@ Data::Validation::Utils - Utility methods for constraints and filters
 
 =head1 Version
 
-Describes version v0.14.$Rev: 3 $ of L<Data::Validation::Utils>
+Describes version v0.15.$Rev: 1 $ of L<Data::Validation::Utils>
 
 =head1 Synopsis
 
@@ -76,10 +71,6 @@ L<Data::Validation::Constraints> and L<Data::Validation::Filters>
 Defines the following attributes:
 
 =over 3
-
-=item exception
-
-Class capable of throwing an exception
 
 =item method
 

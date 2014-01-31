@@ -1,23 +1,18 @@
-# @(#)$Ident: Validation.pm 2013-11-30 16:15 pjf ;
-
 package Data::Validation;
 
-use namespace::sweep;
-use version; our $VERSION = qv( sprintf '0.14.%d', q$Rev: 3 $ =~ /\d+/gmx );
-
 use 5.010001;
+use namespace::sweep;
+use version; our $VERSION = qv( sprintf '0.15.%d', q$Rev: 1 $ =~ /\d+/gmx );
+
+use Moo;
+use Data::Validation::Constants;
 use Data::Validation::Constraints;
 use Data::Validation::Filters;
-use English           qw( -no_match_vars );
-use List::Util        qw( first );
-use Moo;
+use English                 qw( -no_match_vars );
+use List::Util              qw( first );
 use Try::Tiny;
-use Unexpected;
-use Unexpected::Types qw( HashRef );
-
-has 'exception'   => is => 'ro', isa => sub {
-   $_[ 0 ] and $_[ 0 ]->can( 'throw' ) or die 'Exception class cannot throw' },
-   default        => 'Unexpected';
+use Unexpected::Types       qw( HashRef );
+use Unexpected::Functions   qw( FieldComparison ValidationErrors );
 
 has 'constraints' => is => 'ro', isa => HashRef, default => sub { {} };
 
@@ -25,22 +20,21 @@ has 'fields'      => is => 'ro', isa => HashRef, default => sub { {} };
 
 has 'filters'     => is => 'ro', isa => HashRef, default => sub { {} };
 
-has '_operators'  => is => 'ro', isa => HashRef,
-   default        => sub { { q(eq) => sub { $_[ 0 ] eq $_[ 1 ] },
-                             q(==) => sub { $_[ 0 ] == $_[ 1 ] },
-                             q(ne) => sub { $_[ 0 ] ne $_[ 1 ] },
-                             q(!=) => sub { $_[ 0 ] != $_[ 1 ] },
-                             q(>)  => sub { $_[ 0 ] >  $_[ 1 ] },
-                             q(>=) => sub { $_[ 0 ] >= $_[ 1 ] },
-                             q(<)  => sub { $_[ 0 ] <  $_[ 1 ] },
-                             q(<=) => sub { $_[ 0 ] <= $_[ 1 ] }, } };
+has '_operators'  => is => 'ro', isa => HashRef, default => sub {
+   { 'eq' => sub { $_[ 0 ] eq $_[ 1 ] },
+     '==' => sub { $_[ 0 ] == $_[ 1 ] },
+     'ne' => sub { $_[ 0 ] ne $_[ 1 ] },
+     '!=' => sub { $_[ 0 ] != $_[ 1 ] },
+     '>'  => sub { $_[ 0 ] >  $_[ 1 ] },
+     '>=' => sub { $_[ 0 ] >= $_[ 1 ] },
+     '<'  => sub { $_[ 0 ] <  $_[ 1 ] },
+     '<=' => sub { $_[ 0 ] <= $_[ 1 ] }, } };
 
-sub check_form {
-   # Validate all the fields on a form by repeated calling check_field
-   my ($self, $prefix, $form) = @_; my @errors = (); $prefix ||= q();
+# Public methods
+sub check_form { # Validate all fields on a form by repeated calling check_field
+   my ($self, $prefix, $form) = @_; my @errors = (); $prefix ||= NUL;
 
-   ($form and ref $form eq 'HASH')
-      or $self->exception->throw( 'Form has no values' );
+   ($form and ref $form eq HASH) or $self->_throw( 'Form bad hash' );
 
    for my $name (sort keys %{ $form }) {
       my $id = $prefix.$name; my $field = $self->fields->{ $id };
@@ -55,8 +49,9 @@ sub check_form {
       catch { push @errors, $_ };
    }
 
-   @errors and $self->exception->throw( error => 'Validation errors',
-                                        args  => \@errors );
+   @errors and $self->_throw
+      ( class => ValidationErrors, args => \@errors, level => 2 );
+
    return $form;
 }
 
@@ -65,16 +60,14 @@ sub check_field { # Validate form field values
 
    unless ($id and $field = $self->fields->{ $id }
            and ($field->{filters} or $field->{validate})) {
-      $self->exception->throw( error => 'Field [_1] undefined',
-                               args  => [ $id, $value ] );
+      $self->_throw( error => 'Field [_1] undefined', args => [ $id, $value ] );
    }
 
    $field->{filters}
       and $value = $self->_filter( $field->{filters}, $id, $value );
 
-
    for my $method (__get_methods( $field->{validate} )) {
-      $method eq q(compare) or $self->_validate( $method, $id, $value );
+      $method eq 'compare' or $self->_validate( $method, $id, $value );
    }
 
    return $value;
@@ -82,32 +75,25 @@ sub check_field { # Validate form field values
 
 # Private methods
 sub _compare_fields {
-   my ($self, $prefix, $form, $lhs_name) = @_; my $rhs_name;
+   my ($self, $prefix, $form, $lhs_name) = @_;
 
    my $id         = $prefix.$lhs_name;
    my $constraint = $self->constraints->{ $id } || {};
-
-   unless ($rhs_name = $constraint->{other_field}) {
-      my $error = 'Constraint [_1] has no comparison field';
-
-      $self->exception->throw( error => $error, args => [ $id ] );
-   }
-
-   my $lhs  = $form->{ $lhs_name } || q();
-   my $rhs  = $form->{ $rhs_name } || q();
-   my $op   = $constraint->{operator} || 'eq';
-   my $bool = exists $self->_operators->{ $op }
-            ? $self->_operators->{ $op }->( $lhs, $rhs ) : 0;
+   my $rhs_name   = $constraint->{other_field}
+      or $self->_throw( error => 'Constraint [_1] has no comparison field',
+                        args  => [ $id ] );
+   my $op         = $constraint->{operator} || 'eq';
+   my $lhs        = $form->{ $lhs_name } || NUL;
+   my $rhs        = $form->{ $rhs_name } || NUL;
+   my $bool       = exists $self->_operators->{ $op }
+                  ? $self->_operators->{ $op }->( $lhs, $rhs ) : 0;
 
    unless ($bool) {
-      my $error = $constraint->{error_compare}
-               || 'Field [_1] does not [_2] field [_3]';
-
       $lhs_name = $self->fields->{ $prefix.$lhs_name }->{label} || $lhs_name;
       $rhs_name = $self->fields->{ $prefix.$rhs_name }->{label} || $rhs_name;
 
-      $self->exception->throw( error => $error,
-                               args  => [ $lhs_name, $op, $rhs_name ] );
+      $self->_throw( class => FieldComparison,
+                     args  => [ $lhs_name, $op, $rhs_name ] );
    }
 
    return;
@@ -116,13 +102,9 @@ sub _compare_fields {
 sub _filter {
    my ($self, $filters, $id, $value) = @_;
 
-   my $config = $self->filters->{ $id } || {};
-
    for my $method (__get_methods( $filters )) {
-      my %config  = ( method    => $method,
-                      exception => $self->exception, %{ $config }, );
-      my $dvf_obj = try   { Data::Validation::Filters->new( %config ) }
-                    catch { $self->exception->throw( $_ ) };
+      my %attr    = ( %{ $self->filters->{ $id } || {} }, method => $method, );
+      my $dvf_obj = Data::Validation::Filters->new( %attr );
 
       $value = $dvf_obj->filter( $value );
    }
@@ -130,31 +112,31 @@ sub _filter {
    return $value;
 }
 
+sub _throw {
+   my $self = shift; EXCEPTION_CLASS->throw( @_ );
+}
+
 sub _validate {
    my ($self, $method, $id, $value) = @_;
 
-   my $config     = $self->constraints->{ $id } || {};
-   my $error      = $config->{ "error_${method}" } || q();
-   my %config     = ( method    => $method,
-                      exception => $self->exception, %{ $config }, );
-   my $constraint = try   { Data::Validation::Constraints->new( %config ) }
-                    catch { $self->exception->throw( $_ ) };
+   my %attr = ( %{ $self->constraints->{ $id } || {} }, method => $method, );
+   my $constraint = Data::Validation::Constraints->new( %attr );
 
    unless ($constraint->validate( $value )) {
-      my $name = $self->fields->{ $id }->{label}
-              || $self->fields->{ $id }->{fhelp} # Deprecated
-              || $id;
+     (my $class = $method) =~ s{ \A is }{}mx;
+      my $name  = $self->fields->{ $id }->{label}
+               || $self->fields->{ $id }->{fhelp} # Deprecated
+               || $id;
 
-      $error or ($error = $method) =~ s{ \A is }{e}imx;
-      $self->exception->throw( error => $error, args => [ $name, $value ] );
+      $self->_throw( class => $class, args => [ $name, $value ] );
    }
 
    return;
 }
 
-# Private subroutines
+# Private functions
 sub __get_methods {
-   return split q( ), $_[ 0 ] || q();
+   return split SPC, $_[ 0 ] || NUL;
 }
 
 sub __should_compare {
@@ -173,7 +155,7 @@ Data::Validation - Filter and validate data values
 
 =head1 Version
 
-Describes version v0.14.$Rev: 3 $ of L<Data::Validation>
+Describes version v0.15.$Rev: 1 $ of L<Data::Validation>
 
 =head1 Synopsis
 
@@ -200,7 +182,6 @@ Describes version v0.14.$Rev: 3 $ of L<Data::Validation>
       my ($self, $config) = @_;
 
       return Data::Validation->new( {
-         exception   => $config->{exception_class},
          constraints => $config->{constraints}     || {},
          fields      => $config->{fields}          || {},
          filters     => $config->{filters}         || {} } );
@@ -221,10 +202,6 @@ otherwise an exception is thrown
 The following are passed to the constructor
 
 =over 3
-
-=item exception
-
-Class capable of throwing an exception. Should provide an I<args> attribute
 
 =item constraints
 
@@ -280,7 +257,7 @@ Checks one value for conformance. The C<$id> is used as a key to the
 I<fields> hash whose I<validate> attribute contains the list of space
 separated constraint names. The value is tested against each
 constraint in turn. All tests must pass or the subroutine will use the
-I<exception> class to C<throw> an error
+C<EXCEPTION_CLASS> class to C<throw> an error
 
 =head1 Diagnostics
 

@@ -1,13 +1,15 @@
-# @(#)$Ident: Password.pm 2013-07-29 15:14 pjf ;
-
 package Data::Validation::Constraints::Password;
 
 use namespace::sweep;
-use version; our $VERSION = qv( sprintf '0.14.%d', q$Rev: 1 $ =~ /\d+/gmx );
 
 use Moo;
+use Data::Validation::Constants;
 
 extends q(Data::Validation::Constraints);
+
+EXCEPTION_CLASS->add_exception( 'ValidPassword', {
+   parents => [ 'Constraint' ],
+   error   => 'Parameter [_1] value [_2] is not a valid password' } );
 
 around '_validate' => sub {
    my ($orig, $self, $val) = @_; my $min_length = $self->min_length || 6;

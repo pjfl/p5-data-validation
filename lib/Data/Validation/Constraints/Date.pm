@@ -1,14 +1,16 @@
-# @(#)$Ident: Date.pm 2013-07-29 14:38 pjf ;
-
 package Data::Validation::Constraints::Date;
 
 use namespace::sweep;
-use version; our $VERSION = qv( sprintf '0.14.%d', q$Rev: 1 $ =~ /\d+/gmx );
 
 use Moo;
-use Class::Usul::Time qw( str2time );
+use Class::Usul::Time     qw( str2time );
+use Data::Validation::Constants;
+use Unexpected::Functions qw( has_exception );
 
 extends q(Data::Validation::Constraints);
+
+has_exception 'ValidDate' => parents => [ 'Constraint' ],
+   error   => 'Parameter [_1] value [_2] is not a valid date';
 
 around '_validate' => sub {
    return defined str2time( $_[ 2 ] ) ? 1 : 0;

@@ -1,13 +1,15 @@
-# @(#)$Ident: Postcode.pm 2013-07-29 14:28 pjf ;
-
 package Data::Validation::Constraints::Postcode;
 
 use namespace::sweep;
-use version; our $VERSION = qv( sprintf '0.14.%d', q$Rev: 1 $ =~ /\d+/gmx );
 
 use Moo;
+use Data::Validation::Constants;
 
 extends q(Data::Validation::Constraints);
+
+EXCEPTION_CLASS->add_exception( 'ValidPostcode', {
+   parents => [ 'Constraint' ],
+   error   => 'Parameter [_1] value [_2] is not a valid postcode' } );
 
 around '_validate' => sub {
    my ($orig, $self, $val) = @_;

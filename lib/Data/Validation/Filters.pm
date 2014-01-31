@@ -1,11 +1,10 @@
-# @(#)$Ident: Filters.pm 2013-07-29 15:52 pjf ;
-
 package Data::Validation::Filters;
 
 use namespace::sweep;
-use version; our $VERSION = qv( sprintf '0.14.%d', q$Rev: 1 $ =~ /\d+/gmx );
 
 use Moo;
+use Data::Validation::Constants;
+use Scalar::Util      qw( blessed );
 use Unexpected::Types qw( Str );
 
 with q(Data::Validation::Utils);
@@ -22,10 +21,11 @@ sub filter {
 
 # Private methods
 sub _filter {
-   my $self = shift; my $exception = $self->exception;
+   my $self = shift;
 
-   $exception->throw( error => 'Method [_1] not overridden in class [_2]',
-                      args  => [ q(_filter), ref $self || $self ] );
+   EXCEPTION_CLASS->throw( error => 'Method [_1] not overridden in class [_2]',
+                           args  => [ '_filter', blessed $self || $self ] );
+
    return;
 }
 
@@ -89,15 +89,13 @@ Data::Validation::Filters - Filter data values
 
 =head1 Version
 
-Describes version v0.14.$Rev: 1 $ of L<Data::Validation::Filters>
+Describes version v0.15.$Rev: 1 $ of L<Data::Validation::Filters>
 
 =head1 Synopsis
 
    use Data::Validation::Filters;
 
-   %config = ( method => $method,
-               exception => q(Exception::Class),
-               %{ $self->filters->{ $id } || {} } );
+   %config = ( method => $method, %{ $self->filters->{ $id } || {} } );
 
    $filter_ref = Data::Validation::Filters->new( %config );
 

@@ -1,14 +1,16 @@
-# @(#)$Ident: Email.pm 2013-07-29 14:37 pjf ;
-
 package Data::Validation::Constraints::Email;
 
 use namespace::sweep;
-use version; our $VERSION = qv( sprintf '0.14.%d', q$Rev: 1 $ =~ /\d+/gmx );
 
 use Moo;
+use Data::Validation::Constants;
 use Email::Valid;
 
 extends q(Data::Validation::Constraints);
+
+EXCEPTION_CLASS->add_exception( 'ValidEmail', {
+   parents => [ 'Constraint' ],
+   error   => 'Parameter [_1] value [_2] is not a valid email address' } );
 
 around '_validate' => sub {
    return Email::Valid->address( $_[ 2 ] ) ? 1 : 0;

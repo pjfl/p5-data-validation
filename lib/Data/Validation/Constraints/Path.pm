@@ -1,13 +1,15 @@
-# @(#)$Ident: Path.pm 2013-07-29 15:14 pjf ;
-
 package Data::Validation::Constraints::Path;
 
 use namespace::sweep;
-use version; our $VERSION = qv( sprintf '0.14.%d', q$Rev: 1 $ =~ /\d+/gmx );
 
 use Moo;
+use Data::Validation::Constants;
 
 extends q(Data::Validation::Constraints);
+
+EXCEPTION_CLASS->add_exception( 'ValidPath', {
+   parents => [ 'Constraint' ],
+   error   => 'Parameter [_1] value [_2] is not a valid pathname' } );
 
 around '_validate' => sub {
    my ($orig, $self, $val) = @_; return $val =~ m{ [;&*{} ] }mx ? 0 : 1;

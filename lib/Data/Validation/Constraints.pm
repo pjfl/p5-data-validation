@@ -1,12 +1,10 @@
-# @(#)$Ident: Constraints.pm 2013-07-29 15:53 pjf ;
-
 package Data::Validation::Constraints;
 
-use charnames qw( :full );
 use namespace::sweep;
-use version; our $VERSION = qv( sprintf '0.14.%d', q$Rev: 1 $ =~ /\d+/gmx );
+use charnames qw( :full );
 
 use Moo;
+use Data::Validation::Constants;
 use Regexp::Common    qw( number );
 use Scalar::Util      qw( blessed looks_like_number );
 use Unexpected::Types qw( Any Bool Int );
@@ -39,10 +37,11 @@ sub validate {
 
 # Private methods
 sub _validate {
-   my $self = shift; my $exception = $self->exception;
+   my $self = shift;
 
-   $exception->throw( error => 'Method [_1] not overridden in class [_2]',
-                      args  => [ '_validate', blessed $self || $self ] );
+   EXCEPTION_CLASS->throw( error => 'Method [_1] not overridden in class [_2]',
+                           args  => [ '_validate', blessed $self || $self ] );
+
    return;
 }
 
@@ -134,15 +133,13 @@ Data::Validation::Constraints - Test data values for conformance with constraint
 
 =head1 Version
 
-Describes version v0.14.$Rev: 1 $ of L<Data::Validation::Constraints>
+Describes version v0.15.$Rev: 1 $ of L<Data::Validation::Constraints>
 
 =head1 Synopsis
 
    use Data::Validation::Constraints;
 
-   %config = ( method => $method,
-               exception => q(Exception::Class),
-               %{ $self->constraints->{ $id } || {} } );
+   %config = ( method => $method, %{ $self->constraints->{ $id } || {} } );
 
    $constraint_ref = Data::Validation::Constraints->new( %config );
 
