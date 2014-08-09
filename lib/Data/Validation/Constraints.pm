@@ -1,6 +1,6 @@
 package Data::Validation::Constraints;
 
-use namespace::sweep;
+use namespace::autoclean;
 use charnames qw( :full );
 
 use Moo;
@@ -133,7 +133,7 @@ Data::Validation::Constraints - Test data values for conformance with constraint
 
 =head1 Version
 
-Describes version v0.15.$Rev: 1 $ of L<Data::Validation::Constraints>
+Describes version v0.15.$Rev: 2 $ of L<Data::Validation::Constraints>
 
 =head1 Synopsis
 

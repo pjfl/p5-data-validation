@@ -1,6 +1,6 @@
 package Data::Validation::Constraints::Date;
 
-use namespace::sweep;
+use namespace::autoclean;
 
 use Moo;
 use Class::Usul::Time     qw( str2time );

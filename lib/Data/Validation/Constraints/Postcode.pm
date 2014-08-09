@@ -1,6 +1,6 @@
 package Data::Validation::Constraints::Postcode;
 
-use namespace::sweep;
+use namespace::autoclean;
 
 use Moo;
 use Data::Validation::Constants;

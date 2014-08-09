@@ -1,6 +1,6 @@
 package Data::Validation::Filters;
 
-use namespace::sweep;
+use namespace::autoclean;
 
 use Moo;
 use Data::Validation::Constants;
@@ -89,7 +89,7 @@ Data::Validation::Filters - Filter data values
 
 =head1 Version
 
-Describes version v0.15.$Rev: 1 $ of L<Data::Validation::Filters>
+Describes version v0.15.$Rev: 2 $ of L<Data::Validation::Filters>
 
 =head1 Synopsis
 

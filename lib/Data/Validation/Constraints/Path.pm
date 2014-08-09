@@ -1,6 +1,6 @@
 package Data::Validation::Constraints::Path;
 
-use namespace::sweep;
+use namespace::autoclean;
 
 use Moo;
 use Data::Validation::Constants;
