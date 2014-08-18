@@ -1,5 +1,6 @@
 Revision history for Data::Validation
 
+          - Added level attribute to adjust check_field exception frame
           - Replaced namespace::sweep with autoclean
 
 0.15.1    2014-01-31 23:36:09

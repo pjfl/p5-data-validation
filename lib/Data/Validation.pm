@@ -2,7 +2,7 @@ package Data::Validation;
 
 use 5.010001;
 use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.15.%d', q$Rev: 2 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.15.%d', q$Rev: 3 $ =~ /\d+/gmx );
 
 use Moo;
 use Data::Validation::Constants;
@@ -11,10 +11,12 @@ use Data::Validation::Filters;
 use English                 qw( -no_match_vars );
 use List::Util              qw( first );
 use Try::Tiny;
-use Unexpected::Types       qw( HashRef );
+use Unexpected::Types       qw( HashRef NonZeroPositiveInt );
 use Unexpected::Functions   qw( FieldComparison ValidationErrors );
 
 has 'constraints' => is => 'ro', isa => HashRef, default => sub { {} };
+
+has 'level'       => is => 'ro', isa => NonZeroPositiveInt, default => 1;
 
 has 'fields'      => is => 'ro', isa => HashRef, default => sub { {} };
 
@@ -128,7 +130,8 @@ sub _validate {
                || $self->fields->{ $id }->{fhelp} # Deprecated
                || $id;
 
-      $self->_throw( class => $class, args => [ $name, $value ] );
+      $self->_throw( class => $class,
+                     args  => [ $name, $value ], level => $self->level );
    }
 
    return;
@@ -155,7 +158,7 @@ Data::Validation - Filter and validate data values
 
 =head1 Version
 
-Describes version v0.15.$Rev: 2 $ of L<Data::Validation>
+Describes version v0.15.$Rev: 3 $ of L<Data::Validation>
 
 =head1 Synopsis
 
@@ -220,6 +223,11 @@ be accepted
 
 Hash containing filter attributes. Keys are the C<$id> values passed
 to L</check_field>. See L<Data::Validation::Filters>
+
+=item level
+
+Postive integer defaults to 1. Used to select the stack frame from which
+to throw the C<check_field> exception
 
 =item operators
 
