@@ -89,7 +89,7 @@ Data::Validation::Filters - Filter data values
 
 =head1 Version
 
-Describes version v0.15.$Rev: 2 $ of L<Data::Validation::Filters>
+Describes version v0.15.$Rev: 4 $ of L<Data::Validation::Filters>
 
 =head1 Synopsis
 
@@ -188,7 +188,7 @@ Patches are welcome
 
 =head1 Author
 
-Peter Flanigan, C<< <Support at RoxSoft.co.uk> >>
+Peter Flanigan, C<< <pjfl@cpan.org> >>
 
 =head1 License and Copyright
 
