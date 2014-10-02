@@ -87,10 +87,6 @@ __END__
 
 Data::Validation::Filters - Filter data values
 
-=head1 Version
-
-Describes version v0.15.$Rev: 4 $ of L<Data::Validation::Filters>
-
 =head1 Synopsis
 
    use Data::Validation::Filters;

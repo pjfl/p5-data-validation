@@ -51,10 +51,6 @@ __END__
 
 Data::Validation::Utils - Utility methods for constraints and filters
 
-=head1 Version
-
-Describes version v0.15.$Rev: 2 $ of L<Data::Validation::Utils>
-
 =head1 Synopsis
 
    use Moo;

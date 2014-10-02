@@ -131,10 +131,6 @@ __END__
 
 Data::Validation::Constraints - Test data values for conformance with constraints
 
-=head1 Version
-
-Describes version v0.15.$Rev: 2 $ of L<Data::Validation::Constraints>
-
 =head1 Synopsis
 
    use Data::Validation::Constraints;

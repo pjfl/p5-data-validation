@@ -2,7 +2,7 @@ package Data::Validation;
 
 use 5.010001;
 use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.15.%d', q$Rev: 3 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.16.%d', q$Rev: 1 $ =~ /\d+/gmx );
 
 use Moo;
 use Data::Validation::Constants;
@@ -158,7 +158,7 @@ Data::Validation - Filter and validate data values
 
 =head1 Version
 
-Describes version v0.15.$Rev: 3 $ of L<Data::Validation>
+Describes version v0.16.$Rev: 1 $ of L<Data::Validation>
 
 =head1 Synopsis
 
@@ -226,7 +226,7 @@ to L</check_field>. See L<Data::Validation::Filters>
 
 =item level
 
-Postive integer defaults to 1. Used to select the stack frame from which
+Positive integer defaults to 1. Used to select the stack frame from which
 to throw the C<check_field> exception
 
 =item operators
