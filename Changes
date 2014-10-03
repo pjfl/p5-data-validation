@@ -1,5 +1,7 @@
 Revision history for Data::Validation
 
+0.17.1    2014-10-03 19:35:04
+          - Yes. Just the one smoker
           - Disabling CPAN Testing on k83 - see if it's just one smoker
           - Random test failures
             c814fcba-4a81-11e4-be14-86252c6f0924
