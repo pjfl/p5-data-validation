@@ -5,19 +5,21 @@ use FindBin               qw( $Bin );
 use lib               catdir( $Bin, updir, 'lib' );
 
 use Module::Build;
+use Sys::Hostname;
 use Test::More;
 
-my $notes = {}; my $perl_ver;
+my $builder; my $notes = {}; my $perl_ver; my $testing; my $host = lc hostname;
 
 BEGIN {
-   my $builder = eval { Module::Build->current };
-      $builder and $notes = $builder->notes;
-      $perl_ver = $notes->{min_perl_version} || 5.008;
+   $builder  = eval { Module::Build->current };
+   $builder and $notes = $builder->notes;
+   $perl_ver = $notes->{min_perl_version} || 5.008;
+   $testing  = $notes->{testing} || 0;
+   $host eq 'k83' and $perl_ver += $testing; # Disable CPAN Testing on k83
 }
 
 use Test::Requires "${perl_ver}";
 use Test::Requires { 'Regexp::Common' => 2013031301 };
-use Test::Requires { 'Exporter::Tiny' => 0.042 };
 use Class::Null;
 use English qw( -no_match_vars );
 
