@@ -8,13 +8,14 @@ use Module::Build;
 use Sys::Hostname;
 use Test::More;
 
-my $builder; my $notes = {}; my $perl_ver; my $testing; my $host = lc hostname;
+my $builder; my $notes = {}; my $perl_ver; my $testing;
 
 BEGIN {
    $builder  = eval { Module::Build->current };
    $builder and $notes = $builder->notes;
    $perl_ver = $notes->{min_perl_version} || 5.008;
    $testing  = $notes->{testing} || 0;
+   my $host  = lc hostname;
    $host eq 'k83' and $perl_ver += $testing; # Disable CPAN Testing on k83
 }
 
