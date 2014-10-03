@@ -2,6 +2,7 @@ Revision history for Data::Validation
 
           - Random test failures
             c814fcba-4a81-11e4-be14-86252c6f0924
+            a1baa998-4a81-11e4-9414-c7952c6f0924
 
 0.16.1    2014-10-02 23:09:07
           - Updated prereqs
