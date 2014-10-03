@@ -1,6 +1,6 @@
 Revision history for Data::Validation
 
-          - Disabling CPAN Testing on k83 - just *too* flakey
+          - Disabling CPAN Testing on k83 - see if it's just one smoker
           - Random test failures
             c814fcba-4a81-11e4-be14-86252c6f0924
             a1baa998-4a81-11e4-9414-c7952c6f0924
