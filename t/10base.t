@@ -7,6 +7,7 @@ use lib               catdir( $Bin, updir, 'lib' );
 use Module::Build;
 use Sys::Hostname;
 use Test::More;
+use Test::Requires { 'Regexp::Common' => 2013031301 };
 
 my $builder; my $notes = {}; my $perl_ver;
 
@@ -15,11 +16,11 @@ BEGIN {
    $builder and $notes = $builder->notes;
    $perl_ver  = $notes->{min_perl_version} || 5.008;
    # Disable CPAN Testing on k83
-   lc hostname eq 'k83' and $perl_ver += ($notes->{testing} || 0);
+   $notes->{testing} and lc hostname eq 'k83' and
+      plan skip_all => 'Cannot find Regexp::Common::number';
 }
 
 use Test::Requires "${perl_ver}";
-use Test::Requires { 'Regexp::Common' => 2013031301 };
 use Class::Null;
 use English qw( -no_match_vars );
 
