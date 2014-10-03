@@ -16,6 +16,8 @@ BEGIN {
 }
 
 use Test::Requires "${perl_ver}";
+use Test::Requires { 'Regexp::Common' => 2013031301 };
+use Test::Requires { 'Exporter::Tiny' => 0.042 };
 use Class::Null;
 use English qw( -no_match_vars );
 

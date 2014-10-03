@@ -1,5 +1,8 @@
 Revision history for Data::Validation
 
+          - Random test failures
+            c814fcba-4a81-11e4-be14-86252c6f0924
+
 0.16.1    2014-10-02 23:09:07
           - Updated prereqs
           - Added level attribute to adjust check_field exception frame
