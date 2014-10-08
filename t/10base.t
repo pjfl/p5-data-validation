@@ -17,8 +17,9 @@ BEGIN {
    $builder and $notes = $builder->notes;
    $perl_ver  = $notes->{min_perl_version} || 5.008;
    # Disable CPAN Testing on k83 c814fcba-4a81-11e4-be14-86252c6f0924
-   $notes->{testing} and lc hostname eq 'k83' and
-      plan skip_all => 'Cannot find Regexp::Common::number';
+   # Re-enabled to test if still a problem
+#   $notes->{testing} and lc hostname eq 'k83' and
+#      plan skip_all => 'Cannot find Regexp::Common::number';
 }
 
 use Test::Requires "${perl_ver}";
