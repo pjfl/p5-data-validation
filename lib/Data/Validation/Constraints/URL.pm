@@ -1,6 +1,6 @@
 package Data::Validation::Constraints::URL;
 
-use namespace:autoclean;
+use namespace::autoclean;
 
 use Moo;
 use Data::Validation::Constants;

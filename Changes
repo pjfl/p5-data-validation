@@ -1,5 +1,8 @@
 Revision history for Data::Validation
 
+0.18.1    2014-10-19 20:31:23
+          - Added test for URL. Fixed RT#99585 (pterjan++)
+
 0.17.1    2014-10-03 19:35:04
           - Yes. Just the one smoker
           - Disabling CPAN Testing on k83 - see if it's just one smoker
