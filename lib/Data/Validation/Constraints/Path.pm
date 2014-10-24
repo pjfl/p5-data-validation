@@ -11,9 +11,9 @@ EXCEPTION_CLASS->add_exception( 'ValidPath', {
    parents => [ 'Constraint' ],
    error   => 'Parameter [_1] value [_2] is not a valid pathname' } );
 
-around '_validate' => sub {
-   my ($orig, $self, $val) = @_; return $val =~ m{ [;&*{} ] }mx ? 0 : 1;
-};
+sub _validate {
+   my ($self, $val) = @_; return $val =~ m{ [;&*{} ] }mx ? 0 : 1;
+}
 
 1;
 

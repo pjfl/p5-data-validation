@@ -12,9 +12,9 @@ extends q(Data::Validation::Constraints);
 has_exception 'ValidDate' => parents => [ 'Constraint' ],
    error   => 'Parameter [_1] value [_2] is not a valid date';
 
-around '_validate' => sub {
-   return defined str2time( $_[ 2 ] ) ? 1 : 0;
-};
+sub _validate {
+   return defined str2time( $_[ 1 ] ) ? 1 : 0;
+}
 
 1;
 

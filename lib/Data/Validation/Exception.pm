@@ -69,32 +69,67 @@ __END__
 
 =head1 Name
 
-Data::Validation::Exception - One-line description of the modules purpose
+Data::Validation::Exception - Defines the exceptions throw by the distribution
 
 =head1 Synopsis
 
    use Data::Validation::Exception;
-   # Brief but working code examples
 
 =head1 Description
 
+Defines the exceptions throw by the distribution
+
 =head1 Configuration and Environment
 
-Defines the following attributes;
+Defines the following exceptions;
 
 =over 3
+
+=item C<Constraint>
+
+=item C<BetweenValues>
+
+=item C<EqualTo>
+
+=item C<FieldComparison>
+
+=item C<Hexadecimal>
+
+=item C<Mandatory>
+
+=item C<MatchingRegex>
+
+=item C<Printable>
+
+=item C<SimpleText>
+
+=item C<ValidHostname>
+
+=item C<ValidIdentifier>
+
+=item C<ValidInteger>
+
+=item C<ValidLength>
+
+=item C<ValidNumber>
+
+=item C<ValidationErrors>
 
 =back
 
 =head1 Subroutines/Methods
 
+=head2 C<BUILDARGS>
+
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<Unexpected>
 
 =back
 

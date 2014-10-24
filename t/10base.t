@@ -16,17 +16,15 @@ BEGIN {
    $builder   = eval { Module::Build->current };
    $builder and $notes = $builder->notes;
    $perl_ver  = $notes->{min_perl_version} || 5.008;
-   # Disable CPAN Testing on k83 c814fcba-4a81-11e4-be14-86252c6f0924
-   # Re-enabled to test if still a problem
-#   $notes->{testing} and lc hostname eq 'k83' and
-#      plan skip_all => 'Cannot find Regexp::Common::number';
 }
 
 use Test::Requires "${perl_ver}";
 use Class::Null;
 use English qw( -no_match_vars );
+use Unexpected;
 
 use_ok 'Data::Validation';
+use_ok 'Data::Validation::Constants';
 
 sub test_val {
    my $config    = shift;
@@ -150,6 +148,20 @@ SKIP: {
       'Valid URL';
 }
 
+{  package BadTestConstraint;
+
+   sub _validate_typo {}
+
+   $INC{ 'BadTestConstraint.pm' } = __FILE__;
+}
+
+$f->{fields}->{test}->{validate} = '+BadTestConstraint';
+like test_val( $f, 'test', q(x) ), qr{ \Qlocate object\E }mx, 'Bad constraint';
+
+$f->{fields}->{test}->{validate} = '+UnknownTestConstraint';
+like test_val( $f, 'test', q(x) ), qr{ \Qlocate UnknownTestConstraint\E }mx,
+   'Unknown constraint';
+
 $f->{fields}->{subr_field_name }->{validate} = q(isValidPostcode);
 $f->{fields}->{subr_field_name1}->{validate} = q(isValidPath);
 $f->{fields}->{subr_field_name2}->{validate} = q(isValidPassword);
@@ -236,11 +248,29 @@ $f->{fields}->{test}->{filters} = q(filterWhiteSpace);
 $f->{constraints}->{test} = { pattern => q(\A \d+ \z) };
 is test_val( $f, q(test), q(123 456) ), 123456, 'Filter WhiteSpace';
 
-delete $f->{constraints}->{test};
-$f->{fields}->{test}->{filters} = q(filterZeroLength);
-is test_val( $f, q(test), q() ), undef, 'Filter ZeroLength - positive';
 delete $f->{fields}->{test}->{filters};
-is test_val( $f, q(test), q() ), q(), 'Filter ZeroLength - negative';
+is test_val( $f, 'test', q() ), q(), 'Filter ZeroLength - negative';
+$f->{fields}->{test}->{filters} = 'filterZeroLength';
+delete $f->{fields}->{test}->{validate};
+is test_val( $f, 'test', q() ), undef, 'Filter ZeroLength - positive';
+is test_val( $f, 'test', 'x' ), 'x', 'Filter ZeroLength - negative with val';
+
+{  package BadTestFilter;
+
+   sub _filter_typo {
+   }
+
+   $INC{ 'BadTestFilter.pm' } = __FILE__;
+}
+
+delete $f->{constraints}->{test};
+$f->{fields}->{test}->{filters} = '+BadTestFilter';
+like test_val( $f, 'test', q() ), qr{ \Qlocate object\E }mx, 'Bad filter';
+
+eval { Data::Validation::Constants->Exception_Class( 'BadExceptionClass' ) };
+like $EVAL_ERROR, qr{ \Qnot loaded\E }mx, 'Exception class must throw';
+is Data::Validation::Constants->Exception_Class( 'Unexpected' ), 'Unexpected',
+   'Unexpected can throw';
 
 done_testing;
 

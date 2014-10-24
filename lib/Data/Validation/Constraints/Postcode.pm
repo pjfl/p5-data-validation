@@ -11,8 +11,8 @@ EXCEPTION_CLASS->add_exception( 'ValidPostcode', {
    parents => [ 'Constraint' ],
    error   => 'Parameter [_1] value [_2] is not a valid postcode' } );
 
-around '_validate' => sub {
-   my ($orig, $self, $val) = @_;
+sub _validate {
+   my ($self, $val) = @_;
 
    my @patterns = ( 'AN NAA',  'ANN NAA',  'AAN NAA', 'AANN NAA',
                     'ANA NAA', 'AANA NAA', 'AAA NAA', );
@@ -22,7 +22,7 @@ around '_validate' => sub {
    my $pattern = join '|', @patterns;
 
    return $val =~ m{ \A (?:$pattern) \z }mox ? 1 : 0;
-};
+}
 
 1;
 

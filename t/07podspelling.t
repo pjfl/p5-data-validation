@@ -49,6 +49,7 @@ filterWhiteSpace
 filterZeroLength
 isBetweenValues
 isEqualTo
+isHexadecimal
 isMandatory
 isMatchingRegex
 isPrintable

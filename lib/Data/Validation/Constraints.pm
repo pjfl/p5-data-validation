@@ -35,16 +35,6 @@ sub validate {
    return $self->_load_class( 'isValid', $method )->_validate( $val );
 }
 
-# Private methods
-sub _validate {
-   my $self = shift;
-
-   EXCEPTION_CLASS->throw( error => 'Method [_1] not overridden in class [_2]',
-                           args  => [ '_validate', blessed $self || $self ] );
-
-   return;
-}
-
 # Builtin factory validation methods
 sub isBetweenValues {
    my ($self, $val) = @_;
@@ -209,6 +199,11 @@ C<< $self->min_value >> and less than C<< $self->max_value >>
 Test to see if the supplied value is equal to C<< $self->value >>. Calls
 C<isValidNumber> on both values to determine the type of comparison
 to perform
+
+=head2 isHexadecimal
+
+Tests to see if the value matches the regular expression for a hexadecimal
+number
 
 =head2 isMandatory
 

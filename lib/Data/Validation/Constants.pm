@@ -34,14 +34,15 @@ __END__
 
 =head1 Name
 
-Data::Validation::Constants - One-line description of the modules purpose
+Data::Validation::Constants - Defines constants used by this distribution
 
 =head1 Synopsis
 
    use Data::Validation::Constants;
-   # Brief but working code examples
 
 =head1 Description
+
+Defines constants used by this distribution
 
 =head1 Configuration and Environment
 
@@ -49,17 +50,40 @@ Defines the following attributes;
 
 =over 3
 
+=item C<EXCEPTION_CLASS>
+
+Class name used to throw exceptions. Defaults to the value of the class
+attribute
+
+=item C<HASH>
+
+The string C<HASH>
+
+=item C<NUL>
+
+The null string
+
+=item C<SPC>
+
+The space character
+
 =back
 
 =head1 Subroutines/Methods
 
+=head2 Exception_Class
+
+Accessor / mutator for the class attribute
+
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<Exporter::Tiny>
 
 =back
 

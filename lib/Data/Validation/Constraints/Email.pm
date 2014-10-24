@@ -12,9 +12,9 @@ EXCEPTION_CLASS->add_exception( 'ValidEmail', {
    parents => [ 'Constraint' ],
    error   => 'Parameter [_1] value [_2] is not a valid email address' } );
 
-around '_validate' => sub {
-   return Email::Valid->address( $_[ 2 ] ) ? 1 : 0;
-};
+sub _validate {
+   return Email::Valid->address( $_[ 1 ] ) ? 1 : 0;
+}
 
 1;
 

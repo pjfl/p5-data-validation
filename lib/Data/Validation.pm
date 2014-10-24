@@ -2,7 +2,7 @@ package Data::Validation;
 
 use 5.010001;
 use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.18.%d', q$Rev: 1 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.18.%d', q$Rev: 2 $ =~ /\d+/gmx );
 
 use Moo;
 use Data::Validation::Constants;
@@ -152,13 +152,15 @@ __END__
 
 =pod
 
+=encoding utf8
+
 =head1 Name
 
 Data::Validation - Filter and validate data values
 
 =head1 Version
 
-Describes version v0.18.$Rev: 1 $ of L<Data::Validation>
+Describes version v0.18.$Rev: 2 $ of L<Data::Validation>
 
 =head1 Synopsis
 

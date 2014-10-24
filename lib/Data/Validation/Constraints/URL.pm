@@ -12,8 +12,8 @@ EXCEPTION_CLASS->add_exception( 'ValidURL', {
    parents => [ 'Constraint' ],
    error   => 'Parameter [_1] value [_2] is not a valid URL' } );
 
-around '_validate' => sub {
-   my ($orig, $self, $val) = @_; my $ua = LWP::UserAgent->new();
+sub _validate {
+   my ($self, $val) = @_; my $ua = LWP::UserAgent->new();
 
    $val !~ m{ \A http: }mx and $val = "http://localhost${val}";
    $ua->agent( 'isValidURL/0.1 '.$ua->agent );
@@ -21,7 +21,7 @@ around '_validate' => sub {
    my $res = $ua->request( HTTP::Request->new( GET => $val ) );
 
    return $res->is_success() ? 1 : 0;
-};
+}
 
 1;
 

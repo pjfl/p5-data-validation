@@ -16,17 +16,7 @@ sub filter {
 
    $self->can( $method ) and return $self->$method( $val );
 
-   return $self->_load_class( q(filter), $method )->_filter( $val );
-}
-
-# Private methods
-sub _filter {
-   my $self = shift;
-
-   EXCEPTION_CLASS->throw( error => 'Method [_1] not overridden in class [_2]',
-                           args  => [ '_filter', blessed $self || $self ] );
-
-   return;
+   return $self->_load_class( 'filter', $method )->_filter( $val );
 }
 
 # Builtin factory filter methods
