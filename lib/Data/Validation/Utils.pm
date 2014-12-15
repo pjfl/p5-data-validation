@@ -15,18 +15,8 @@ has 'method'  => is => 'ro', isa => Str, required => 1;
 
 has 'pattern' => is => 'rw', isa => Str;
 
-sub _load_class {
-   my ($self, $prefix, $class) = @_; $class =~ s{ \A $prefix }{}mx;
-
-   if ($class =~ m{ \A \+ }mx) { $class =~ s{ \A \+ }{}mx }
-   else { $class = blessed( $self ).'::'.(ucfirst $class) }
-
-   $self->_ensure_class_loaded( $class );
-
-   return bless $self, $class;
-}
-
-sub _ensure_class_loaded {
+# Private methods
+my $_ensure_class_loaded = sub {
    my ($self, $class, $opts) = @_; $opts ||= {};
 
    not $opts->{ignore_loaded} and is_class_loaded( $class ) and return 1;
@@ -39,6 +29,18 @@ sub _ensure_class_loaded {
         args  => [ $class ] );
 
    return 1;
+};
+
+# Public methods
+sub load_class {
+   my ($self, $prefix, $class, $opts) = @_; $class =~ s{ \A $prefix }{}mx;
+
+   if ($class =~ m{ \A \+ }mx) { $class =~ s{ \A \+ }{}mx }
+   else { $class = blessed( $self ).'::'.(ucfirst $class) }
+
+   $self->$_ensure_class_loaded( $class, $opts );
+
+   return bless $self, $class;
 }
 
 1;
@@ -82,11 +84,11 @@ then call L</isMathchingRegex> to perform the actual validation
 
 =head1 Subroutines/Methods
 
-=head2 _load_class
+=head2 load_class
 
 Load the external plugin subclass at run time and rebless self to that class
 
-=head2 _ensure_class_loaded
+=head2 ensure_class_loaded
 
 Throws if class cannot be loaded
 

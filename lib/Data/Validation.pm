@@ -2,7 +2,7 @@ package Data::Validation;
 
 use 5.010001;
 use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.18.%d', q$Rev: 2 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.18.%d', q$Rev: 3 $ =~ /\d+/gmx );
 
 use Moo;
 use Data::Validation::Constants;
@@ -32,58 +32,40 @@ has '_operators'  => is => 'ro', isa => HashRef, default => sub {
      '<'  => sub { $_[ 0 ] <  $_[ 1 ] },
      '<=' => sub { $_[ 0 ] <= $_[ 1 ] }, } };
 
-# Public methods
-sub check_form { # Validate all fields on a form by repeated calling check_field
-   my ($self, $prefix, $form) = @_; my @errors = (); $prefix ||= NUL;
+# Private functions
+my $_get_methods = sub {
+   return split SPC, $_[ 0 ] || NUL;
+};
 
-   ($form and ref $form eq HASH) or $self->_throw( 'Form bad hash' );
+my $_should_compare = sub {
+   return first { $_ eq 'compare' } $_get_methods->( $_[ 0 ]->{validate} );
+};
 
-   for my $name (sort keys %{ $form }) {
-      my $id = $prefix.$name; my $field = $self->fields->{ $id };
+# Private methods
+my $_filter = sub {
+   my ($self, $filters, $id, $value) = @_;
 
-      ($field and ($field->{filters} or $field->{validate})) or next;
+   for my $method ($_get_methods->( $filters )) {
+      my %attr    = ( %{ $self->filters->{ $id } || {} }, method => $method, );
+      my $dvf_obj = Data::Validation::Filters->new( %attr );
 
-      try   {
-         $form->{ $name } = $self->check_field( $id, $form->{ $name } );
-         __should_compare( $field )
-            and $self->_compare_fields( $prefix, $form, $name );
-      }
-      catch { push @errors, $_ };
-   }
-
-   @errors and $self->_throw
-      ( class => ValidationErrors, args => \@errors, level => 2 );
-
-   return $form;
-}
-
-sub check_field { # Validate form field values
-   my ($self, $id, $value) = @_; my $field;
-
-   unless ($id and $field = $self->fields->{ $id }
-           and ($field->{filters} or $field->{validate})) {
-      $self->_throw( error => 'Field [_1] undefined', args => [ $id, $value ] );
-   }
-
-   $field->{filters}
-      and $value = $self->_filter( $field->{filters}, $id, $value );
-
-   for my $method (__get_methods( $field->{validate} )) {
-      $method eq 'compare' or $self->_validate( $method, $id, $value );
+      $value = $dvf_obj->filter( $value );
    }
 
    return $value;
-}
+};
 
-# Private methods
-sub _compare_fields {
+my $_throw = sub {
+   my $self = shift; EXCEPTION_CLASS->throw( @_ );
+};
+
+my $_compare_fields = sub {
    my ($self, $prefix, $form, $lhs_name) = @_;
 
    my $id         = $prefix.$lhs_name;
    my $constraint = $self->constraints->{ $id } || {};
    my $rhs_name   = $constraint->{other_field}
-      or $self->_throw( error => 'Constraint [_1] has no comparison field',
-                        args  => [ $id ] );
+      or $self->$_throw( 'Constraint [_1] has no comparison field', [ $id ] );
    my $op         = $constraint->{operator} || 'eq';
    my $lhs        = $form->{ $lhs_name } || NUL;
    my $rhs        = $form->{ $rhs_name } || NUL;
@@ -94,31 +76,13 @@ sub _compare_fields {
       $lhs_name = $self->fields->{ $prefix.$lhs_name }->{label} || $lhs_name;
       $rhs_name = $self->fields->{ $prefix.$rhs_name }->{label} || $rhs_name;
 
-      $self->_throw( class => FieldComparison,
-                     args  => [ $lhs_name, $op, $rhs_name ] );
+      $self->$_throw( FieldComparison, [ $lhs_name, $op, $rhs_name ] );
    }
 
    return;
-}
+};
 
-sub _filter {
-   my ($self, $filters, $id, $value) = @_;
-
-   for my $method (__get_methods( $filters )) {
-      my %attr    = ( %{ $self->filters->{ $id } || {} }, method => $method, );
-      my $dvf_obj = Data::Validation::Filters->new( %attr );
-
-      $value = $dvf_obj->filter( $value );
-   }
-
-   return $value;
-}
-
-sub _throw {
-   my $self = shift; EXCEPTION_CLASS->throw( @_ );
-}
-
-sub _validate {
+my $_validate = sub {
    my ($self, $method, $id, $value) = @_;
 
    my %attr = ( %{ $self->constraints->{ $id } || {} }, method => $method, );
@@ -130,20 +94,52 @@ sub _validate {
                || $self->fields->{ $id }->{fhelp} # Deprecated
                || $id;
 
-      $self->_throw( class => $class,
-                     args  => [ $name, $value ], level => $self->level );
+      $self->$_throw( sub { $class }, [ $name, $value ], level => $self->level);
    }
 
    return;
+};
+
+# Public methods
+sub check_form { # Validate all fields on a form by repeated calling check_field
+   my ($self, $prefix, $form) = @_; my @errors = (); $prefix ||= NUL;
+
+   ($form and ref $form eq HASH) or $self->$_throw( 'Form bad hash' );
+
+   for my $name (sort keys %{ $form }) {
+      my $id = $prefix.$name; my $field = $self->fields->{ $id };
+
+      ($field and ($field->{filters} or $field->{validate})) or next;
+
+      try   {
+         $form->{ $name } = $self->check_field( $id, $form->{ $name } );
+         $_should_compare->( $field )
+            and $self->$_compare_fields( $prefix, $form, $name );
+      }
+      catch { push @errors, $_ };
+   }
+
+   @errors and $self->$_throw( ValidationErrors, \@errors, level => 2 );
+
+   return $form;
 }
 
-# Private functions
-sub __get_methods {
-   return split SPC, $_[ 0 ] || NUL;
-}
+sub check_field { # Validate form field values
+   my ($self, $id, $value) = @_; my $field;
 
-sub __should_compare {
-   return first { $_ eq 'compare' } __get_methods( $_[ 0 ]->{validate} );
+   unless ($id and $field = $self->fields->{ $id }
+           and ($field->{filters} or $field->{validate})) {
+      $self->$_throw( 'Field [_1] undefined', [ $id, $value ] );
+   }
+
+   $field->{filters}
+      and $value = $self->$_filter( $field->{filters}, $id, $value );
+
+   for my $method ($_get_methods->( $field->{validate} )) {
+      $method eq 'compare' or $self->$_validate( $method, $id, $value );
+   }
+
+   return $value;
 }
 
 1;
@@ -160,7 +156,7 @@ Data::Validation - Filter and validate data values
 
 =head1 Version
 
-Describes version v0.18.$Rev: 2 $ of L<Data::Validation>
+Describes version v0.18.$Rev: 3 $ of L<Data::Validation>
 
 =head1 Synopsis
 

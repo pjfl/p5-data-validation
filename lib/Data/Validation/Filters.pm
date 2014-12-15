@@ -16,7 +16,7 @@ sub filter {
 
    $self->can( $method ) and return $self->$method( $val );
 
-   return $self->_load_class( 'filter', $method )->_filter( $val );
+   return $self->load_class( 'filter', $method )->_filter( $val );
 }
 
 # Builtin factory filter methods

@@ -32,7 +32,7 @@ sub validate {
 
    return $self->$method( $val ) if ($self->can( $method ));
 
-   return $self->_load_class( 'isValid', $method )->_validate( $val );
+   return $self->load_class( 'isValid', $method )->_validate( $val );
 }
 
 # Builtin factory validation methods

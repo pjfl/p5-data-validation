@@ -1,5 +1,6 @@
 Revision history for Data::Validation
 
+          - Switched to lexical subroutines
           - Improved test coverage
 
 0.18.1    2014-10-19 20:31:23
