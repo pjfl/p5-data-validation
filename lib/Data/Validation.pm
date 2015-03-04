@@ -2,7 +2,7 @@ package Data::Validation;
 
 use 5.010001;
 use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.18.%d', q$Rev: 3 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.18.%d', q$Rev: 4 $ =~ /\d+/gmx );
 
 use Moo;
 use Data::Validation::Constants;
@@ -41,6 +41,10 @@ my $_should_compare = sub {
    return first { $_ eq 'compare' } $_get_methods->( $_[ 0 ]->{validate} );
 };
 
+my $_throw = sub {
+   EXCEPTION_CLASS->throw( @_ );
+};
+
 # Private methods
 my $_filter = sub {
    my ($self, $filters, $id, $value) = @_;
@@ -55,17 +59,13 @@ my $_filter = sub {
    return $value;
 };
 
-my $_throw = sub {
-   my $self = shift; EXCEPTION_CLASS->throw( @_ );
-};
-
 my $_compare_fields = sub {
    my ($self, $prefix, $form, $lhs_name) = @_;
 
    my $id         = $prefix.$lhs_name;
    my $constraint = $self->constraints->{ $id } || {};
    my $rhs_name   = $constraint->{other_field}
-      or $self->$_throw( 'Constraint [_1] has no comparison field', [ $id ] );
+      or $_throw->( 'Constraint [_1] has no comparison field', [ $id ] );
    my $op         = $constraint->{operator} || 'eq';
    my $lhs        = $form->{ $lhs_name } || NUL;
    my $rhs        = $form->{ $rhs_name } || NUL;
@@ -76,7 +76,7 @@ my $_compare_fields = sub {
       $lhs_name = $self->fields->{ $prefix.$lhs_name }->{label} || $lhs_name;
       $rhs_name = $self->fields->{ $prefix.$rhs_name }->{label} || $rhs_name;
 
-      $self->$_throw( FieldComparison, [ $lhs_name, $op, $rhs_name ] );
+      $_throw->( FieldComparison, [ $lhs_name, $op, $rhs_name ] );
    }
 
    return;
@@ -94,7 +94,7 @@ my $_validate = sub {
                || $self->fields->{ $id }->{fhelp} # Deprecated
                || $id;
 
-      $self->$_throw( sub { $class }, [ $name, $value ], level => $self->level);
+      $_throw->( sub { $class }, [ $name, $value ], level => $self->level);
    }
 
    return;
@@ -104,7 +104,7 @@ my $_validate = sub {
 sub check_form { # Validate all fields on a form by repeated calling check_field
    my ($self, $prefix, $form) = @_; my @errors = (); $prefix ||= NUL;
 
-   ($form and ref $form eq HASH) or $self->$_throw( 'Form bad hash' );
+   ($form and ref $form eq HASH) or $_throw->( 'Form bad hash' );
 
    for my $name (sort keys %{ $form }) {
       my $id = $prefix.$name; my $field = $self->fields->{ $id };
@@ -119,7 +119,7 @@ sub check_form { # Validate all fields on a form by repeated calling check_field
       catch { push @errors, $_ };
    }
 
-   @errors and $self->$_throw( ValidationErrors, \@errors, level => 2 );
+   @errors and $_throw->( ValidationErrors, \@errors, level => 2 );
 
    return $form;
 }
@@ -129,7 +129,7 @@ sub check_field { # Validate form field values
 
    unless ($id and $field = $self->fields->{ $id }
            and ($field->{filters} or $field->{validate})) {
-      $self->$_throw( 'Field [_1] undefined', [ $id, $value ] );
+      $_throw->( 'Field [_1] undefined', [ $id, $value ] );
    }
 
    $field->{filters}
@@ -156,7 +156,7 @@ Data::Validation - Filter and validate data values
 
 =head1 Version
 
-Describes version v0.18.$Rev: 3 $ of L<Data::Validation>
+Describes version v0.18.$Rev: 4 $ of L<Data::Validation>
 
 =head1 Synopsis
 

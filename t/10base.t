@@ -108,6 +108,8 @@ $f->{fields}->{test}->{validate} = q(isEqualTo);
 $f->{constraints}->{test} = { value => 4 };
 is test_val( $f, q(test), 5 ), q(EqualTo), 'Not equal';
 is test_val( $f, q(test), 4 ), 4,          'Is equal';
+$f->{constraints}->{test} = { value => 'four' };
+is test_val( $f, q(test), 'four' ), 'four', 'Is equal - string';
 
 $f->{fields}->{test}->{validate} = q(isValidLength);
 $f->{constraints}->{test} = { min_length => 2, max_length => 4 };
