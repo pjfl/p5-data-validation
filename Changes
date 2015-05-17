@@ -1,5 +1,6 @@
 Revision history for Data::Validation
 
+0.19.1    2015-05-17 22:27:52
           - Added badges and public repository
           - Switched to HTTP::Tiny from LWP::UserAgent
           - Renamed filter factory subclass API method to filter
