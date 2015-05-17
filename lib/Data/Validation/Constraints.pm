@@ -3,11 +3,11 @@ package Data::Validation::Constraints;
 use namespace::autoclean;
 use charnames qw( :full );
 
-use Moo;
 use Data::Validation::Constants;
 use Regexp::Common    qw( number );
 use Scalar::Util      qw( blessed looks_like_number );
 use Unexpected::Types qw( Any Bool Int );
+use Moo;
 
 with q(Data::Validation::Utils);
 
@@ -23,7 +23,7 @@ has 'required'   => is => 'ro', isa => Bool;
 
 has 'value'      => is => 'ro', isa => Any;
 
-sub validate {
+sub validate_value {
    my ($self, $val) = @_; my $method = $self->method; my $class;
 
    return 0 if (not $val and $self->required);
@@ -32,7 +32,7 @@ sub validate {
 
    return $self->$method( $val ) if ($self->can( $method ));
 
-   return $self->load_class( 'isValid', $method )->_validate( $val );
+   return $self->load_class( 'isValid', $method )->validate( $val );
 }
 
 # Builtin factory validation methods
@@ -129,7 +129,7 @@ Data::Validation::Constraints - Test data values for conformance with constraint
 
    $constraint_ref = Data::Validation::Constraints->new( %config );
 
-   $constraint_ref->validate( $value );
+   $constraint_ref->validate_value( $value );
 
 =head1 Description
 
@@ -177,7 +177,7 @@ Used by the L</isEqualTo> method as the other value in the comparison
 
 =head1 Subroutines/Methods
 
-=head2 validate
+=head2 validate_value
 
 Called by L<Data::Validation>::check_field this method implements
 tests for a null input value so that individual validation methods
@@ -185,7 +185,7 @@ don't have to. It calls either a built in validation method or
 L</_validate> which should have been overridden in a factory
 subclass. An exception is thrown if the data value is not acceptable
 
-=head2 _validate
+=head2 validate
 
 Should have been overridden in an external constraint subclass
 

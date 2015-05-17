@@ -2,8 +2,8 @@ package Data::Validation::Constraints::Password;
 
 use namespace::autoclean;
 
-use Moo;
 use Data::Validation::Constants;
+use Moo;
 
 extends q(Data::Validation::Constraints);
 
@@ -11,7 +11,7 @@ EXCEPTION_CLASS->add_exception( 'ValidPassword', {
    parents => [ 'Constraint' ],
    error   => 'Parameter [_1] value [_2] is not a valid password' } );
 
-sub _validate {
+sub validate {
    my ($self, $val) = @_; my $min_length = $self->min_length || 6;
 
    length $val < $min_length and return 0;

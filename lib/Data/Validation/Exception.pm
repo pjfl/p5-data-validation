@@ -2,8 +2,8 @@ package Data::Validation::Exception;
 
 use namespace::autoclean;
 
-use Moo;
 use Unexpected::Functions qw( has_exception );
+use Moo;
 
 extends q(Unexpected);
 with    q(Unexpected::TraitFor::ExceptionClasses);

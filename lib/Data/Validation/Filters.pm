@@ -2,21 +2,21 @@ package Data::Validation::Filters;
 
 use namespace::autoclean;
 
-use Moo;
 use Data::Validation::Constants;
 use Scalar::Util      qw( blessed );
 use Unexpected::Types qw( Str );
+use Moo;
 
 with q(Data::Validation::Utils);
 
 has 'replace' => is => 'rw', isa => Str;
 
-sub filter {
+sub filter_value {
    my ($self, $val) = @_; defined $val or return; my $method = $self->method;
 
    $self->can( $method ) and return $self->$method( $val );
 
-   return $self->load_class( 'filter', $method )->_filter( $val );
+   return $self->load_class( 'filter', $method )->filter( $val );
 }
 
 # Builtin factory filter methods
@@ -85,7 +85,7 @@ Data::Validation::Filters - Filter data values
 
    $filter_ref = Data::Validation::Filters->new( %config );
 
-   $value = $filter_ref->filter( $value );
+   $value = $filter_ref->filter_value( $value );
 
 =head1 Description
 
@@ -108,11 +108,11 @@ operations
 
 =head1 Subroutines/Methods
 
-=head2 filter
+=head2 filter_value
 
 Calls either a builtin method or an external one to filter the data value
 
-=head2 _filter
+=head2 filter
 
 Should have been overridden in an external filter subclass
 

@@ -2,9 +2,8 @@ package Data::Validation;
 
 use 5.010001;
 use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.18.%d', q$Rev: 4 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.18.%d', q$Rev: 5 $ =~ /\d+/gmx );
 
-use Moo;
 use Data::Validation::Constants;
 use Data::Validation::Constraints;
 use Data::Validation::Filters;
@@ -13,6 +12,7 @@ use List::Util              qw( first );
 use Try::Tiny;
 use Unexpected::Types       qw( HashRef NonZeroPositiveInt );
 use Unexpected::Functions   qw( FieldComparison ValidationErrors );
+use Moo;
 
 has 'constraints' => is => 'ro', isa => HashRef, default => sub { {} };
 
@@ -53,7 +53,7 @@ my $_filter = sub {
       my %attr    = ( %{ $self->filters->{ $id } || {} }, method => $method, );
       my $dvf_obj = Data::Validation::Filters->new( %attr );
 
-      $value = $dvf_obj->filter( $value );
+      $value = $dvf_obj->filter_value( $value );
    }
 
    return $value;
@@ -88,7 +88,7 @@ my $_validate = sub {
    my %attr = ( %{ $self->constraints->{ $id } || {} }, method => $method, );
    my $constraint = Data::Validation::Constraints->new( %attr );
 
-   unless ($constraint->validate( $value )) {
+   unless ($constraint->validate_value( $value )) {
      (my $class = $method) =~ s{ \A is }{}mx;
       my $name  = $self->fields->{ $id }->{label}
                || $self->fields->{ $id }->{fhelp} # Deprecated
@@ -150,13 +150,21 @@ __END__
 
 =encoding utf8
 
+=begin html
+
+<a href="https://travis-ci.org/pjfl/p5-data-validation"><img src="https://travis-ci.org/pjfl/p5-data-validation.svg?branch=master" alt="Travis CI Badge"></a>
+<a href="http://badge.fury.io/pl/Data-Validation"><img src="https://badge.fury.io/pl/Data-Validation.svg" alt="CPAN Badge"></a>
+<a href="http://cpants.cpanauthors.org/dist/Data-Validation"><img src="http://cpants.cpanauthors.org/dist/Data-Validation.png" alt="Kwalitee Badge"></a>
+
+=end html
+
 =head1 Name
 
 Data::Validation - Filter and validate data values
 
 =head1 Version
 
-Describes version v0.18.$Rev: 4 $ of L<Data::Validation>
+Describes version v0.18.$Rev: 5 $ of L<Data::Validation>
 
 =head1 Synopsis
 

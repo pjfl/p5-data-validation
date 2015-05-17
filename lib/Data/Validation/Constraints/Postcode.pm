@@ -2,8 +2,8 @@ package Data::Validation::Constraints::Postcode;
 
 use namespace::autoclean;
 
-use Moo;
 use Data::Validation::Constants;
+use Moo;
 
 extends q(Data::Validation::Constraints);
 
@@ -11,7 +11,7 @@ EXCEPTION_CLASS->add_exception( 'ValidPostcode', {
    parents => [ 'Constraint' ],
    error   => 'Parameter [_1] value [_2] is not a valid postcode' } );
 
-sub _validate {
+sub validate {
    my ($self, $val) = @_;
 
    my @patterns = ( 'AN NAA',  'ANN NAA',  'AAN NAA', 'AANN NAA',
