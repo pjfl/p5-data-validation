@@ -1,5 +1,8 @@
 Revision history for Data::Validation
 
+0.20.1    2015-05-18 02:02:49
+          - Fixed bad repository URI in metadata
+
 0.19.1    2015-05-17 22:27:52
           - Added badges and public repository
           - Switched to HTTP::Tiny from LWP::UserAgent
