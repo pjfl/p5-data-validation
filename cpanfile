@@ -1,4 +1,4 @@
-requires "Email::Valid" => "1.195";
+requires "Email::Valid" => "1.196";
 requires "Exporter::Tiny" => "0.042";
 requires "HTTP::Tiny" => "0.054";
 requires "Module::Runtime" => "0.014";

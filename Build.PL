@@ -23,7 +23,7 @@ my $prereqs  = {
     'Class::Usul' => 'v0.58.0'
   },
   'requires' => {
-    'Email::Valid' => '1.195',
+    'Email::Valid' => '1.196',
     'Exporter::Tiny' => '0.042',
     'HTTP::Tiny' => '0.054',
     'Module::Runtime' => '0.014',
