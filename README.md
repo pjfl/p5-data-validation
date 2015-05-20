@@ -10,7 +10,7 @@ Data::Validation - Filter and validate data values
 
 # Version
 
-Describes version v0.20.$Rev: 1 $ of [Data::Validation](https://metacpan.org/pod/Data::Validation)
+Describes version v0.20.$Rev: 2 $ of [Data::Validation](https://metacpan.org/pod/Data::Validation)
 
 # Synopsis
 
@@ -54,36 +54,36 @@ otherwise an exception is thrown
 
 # Configuration and Environment
 
-The following are passed to the constructor
+Defines the following attributes;
 
-- constraints
+- `constraints`
 
-    Hash containing constraint attributes. Keys are the `$id` values passed
+    Hash containing constraint attributes. Keys are the `id` values passed
     to ["check\_field"](#check_field). See [Data::Validation::Constraints](https://metacpan.org/pod/Data::Validation::Constraints)
 
-- fields
+- `fields`
 
-    Hash containing field definitions. Keys are the `$id` values passed
+    Hash containing field definitions. Keys are the `id` values passed
     to ["check\_field"](#check_field). Each field definition can contain a space
     separated list of filters to apply and a space separated list of
     constraints. Each constraint method must return true for the value to
     be accepted
 
-- filters
+- `filters`
 
-    Hash containing filter attributes. Keys are the `$id` values passed
+    Hash containing filter attributes. Keys are the `id` values passed
     to ["check\_field"](#check_field). See [Data::Validation::Filters](https://metacpan.org/pod/Data::Validation::Filters)
 
-- level
+- `level`
 
     Positive integer defaults to 1. Used to select the stack frame from which
     to throw the `check_field` exception
 
-- operators
+- `operators`
 
     Hash containing operator code refs. The keys of the hash ref are comparison
     operators and their values are the anonymous code refs that compare
-    the operands and return a boolean. Used by the _compare_ form validation
+    the operands and return a boolean. Used by the `compare` form validation
     method
 
 # Subroutines/Methods
@@ -92,14 +92,14 @@ The following are passed to the constructor
 
     $form = $dv->check_form( $prefix, $form );
 
-Calls ["check\_field"](#check_field) for each of the keys in the `$form` hash. In
-the calls to ["check\_field"](#check_field) the `$form` keys have the `$prefix`
-prepended to them to create the key to the `$fields` hash
+Calls ["check\_field"](#check_field) for each of the keys in the `form` hash. In
+the calls to ["check\_field"](#check_field) the `form` keys have the `prefix`
+prepended to them to create the key to the `fields` hash
 
-If one of the fields constraint names is _compare_, then the fields
+If one of the fields constraint names is `compare`, then the fields
 value is compared with the value for another field. The constraint
-attribute _other\_field_ determines which field to compare and the
-_operator_ constraint attribute gives the comparison operator which
+attribute `other_field` determines which field to compare and the
+`operator` constraint attribute gives the comparison operator which
 defaults to `eq`
 
 All fields are checked. Multiple error objects are stored, if they occur,
@@ -109,8 +109,8 @@ in the `args` attribute of the returned error object
 
     $value = $dv->check_field( $id, $value );
 
-Checks one value for conformance. The `$id` is used as a key to the
-_fields_ hash whose _validate_ attribute contains the list of space
+Checks one value for conformance. The `id` is used as a key to the
+`fields` hash whose `validate` attribute contains the list of space
 separated constraint names. The value is tested against each
 constraint in turn. All tests must pass or the subroutine will use the
 `EXCEPTION_CLASS` class to `throw` an error
@@ -123,7 +123,7 @@ None
 
 - [Moo](https://metacpan.org/pod/Moo)
 - [Try::Tiny](https://metacpan.org/pod/Try::Tiny)
-- [Unexpected::Types](https://metacpan.org/pod/Unexpected::Types)
+- [Unexpected](https://metacpan.org/pod/Unexpected)
 
 # Incompatibilities
 
@@ -134,9 +134,12 @@ documentation
 
 # Bugs and Limitations
 
-There are no known bugs in this module.
-Please report problems to the address below.
-Patches are welcome
+There are no known bugs in this module. Please report problems to
+http://rt.cpan.org/NoAuth/Bugs.html?Dist=Data-Validation.  Patches are welcome
+
+# Acknowledgements
+
+Larry Wall - For the Perl programming language
 
 # Author
 
@@ -144,7 +147,7 @@ Peter Flanigan, `<pjfl@cpan.org>`
 
 # License and Copyright
 
-Copyright (c) 2013 Peter Flanigan. All rights reserved
+Copyright (c) 2015 Peter Flanigan. All rights reserved
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See [perlartistic](https://metacpan.org/pod/perlartistic)

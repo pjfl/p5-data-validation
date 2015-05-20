@@ -16,6 +16,7 @@ BEGIN {
    $builder   = eval { Module::Build->current };
    $builder and $notes = $builder->notes;
    $perl_ver  = $notes->{min_perl_version} || 5.008;
+   $Bin =~ m{ : .+ : }mx and plan skip_all => 'Two colons in $Bin path';
 }
 
 use Test::Requires "${perl_ver}";

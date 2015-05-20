@@ -117,6 +117,8 @@ __END__
 
 =pod
 
+=encoding utf8
+
 =head1 Name
 
 Data::Validation::Constraints - Test data values for conformance with constraints
@@ -142,34 +144,34 @@ following attributes:
 
 =over 3
 
-=item error
+=item C<error>
 
 A string containing the error message that is thrown if the validation
 fails
 
-=item max_length
+=item C<max_length>
 
 Used by L</isValidLength>. The I<length> of the supplied value must be
 numerically less than this
 
-=item max_value
+=item C<max_value>
 
 Used by L</isBetweenValues>.
 
-=item min_length
+=item C<min_length>
 
 Used by L</isValidLength>.
 
-=item min_value
+=item C<min_value>
 
 Used by L</isBetweenValues>.
 
-=item required
+=item C<required>
 
 If true then null values are not allowed regardless of what other
 validation would be done
 
-=item value
+=item C<value>
 
 Used by the L</isEqualTo> method as the other value in the comparison
 
@@ -182,7 +184,7 @@ Used by the L</isEqualTo> method as the other value in the comparison
 Called by L<Data::Validation>::check_field this method implements
 tests for a null input value so that individual validation methods
 don't have to. It calls either a built in validation method or
-L</_validate> which should have been overridden in a factory
+C<validate> which should have been overridden in a factory
 subclass. An exception is thrown if the data value is not acceptable
 
 =head2 validate
@@ -244,7 +246,7 @@ Return true if the supplied value C<looks_like_number>
 
 =head1 External Constraints
 
-Each of these constraint subclasses implements the required C<_validate>
+Each of these constraint subclasses implements the required C<validate>
 method
 
 =head2 Date
@@ -274,7 +276,7 @@ patterns for a valid postcode
 
 =head2 URL
 
-Call the C<request> method in L<LWP::UserAgent> to test if a URL is accessible
+Call the C<request> method in L<HTTP::Tiny> to test if a URL is accessible
 
 =head1 Diagnostics
 
@@ -290,7 +292,7 @@ None
 
 =item L<Regexp::Common>
 
-=item L<Unexpected::Types>
+=item L<Unexpected>
 
 =back
 
@@ -303,7 +305,7 @@ There are no known incompatibilities in this module
 There is no POD coverage test because the subclasses docs are in here instead
 
 The L<Data::Validation::Constraints::Date> module requires the module
-L<CatalystX::Usul::Time> and this is not listed as prerequisite as it
+L<Class::Usul::Time> and this is not listed as prerequisite as it
 would create a circular dependency
 
 Please report problems to the address below.
@@ -315,7 +317,7 @@ Peter Flanigan, C<< <pjfl@cpan.org> >>
 
 =head1 License and Copyright
 
-Copyright (c) 2013 Peter Flanigan. All rights reserved
+Copyright (c) 2015 Peter Flanigan. All rights reserved
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See L<perlartistic>

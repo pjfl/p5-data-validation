@@ -2,7 +2,7 @@ package Data::Validation;
 
 use 5.010001;
 use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.20.%d', q$Rev: 1 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.20.%d', q$Rev: 2 $ =~ /\d+/gmx );
 
 use Data::Validation::Constants;
 use Data::Validation::Constraints;
@@ -164,7 +164,7 @@ Data::Validation - Filter and validate data values
 
 =head1 Version
 
-Describes version v0.20.$Rev: 1 $ of L<Data::Validation>
+Describes version v0.20.$Rev: 2 $ of L<Data::Validation>
 
 =head1 Synopsis
 
@@ -208,38 +208,38 @@ otherwise an exception is thrown
 
 =head1 Configuration and Environment
 
-The following are passed to the constructor
+Defines the following attributes;
 
 =over 3
 
-=item constraints
+=item C<constraints>
 
-Hash containing constraint attributes. Keys are the C<$id> values passed
+Hash containing constraint attributes. Keys are the C<id> values passed
 to L</check_field>. See L<Data::Validation::Constraints>
 
-=item fields
+=item C<fields>
 
-Hash containing field definitions. Keys are the C<$id> values passed
+Hash containing field definitions. Keys are the C<id> values passed
 to L</check_field>. Each field definition can contain a space
 separated list of filters to apply and a space separated list of
 constraints. Each constraint method must return true for the value to
 be accepted
 
-=item filters
+=item C<filters>
 
-Hash containing filter attributes. Keys are the C<$id> values passed
+Hash containing filter attributes. Keys are the C<id> values passed
 to L</check_field>. See L<Data::Validation::Filters>
 
-=item level
+=item C<level>
 
 Positive integer defaults to 1. Used to select the stack frame from which
 to throw the C<check_field> exception
 
-=item operators
+=item C<operators>
 
 Hash containing operator code refs. The keys of the hash ref are comparison
 operators and their values are the anonymous code refs that compare
-the operands and return a boolean. Used by the I<compare> form validation
+the operands and return a boolean. Used by the C<compare> form validation
 method
 
 =back
@@ -250,14 +250,14 @@ method
 
    $form = $dv->check_form( $prefix, $form );
 
-Calls L</check_field> for each of the keys in the C<$form> hash. In
-the calls to L</check_field> the C<$form> keys have the C<$prefix>
-prepended to them to create the key to the C<$fields> hash
+Calls L</check_field> for each of the keys in the C<form> hash. In
+the calls to L</check_field> the C<form> keys have the C<prefix>
+prepended to them to create the key to the C<fields> hash
 
-If one of the fields constraint names is I<compare>, then the fields
+If one of the fields constraint names is C<compare>, then the fields
 value is compared with the value for another field. The constraint
-attribute I<other_field> determines which field to compare and the
-I<operator> constraint attribute gives the comparison operator which
+attribute C<other_field> determines which field to compare and the
+C<operator> constraint attribute gives the comparison operator which
 defaults to C<eq>
 
 All fields are checked. Multiple error objects are stored, if they occur,
@@ -267,8 +267,8 @@ in the C<args> attribute of the returned error object
 
    $value = $dv->check_field( $id, $value );
 
-Checks one value for conformance. The C<$id> is used as a key to the
-I<fields> hash whose I<validate> attribute contains the list of space
+Checks one value for conformance. The C<id> is used as a key to the
+C<fields> hash whose C<validate> attribute contains the list of space
 separated constraint names. The value is tested against each
 constraint in turn. All tests must pass or the subroutine will use the
 C<EXCEPTION_CLASS> class to C<throw> an error
@@ -285,7 +285,7 @@ None
 
 =item L<Try::Tiny>
 
-=item L<Unexpected::Types>
+=item L<Unexpected>
 
 =back
 
@@ -298,9 +298,12 @@ documentation
 
 =head1 Bugs and Limitations
 
-There are no known bugs in this module.
-Please report problems to the address below.
-Patches are welcome
+There are no known bugs in this module. Please report problems to
+http://rt.cpan.org/NoAuth/Bugs.html?Dist=Data-Validation.  Patches are welcome
+
+=head1 Acknowledgements
+
+Larry Wall - For the Perl programming language
 
 =head1 Author
 
@@ -308,7 +311,7 @@ Peter Flanigan, C<< <pjfl@cpan.org> >>
 
 =head1 License and Copyright
 
-Copyright (c) 2013 Peter Flanigan. All rights reserved
+Copyright (c) 2015 Peter Flanigan. All rights reserved
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See L<perlartistic>

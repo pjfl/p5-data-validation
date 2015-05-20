@@ -49,6 +49,8 @@ __END__
 
 =pod
 
+=encoding utf8
+
 =head1 Name
 
 Data::Validation::Utils - Utility methods for constraints and filters
@@ -70,11 +72,11 @@ Defines the following attributes:
 
 =over 3
 
-=item method
+=item C<method>
 
-Name of the constraint to apply
+Name of the constraint to apply. Required
 
-=item pattern
+=item C<pattern>
 
 Used by L</isMathchingRegex> as the pattern to match the supplied value
 against. This is set by some of the builtin validation methods that
@@ -114,9 +116,12 @@ There are no known incompatibilities in this module
 
 =head1 Bugs and Limitations
 
-There are no known bugs in this module.
-Please report problems to the address below.
-Patches are welcome
+There are no known bugs in this module. Please report problems to
+http://rt.cpan.org/NoAuth/Bugs.html?Dist=Data-Validation.  Patches are welcome
+
+=head1 Acknowledgements
+
+Larry Wall - For the Perl programming language
 
 =head1 Author
 
@@ -124,7 +129,7 @@ Peter Flanigan, C<< <pjfl@cpan.org> >>
 
 =head1 License and Copyright
 
-Copyright (c) 2013 Peter Flanigan. All rights reserved
+Copyright (c) 2015 Peter Flanigan. All rights reserved
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See L<perlartistic>
