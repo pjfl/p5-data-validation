@@ -2,7 +2,7 @@ package Data::Validation::Constraints::Password;
 
 use namespace::autoclean;
 
-use Data::Validation::Constants;
+use Data::Validation::Constants qw( EXCEPTION_CLASS FALSE TRUE );
 use Moo;
 
 extends q(Data::Validation::Constraints);
@@ -14,9 +14,9 @@ EXCEPTION_CLASS->add_exception( 'ValidPassword', {
 sub validate {
    my ($self, $val) = @_; my $min_length = $self->min_length || 6;
 
-   length $val < $min_length and return 0;
+   length $val < $min_length and return FALSE;
    $val =~ tr{A-Z}{a-z}; $val =~ tr{a-z}{}d;
-   return length $val > 0 ? 1 : 0;
+   return length $val > 0 ? TRUE : FALSE;
 }
 
 1;

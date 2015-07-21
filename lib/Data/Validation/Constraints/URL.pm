@@ -2,7 +2,7 @@ package Data::Validation::Constraints::URL;
 
 use namespace::autoclean;
 
-use Data::Validation::Constants;
+use Data::Validation::Constants qw( EXCEPTION_CLASS FALSE TRUE );
 use HTTP::Tiny;
 use Moo;
 
@@ -19,7 +19,7 @@ sub validate {
 
    my $res = HTTP::Tiny->new->get( $val );
 
-   return $res->{success} ? 1 : 0;
+   return $res->{success} ? TRUE : FALSE;
 }
 
 1;

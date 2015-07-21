@@ -2,22 +2,32 @@ package Data::Validation::Filters;
 
 use namespace::autoclean;
 
-use Data::Validation::Constants;
-use Scalar::Util      qw( blessed );
-use Unexpected::Types qw( Str );
+use Data::Validation::Constants qw( EXCEPTION_CLASS HASH TRUE );
+use Data::Validation::Utils     qw( load_class );
+use Unexpected::Types           qw( Str );
 use Moo;
 
-with q(Data::Validation::Utils);
+has 'method'  => is => 'ro', isa => Str, required => TRUE;
 
-has 'replace' => is => 'rw', isa => Str;
+has 'pattern' => is => 'ro', isa => Str;
 
-sub filter_value {
-   my ($self, $val) = @_; defined $val or return; my $method = $self->method;
+has 'replace' => is => 'ro', isa => Str;
 
-   $self->can( $method ) and return $self->$method( $val );
+sub new_from_method {
+   my $class = shift; my $attr = ref $_[ 0 ] eq HASH ? $_[ 0 ] : { @_ };
 
-   return $self->load_class( 'filter', $method )->filter( $val );
+   $class->can( $attr->{method} ) and return $class->new( $attr );
+
+   return (load_class $class, 'filter', $attr->{method})->new( $attr );
 }
+
+sub filter {
+   my ($self, $v) = @_; my $method = $self->method; return $self->$method( $v );
+}
+
+around 'filter' => sub {
+   my ($orig, $self, $v) = @_; return defined $v ? $orig->( $self, $v ) : undef;
+};
 
 # Builtin factory filter methods
 sub filterEscapeHTML {

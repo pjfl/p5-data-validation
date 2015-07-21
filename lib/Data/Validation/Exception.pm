@@ -27,11 +27,17 @@ has_exception 'FieldComparison' => parents => [ 'Constraint' ],
 has_exception 'Hexadecimal' => parents => [ 'Constraint' ],
    error   => 'Parameter [_1] value [_2] is not a hexadecimal number';
 
+has_exception 'KnownType' => parents => [ 'Constraint' ],
+   error   => 'Type constraint [_1] is unknown';
+
 has_exception 'Mandatory' => parents => [ 'Constraint' ],
    error   => 'Parameter [_1] is mandatory';
 
 has_exception 'MatchingRegex' => parents => [ 'Constraint' ],
    error   => 'Parameter [_1] value [_2] does not match the required regex';
+
+has_exception 'MatchingType' => parents => [ 'Constraint' ],
+   error   => 'Parameter [_1] value [_2] does not of the required type [_3]';
 
 has_exception 'Printable' => parents => [ 'Constraint' ],
    error   => 'Parameter [_1] value is not a printable character';

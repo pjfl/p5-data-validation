@@ -2,18 +2,18 @@ package Data::Validation::Constraints::Date;
 
 use namespace::autoclean;
 
-use Class::Usul::Time     qw( str2time );
-use Data::Validation::Constants;
-use Unexpected::Functions qw( has_exception );
+use Class::Usul::Time           qw( str2time );
+use Data::Validation::Constants qw( EXCEPTION_CLASS FALSE TRUE );
 use Moo;
 
 extends q(Data::Validation::Constraints);
 
-has_exception 'ValidDate' => parents => [ 'Constraint' ],
-   error   => 'Parameter [_1] value [_2] is not a valid date';
+EXCEPTION_CLASS->add_exception( 'ValidDate', {
+   parents => [ 'Constraint' ],
+   error   => 'Parameter [_1] value [_2] is not a valid date' } );
 
 sub validate {
-   return defined str2time( $_[ 1 ] ) ? 1 : 0;
+   return defined str2time( $_[ 1 ] ) ? TRUE : FALSE;
 }
 
 1;

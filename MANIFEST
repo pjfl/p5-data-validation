@@ -18,9 +18,11 @@ lib/Data/Validation/Constraints/URL.pm
 lib/Data/Validation/Exception.pm
 lib/Data/Validation/Filters.pm
 lib/Data/Validation/Utils.pm
-t/01always_pass.t
+t/00report-metadata.dd
+t/00report-metadata.t
 t/02pod.t
 t/05kwalitee.t
 t/06yaml.t
 t/07podspelling.t
 t/10base.t
+t/boilerplate.pm

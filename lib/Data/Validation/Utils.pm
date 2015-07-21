@@ -1,46 +1,43 @@
 package Data::Validation::Utils;
 
-use namespace::autoclean;
+use strict;
+use warnings;
+use parent qw( Exporter::Tiny );
 
-use Data::Validation::Constants;
-use English               qw( -no_match_vars );
-use Module::Runtime       qw( require_module );
-use Scalar::Util          qw( blessed );
+use Data::Validation::Constants qw( EXCEPTION_CLASS TRUE );
+use Module::Runtime             qw( require_module );
+use Scalar::Util                qw( blessed );
 use Try::Tiny;
-use Unexpected::Functions qw( is_class_loaded );
-use Unexpected::Types     qw( Str );
-use Moo::Role;
+use Unexpected::Functions       qw( is_class_loaded );
 
-has 'method'  => is => 'ro', isa => Str, required => 1;
+our @EXPORT_OK = qw( ensure_class_loaded load_class throw );
 
-has 'pattern' => is => 'rw', isa => Str;
+sub ensure_class_loaded ($;$) {
+   my ($class, $opts) = @_; $opts //= {};
 
-# Private methods
-my $_ensure_class_loaded = sub {
-   my ($self, $class, $opts) = @_; $opts ||= {};
+   not $opts->{ignore_loaded} and is_class_loaded( $class ) and return TRUE;
 
-   not $opts->{ignore_loaded} and is_class_loaded( $class ) and return 1;
+   try { require_module( $class ) } catch { throw( $_ ) };
 
-   try   { require_module( $class ) }
-   catch { EXCEPTION_CLASS->throw( $_ ) };
+   is_class_loaded( $class )
+      or throw( 'Class [_1] loaded but package undefined', [ $class ] );
 
-   is_class_loaded( $class ) or EXCEPTION_CLASS->throw
-      ( error => 'Class [_1] loaded but package undefined',
-        args  => [ $class ] );
+   return TRUE;
+}
 
-   return 1;
-};
-
-# Public methods
-sub load_class {
-   my ($self, $prefix, $class, $opts) = @_; $class =~ s{ \A $prefix }{}mx;
+sub load_class ($$$;$) {
+   my ($proto, $prefix, $class, $opts) = @_; $class =~ s{ \A $prefix }{}mx;
 
    if ($class =~ m{ \A \+ }mx) { $class =~ s{ \A \+ }{}mx }
-   else { $class = blessed( $self ).'::'.(ucfirst $class) }
+   else { $class = (blessed $proto || $proto).'::'.(ucfirst $class) }
 
-   $self->$_ensure_class_loaded( $class, $opts );
+   ensure_class_loaded $class, $opts;
 
-   return bless $self, $class;
+   return $class;
+}
+
+sub throw (;@) {
+   EXCEPTION_CLASS->throw( @_ );
 }
 
 1;
@@ -49,7 +46,7 @@ __END__
 
 =pod
 
-=encoding utf8
+=encoding utf-8
 
 =head1 Name
 
@@ -79,20 +76,19 @@ Name of the constraint to apply. Required
 =item C<pattern>
 
 Used by L</isMathchingRegex> as the pattern to match the supplied value
-against. This is set by some of the builtin validation methods that
-then call L</isMathchingRegex> to perform the actual validation
+against
 
 =back
 
 =head1 Subroutines/Methods
 
-=head2 load_class
-
-Load the external plugin subclass at run time and rebless self to that class
-
 =head2 ensure_class_loaded
 
 Throws if class cannot be loaded
+
+=head2 load_class
+
+Load the external plugin subclass at run time and rebless self to that class
 
 =head1 Diagnostics
 

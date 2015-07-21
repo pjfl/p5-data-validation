@@ -2,7 +2,7 @@ package Data::Validation::Constraints::Path;
 
 use namespace::autoclean;
 
-use Data::Validation::Constants;
+use Data::Validation::Constants qw( EXCEPTION_CLASS FALSE TRUE );
 use Moo;
 
 extends q(Data::Validation::Constraints);
@@ -12,7 +12,7 @@ EXCEPTION_CLASS->add_exception( 'ValidPath', {
    error   => 'Parameter [_1] value [_2] is not a valid pathname' } );
 
 sub validate {
-   my ($self, $val) = @_; return $val =~ m{ [;&*{} ] }mx ? 0 : 1;
+   my ($self, $val) = @_; return $val !~ m{ [;&*{} ] }mx ? TRUE : FALSE;
 }
 
 1;

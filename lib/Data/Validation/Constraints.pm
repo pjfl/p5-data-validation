@@ -3,112 +3,152 @@ package Data::Validation::Constraints;
 use namespace::autoclean;
 use charnames qw( :full );
 
-use Data::Validation::Constants;
-use Regexp::Common    qw( number );
-use Scalar::Util      qw( blessed looks_like_number );
-use Unexpected::Types qw( Any Bool Int );
+use Data::Validation::Constants qw( EXCEPTION_CLASS FALSE HASH TRUE );
+use Data::Validation::Utils     qw( ensure_class_loaded load_class throw );
+use Regexp::Common              qw( number );
+use Scalar::Util                qw( looks_like_number );
+use Try::Tiny;
+use Unexpected::Functions       qw( KnownType );
+use Unexpected::Types           qw( Any Bool Int Object Str Undef );
 use Moo;
 
-with q(Data::Validation::Utils);
+has 'max_length'    => is => 'ro',   isa => Int;
 
-has 'max_length' => is => 'ro', isa => Int;
+has 'max_value'     => is => 'ro',   isa => Int;
 
-has 'max_value'  => is => 'ro', isa => Int;
+has 'method'        => is => 'ro',   isa => Str, required => TRUE;
 
-has 'min_length' => is => 'ro', isa => Int;
+has 'min_length'    => is => 'ro',   isa => Int;
 
-has 'min_value'  => is => 'ro', isa => Int;
+has 'min_value'     => is => 'ro',   isa => Int;
 
-has 'required'   => is => 'ro', isa => Bool;
+has 'pattern'       => is => 'ro',   isa => Str;
 
-has 'value'      => is => 'ro', isa => Any;
+has 'type_registry' => is => 'lazy', isa => Object, builder => sub {
+   ensure_class_loaded 'Type::Registry';
 
-sub validate_value {
-   my ($self, $val) = @_; my $method = $self->method; my $class;
+   my $reg = Type::Registry->for_me; $reg->add_types( 'Unexpected::Types' );
 
-   return 0 if (not $val and $self->required);
+   return $reg;
+};
 
-   return 1 if (not $val and not $self->required and $method ne 'isMandatory');
+has 'required'      => is => 'ro',   isa => Bool, default => FALSE;
 
-   return $self->$method( $val ) if ($self->can( $method ));
+has 'type'          => is => 'ro',   isa => Str | Undef;
 
-   return $self->load_class( 'isValid', $method )->validate( $val );
+has 'value'         => is => 'ro',   isa => Any;
+
+sub new_from_method {
+   my $class = shift; my $attr = ref $_[ 0 ] eq HASH ? $_[ 0 ] : { @_ };
+
+   $class->can( $attr->{method} ) and return $class->new( $attr );
+
+   return (load_class $class, 'isValid', $attr->{method})->new( $attr );
 }
+
+sub validate {
+   my ($self, $v) = @_; my $method = $self->method; return $self->$method( $v );
+}
+
+around 'validate' => sub {
+   my ($orig, $self, $v) = @_;
+
+   not defined $v and $self->required and return FALSE;
+
+   not defined $v and not $self->required and $self->method ne 'isMandatory'
+      and return TRUE;
+
+   return $orig->( $self, $v );
+};
 
 # Builtin factory validation methods
 sub isBetweenValues {
-   my ($self, $val) = @_;
+   my ($self, $v) = @_;
 
-   defined $self->min_value and $val < $self->min_value and return 0;
-   defined $self->max_value and $val > $self->max_value and return 0;
-   return 1;
+   defined $self->min_value and $v < $self->min_value and return FALSE;
+   defined $self->max_value and $v > $self->max_value and return FALSE;
+   return TRUE;
 }
 
 sub isEqualTo {
-   my ($self, $val) = @_;
+   my ($self, $v) = @_;
 
-   $self->isValidNumber( $val ) and $self->isValidNumber( $self->value )
-      and return $val == $self->value ? 1 : 0;
+   $self->isValidNumber( $v ) and $self->isValidNumber( $self->value )
+      and return $v == $self->value ? TRUE : FALSE;
 
-   return $val eq $self->value ? 1 : 0;
+   return $v eq $self->value ? TRUE : FALSE;
 }
 
 sub isHexadecimal {
-   my ($self, $val) = @_; $self->pattern( '\A '.$RE{num}{hex}.' \z' );
-
-   return $self->isMatchingRegex( $val );
+   return $_[ 0 ]->isMatchingRegex( $_[ 1 ], '\A '.$RE{num}{hex}.' \z' );
 }
 
 sub isMandatory {
-   return defined $_[ 1 ] && length $_[ 1 ] ? 1 : 0;
+   return defined $_[ 1 ] && length $_[ 1 ] ? TRUE : FALSE;
 }
 
 sub isMatchingRegex {
-   my ($self, $val) = @_; my $pat = $self->pattern;
+   my ($self, $v, $pat) = @_;
 
-   return $val =~ m{ $pat }msx ? 1 : 0;
+   $pat //= $self->pattern; defined $pat or return FALSE;
+
+   return $v =~ m{ $pat }msx ? TRUE : FALSE;
+}
+
+sub isMatchingType {
+   my ($self, $v, $type_name) = @_; my $type;
+
+   $type_name //= $self->type; defined $type_name or return FALSE;
+
+   try   { $type = $self->type_registry->lookup( $type_name ) }
+   catch {
+      $_ =~ m{ \Qnot a known type constraint\E }mx
+         and throw KnownType, [ $type_name ];
+      throw $_;
+   };
+
+   return $type->check( $v ) ? TRUE : FALSE;
 }
 
 sub isPrintable {
-   $_[ 0 ]->pattern( '\A \p{IsPrint}+ \z' );
-   return $_[ 0 ]->isMatchingRegex( $_[ 1 ] );
+   return $_[ 0 ]->isMatchingRegex( $_[ 1 ], '\A \p{IsPrint}+ \z' );
 }
 
 sub isSimpleText {
-   $_[ 0 ]->pattern( '\A [a-zA-Z0-9_ \-\.]+ \z' );
-   return $_[ 0 ]->isMatchingRegex( $_[ 1 ] );
+   return $_[ 0 ]->isMatchingRegex( $_[ 1 ], '\A [a-zA-Z0-9_ \-\.]+ \z' );
 }
 
 sub isValidHostname {
-   return (gethostbyname $_[ 1 ])[ 0 ] ? 1 : 0;
+   return (gethostbyname $_[ 1 ])[ 0 ] ? TRUE : FALSE;
 }
 
 sub isValidIdentifier {
-   $_[ 0 ]->pattern( '\A [a-zA-Z_] \w* \z' );
-   return $_[ 0 ]->isMatchingRegex( $_[ 1 ] );
+   return $_[ 0 ]->isMatchingRegex( $_[ 1 ], '\A [a-zA-Z_] \w* \z' );
 }
 
 sub isValidInteger {
-   my ($self, $val) = @_;
+   my ($self, $v) = @_;
 
-   $self->pattern( '\A '.$RE{num}{int}{-sep=>'[_]?'}.' \z' );
-   $self->isMatchingRegex( $val ) or return 0;
-   int $val == $val or return 0;
-   return 1;
+   $self->isMatchingRegex( $v, '\A '.$RE{num}{int}{-sep=>'[_]?'}.' \z' )
+      or return FALSE;
+   int $v == $v or return FALSE;
+   return TRUE;
 }
 
 sub isValidLength {
-   my ($self, $val) = @_;
+   my ($self, $v) = @_;
 
-   defined $self->min_length and length $val < $self->min_length and return 0;
-   defined $self->max_length and length $val > $self->max_length and return 0;
-   return 1;
+   defined $self->min_length and length $v < $self->min_length and return FALSE;
+   defined $self->max_length and length $v > $self->max_length and return FALSE;
+   return TRUE;
 }
 
 sub isValidNumber {
-   defined $_[ 1 ] or return 0;
-   looks_like_number( $_[ 1 ] ) and return 1;
-   return 0;
+   my ($self, $v) = @_;
+
+   defined $v or return FALSE; looks_like_number( $v ) and return TRUE;
+
+   return FALSE;
 }
 
 1;
@@ -131,7 +171,7 @@ Data::Validation::Constraints - Test data values for conformance with constraint
 
    $constraint_ref = Data::Validation::Constraints->new( %config );
 
-   $constraint_ref->validate_value( $value );
+   $constraint_ref->validate( $value );
 
 =head1 Description
 
@@ -168,7 +208,7 @@ Used by L</isBetweenValues>.
 
 =item C<required>
 
-If true then null values are not allowed regardless of what other
+If true then undefined values are not allowed regardless of what other
 validation would be done
 
 =item C<value>
@@ -179,17 +219,13 @@ Used by the L</isEqualTo> method as the other value in the comparison
 
 =head1 Subroutines/Methods
 
-=head2 validate_value
+=head2 validate
 
 Called by L<Data::Validation>::check_field this method implements
 tests for a null input value so that individual validation methods
 don't have to. It calls either a built in validation method or
 C<validate> which should have been overridden in a factory
 subclass. An exception is thrown if the data value is not acceptable
-
-=head2 validate
-
-Should have been overridden in an external constraint subclass
 
 =head2 isBetweenValues
 

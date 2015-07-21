@@ -1,25 +1,7 @@
-use strict;
-use warnings;
-use File::Spec::Functions qw( catdir updir );
-use FindBin               qw( $Bin );
-use lib               catdir( $Bin, updir, 'lib' );
+use t::boilerplate;
 
 use Test::More;
-use Test::Requires { version => 0.88 };
 use Test::Requires { 'Regexp::Common::number' => 2013031101 };
-use Module::Build;
-use Sys::Hostname;
-
-my $builder; my $notes = {}; my $perl_ver;
-
-BEGIN {
-   $builder   = eval { Module::Build->current };
-   $builder and $notes = $builder->notes;
-   $perl_ver  = $notes->{min_perl_version} || 5.008;
-   $Bin =~ m{ : .+ : }mx and plan skip_all => 'Two colons in $Bin path';
-}
-
-use Test::Requires "${perl_ver}";
 use Class::Null;
 use English qw( -no_match_vars );
 use Unexpected;
@@ -42,8 +24,10 @@ sub test_val {
 
 my $f = {};
 
-is test_val( $f, undef, 1 ),   q(Field '[?]' undefined), 'No field def 1';
-is test_val( $f, q(test), 1 ), q(Field 'test' undefined), 'No field def 2';
+is test_val( $f, undef, 1 ), q(Field '[?]' validation configuration not found),
+   'No field def 1';
+is test_val( $f, 'test', 1), q(Field 'test' validation configuration not found),
+   'No field def 2';
 
 $f->{fields}->{test}->{validate} = q(isHexadecimal);
 is test_val( $f, q(test), q(alive) ), q(Hexadecimal), 'Not hexadecimal';
@@ -216,6 +200,19 @@ eval { $validator->check_form( q(subr_), $vals ) };
 $e = Unexpected->caught() || Class::Null->new();
 like $e->args->[0]->as_string, qr{ \Qnot a valid password\E }mx, 'Invalid form';
 
+$f->{fields}->{test}->{validate} = q(isMatchingType);
+$f->{constraints}->{test} = { type => 'Int' };
+is test_val( $f, 'test', 'abcdefg' ), 'MatchingType', 'Not matching int type';
+is test_val( $f, 'test', '1234567' ), 1234567, 'Matching int type';
+
+$f->{constraints}->{test} = { type => 'PositiveInt' };
+is test_val( $f, 'test', -1 ), 'MatchingType',
+   'Not matching positive int type';
+is test_val( $f, 'test', 1234567 ), 1234567, 'Matching positive int type';
+
+$f->{constraints}->{test} = { type => 'NotLikely' };
+is test_val( $f, 'test', 0 ), 'KnownType', 'Unknown type exception';
+
 $f->{fields}->{test}->{validate} = q(isMatchingRegex);
 $f->{constraints}->{test} = { pattern => q(\A \d+ \z) };
 is test_val( $f, q(test), q(123 456) ), q(MatchingRegex),
@@ -251,12 +248,19 @@ $f->{fields}->{test}->{filters} = q(filterWhiteSpace);
 $f->{constraints}->{test} = { pattern => q(\A \d+ \z) };
 is test_val( $f, q(test), q(123 456) ), 123456, 'Filter WhiteSpace';
 
+$f->{constraints}->{test} = { pattern => q(\A \z) };
 delete $f->{fields}->{test}->{filters};
 is test_val( $f, 'test', q() ), q(), 'Filter ZeroLength - negative';
 $f->{fields}->{test}->{filters} = 'filterZeroLength';
 delete $f->{fields}->{test}->{validate};
 is test_val( $f, 'test', q() ), undef, 'Filter ZeroLength - positive';
 is test_val( $f, 'test', 'x' ), 'x', 'Filter ZeroLength - negative with val';
+
+$f->{fields}->{test}->{filters}
+   = 'filterUpperCase filterNonNumeric filterTrimBoth';
+$f->{constraints}->{test} = { pattern => q(\A [A-Z ]+ \z) };
+is test_val( $f, q(test), q( hello world2 ) ), q(2),
+   'Filter UpperCase NonNumeric and TrimBoth';
 
 {  package BadTestFilter;
 

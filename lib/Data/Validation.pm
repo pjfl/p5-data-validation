@@ -2,16 +2,16 @@ package Data::Validation;
 
 use 5.010001;
 use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.20.%d', q$Rev: 3 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.20.%d', q$Rev: 4 $ =~ /\d+/gmx );
 
-use Data::Validation::Constants;
+use Data::Validation::Constants qw( EXCEPTION_CLASS FALSE HASH NUL SPC );
 use Data::Validation::Constraints;
 use Data::Validation::Filters;
-use English                 qw( -no_match_vars );
-use List::Util              qw( first );
+use Data::Validation::Utils     qw( throw );
+use List::Util                  qw( first );
 use Try::Tiny;
-use Unexpected::Types       qw( HashRef NonZeroPositiveInt );
-use Unexpected::Functions   qw( FieldComparison ValidationErrors );
+use Unexpected::Types           qw( HashRef NonZeroPositiveInt );
+use Unexpected::Functions       qw( FieldComparison ValidationErrors );
 use Moo;
 
 has 'constraints' => is => 'ro', isa => HashRef, default => sub { {} };
@@ -34,15 +34,11 @@ has '_operators'  => is => 'ro', isa => HashRef, default => sub {
 
 # Private functions
 my $_get_methods = sub {
-   return split SPC, $_[ 0 ] || NUL;
+   return split SPC, $_[ 0 ] // NUL;
 };
 
 my $_should_compare = sub {
    return first { $_ eq 'compare' } $_get_methods->( $_[ 0 ]->{validate} );
-};
-
-my $_throw = sub {
-   EXCEPTION_CLASS->throw( @_ );
 };
 
 # Private methods
@@ -50,10 +46,10 @@ my $_filter = sub {
    my ($self, $filters, $id, $value) = @_;
 
    for my $method ($_get_methods->( $filters )) {
-      my %attr    = ( %{ $self->filters->{ $id } || {} }, method => $method, );
-      my $dvf_obj = Data::Validation::Filters->new( %attr );
+      my %attr    = ( %{ $self->filters->{ $id } // {} }, method => $method, );
+      my $dvf_obj = Data::Validation::Filters->new_from_method( %attr );
 
-      $value = $dvf_obj->filter_value( $value );
+      $value = $dvf_obj->filter( $value );
    }
 
    return $value;
@@ -63,20 +59,19 @@ my $_compare_fields = sub {
    my ($self, $prefix, $form, $lhs_name) = @_;
 
    my $id         = $prefix.$lhs_name;
-   my $constraint = $self->constraints->{ $id } || {};
+   my $constraint = $self->constraints->{ $id } // {};
    my $rhs_name   = $constraint->{other_field}
-      or $_throw->( 'Constraint [_1] has no comparison field', [ $id ] );
-   my $op         = $constraint->{operator} || 'eq';
-   my $lhs        = $form->{ $lhs_name } || NUL;
-   my $rhs        = $form->{ $rhs_name } || NUL;
-   my $bool       = exists $self->_operators->{ $op }
-                  ? $self->_operators->{ $op }->( $lhs, $rhs ) : 0;
+      or throw 'Constraint [_1] has no comparison field', [ $id ];
+   my $op         = $constraint->{operator} // 'eq';
+   my $lhs        = $form->{ $lhs_name } // NUL;
+   my $rhs        = $form->{ $rhs_name } // NUL;
+   my $matched    = exists $self->_operators->{ $op }
+                  ? $self->_operators->{ $op }->( $lhs, $rhs ) : FALSE;
 
-   unless ($bool) {
-      $lhs_name = $self->fields->{ $prefix.$lhs_name }->{label} || $lhs_name;
-      $rhs_name = $self->fields->{ $prefix.$rhs_name }->{label} || $rhs_name;
-
-      $_throw->( FieldComparison, [ $lhs_name, $op, $rhs_name ] );
+   unless ($matched) {
+      $lhs_name = $self->fields->{ $prefix.$lhs_name }->{label} // $lhs_name;
+      $rhs_name = $self->fields->{ $prefix.$rhs_name }->{label} // $rhs_name;
+      throw FieldComparison, [ $lhs_name, $op, $rhs_name ];
    }
 
    return;
@@ -85,16 +80,14 @@ my $_compare_fields = sub {
 my $_validate = sub {
    my ($self, $method, $id, $value) = @_;
 
-   my %attr = ( %{ $self->constraints->{ $id } || {} }, method => $method, );
-   my $constraint = Data::Validation::Constraints->new( %attr );
+   my %attr = ( %{ $self->constraints->{ $id } // {} }, method => $method, );
+   my $constraint = Data::Validation::Constraints->new_from_method( %attr );
 
-   unless ($constraint->validate_value( $value )) {
+   unless ($constraint->validate( $value )) {
      (my $class = $method) =~ s{ \A is }{}mx;
-      my $name  = $self->fields->{ $id }->{label}
-               || $self->fields->{ $id }->{fhelp} # Deprecated
-               || $id;
+      my $name  = $self->fields->{ $id }->{label} // $id;
 
-      $_throw->( sub { $class }, [ $name, $value ], level => $self->level);
+      throw sub { $class }, [ $name, $value ], level => $self->level;
    }
 
    return;
@@ -104,7 +97,7 @@ my $_validate = sub {
 sub check_form { # Validate all fields on a form by repeated calling check_field
    my ($self, $prefix, $form) = @_; my @errors = (); $prefix ||= NUL;
 
-   ($form and ref $form eq HASH) or $_throw->( 'Form bad hash' );
+   ($form and ref $form eq HASH) or throw 'Form bad hash';
 
    for my $name (sort keys %{ $form }) {
       my $id = $prefix.$name; my $field = $self->fields->{ $id };
@@ -119,7 +112,7 @@ sub check_form { # Validate all fields on a form by repeated calling check_field
       catch { push @errors, $_ };
    }
 
-   @errors and $_throw->( ValidationErrors, \@errors, level => 2 );
+   @errors and throw ValidationErrors, \@errors, level => 2;
 
    return $form;
 }
@@ -129,7 +122,7 @@ sub check_field { # Validate form field values
 
    unless ($id and $field = $self->fields->{ $id }
            and ($field->{filters} or $field->{validate})) {
-      $_throw->( 'Field [_1] undefined', [ $id, $value ] );
+      throw 'Field [_1] validation configuration not found', [ $id, $value ];
    }
 
    $field->{filters}
@@ -148,7 +141,7 @@ __END__
 
 =pod
 
-=encoding utf8
+=encoding utf-8
 
 =begin html
 
@@ -164,7 +157,7 @@ Data::Validation - Filter and validate data values
 
 =head1 Version
 
-Describes version v0.20.$Rev: 3 $ of L<Data::Validation>
+Describes version v0.20.$Rev: 4 $ of L<Data::Validation>
 
 =head1 Synopsis
 

@@ -6,14 +6,16 @@ use parent qw( Exporter::Tiny );
 
 use Data::Validation::Exception;
 
-our @EXPORT = qw( EXCEPTION_CLASS HASH NUL SPC );
+our @EXPORT = qw( EXCEPTION_CLASS FALSE HASH NUL SPC TRUE );
 
 my $Exception_Class = 'Data::Validation::Exception';
 
 sub EXCEPTION_CLASS () { __PACKAGE__->Exception_Class }
+sub FALSE           () { 0      }
 sub HASH            () { 'HASH' }
 sub NUL             () { q()    }
 sub SPC             () { q( )   }
+sub TRUE            () { 1      }
 
 sub Exception_Class {
    my ($self, $class) = @_; defined $class or return $Exception_Class;

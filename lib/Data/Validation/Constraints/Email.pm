@@ -2,7 +2,7 @@ package Data::Validation::Constraints::Email;
 
 use namespace::autoclean;
 
-use Data::Validation::Constants;
+use Data::Validation::Constants qw( EXCEPTION_CLASS FALSE TRUE );
 use Email::Valid;
 use Moo;
 
@@ -13,7 +13,7 @@ EXCEPTION_CLASS->add_exception( 'ValidEmail', {
    error   => 'Parameter [_1] value [_2] is not a valid email address' } );
 
 sub validate {
-   return Email::Valid->address( $_[ 1 ] ) ? 1 : 0;
+   return Email::Valid->address( $_[ 1 ] ) ? TRUE : FALSE;
 }
 
 1;
