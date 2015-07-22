@@ -1,5 +1,6 @@
 Revision history for Data::Validation
 
+          - Refactored factory patterns
           - Added matching types
           - Removed deprecated fhelp field
           - POD updates

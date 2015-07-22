@@ -32,7 +32,7 @@ __END__
 
 =pod
 
-=encoding utf8
+=encoding utf-8
 
 =head1 Name
 
@@ -57,6 +57,10 @@ Defines the following attributes;
 Class name used to throw exceptions. Defaults to the value of the class
 attribute
 
+=item C<FALSE>
+
+The digit zero
+
 =item C<HASH>
 
 The string C<HASH>
@@ -68,6 +72,10 @@ The null string
 =item C<SPC>
 
 The space character
+
+=item C<TRUE>
+
+The digit one
 
 =back
 

@@ -20,7 +20,8 @@ sub ensure_class_loaded ($;$) {
    try { require_module( $class ) } catch { throw( $_ ) };
 
    is_class_loaded( $class )
-      or throw( 'Class [_1] loaded but package undefined', [ $class ] );
+      or throw( 'Class [_1] loaded but package undefined',
+                [ $class ], class => 'Constraint' );
 
    return TRUE;
 }
@@ -54,31 +55,16 @@ Data::Validation::Utils - Utility methods for constraints and filters
 
 =head1 Synopsis
 
-   use Moo;
-
-   with 'Data::Validation::Utils';
+   use Data::Validation::Utils qw( ensure_class_loaded );
 
 =head1 Description
 
-Defines some methods and attributes common to
-L<Data::Validation::Constraints> and L<Data::Validation::Filters>
+Defines some functions L<Data::Validation::Constraints> and
+L<Data::Validation::Filters>
 
 =head1 Configuration and Environment
 
-Defines the following attributes:
-
-=over 3
-
-=item C<method>
-
-Name of the constraint to apply. Required
-
-=item C<pattern>
-
-Used by L</isMathchingRegex> as the pattern to match the supplied value
-against
-
-=back
+Defines no attributes
 
 =head1 Subroutines/Methods
 
@@ -88,7 +74,12 @@ Throws if class cannot be loaded
 
 =head2 load_class
 
-Load the external plugin subclass at run time and rebless self to that class
+Load the external plugin subclass at run time
+
+=head2 throw
+
+Throws an exception of class
+L<EXCEPTION_CLASS|Data::Validation::Constants/EXCEPTION_CLASS>
 
 =head1 Diagnostics
 

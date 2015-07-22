@@ -31,46 +31,46 @@ around 'filter' => sub {
 
 # Builtin factory filter methods
 sub filterEscapeHTML {
-   my ($self, $val) = @_;
+   my ($self, $v) = @_;
 
-   $val =~ s{ &(?!(amp|lt|gt|quot);) }{&amp;}gmx;
-   $val =~ s{ < }{&lt;}gmx;
-   $val =~ s{ > }{&gt;}gmx;
-   $val =~ s{ \" }{&quot;}gmx;
-   return $val;
+   $v =~ s{ &(?!(amp|lt|gt|quot);) }{&amp;}gmx;
+   $v =~ s{ < }{&lt;}gmx;
+   $v =~ s{ > }{&gt;}gmx;
+   $v =~ s{ \" }{&quot;}gmx;
+   return $v;
 }
 
 sub filterLowerCase {
-   my ($self, $val) = @_; return lc $val;
+   my ($self, $v) = @_; return lc $v;
 }
 
 sub filterNonNumeric {
-   my ($self, $val) = @_; $val =~ s{ \D+ }{}gmx; return $val;
+   my ($self, $v) = @_; $v =~ s{ \D+ }{}gmx; return $v;
 }
 
 sub filterReplaceRegex {
-   my ($self, $val) = @_;
+   my ($self, $v) = @_;
 
-   my $pattern = $self->pattern or return $val;
+   my $pattern = $self->pattern or return $v;
    my $replace = defined $self->replace ? $self->replace : q();
 
-   $val =~ s{ $pattern }{$replace}gmx;
-   return $val;
+   $v =~ s{ $pattern }{$replace}gmx;
+   return $v;
 }
 
 sub filterTrimBoth {
-   my ($self, $val) = @_;
+   my ($self, $v) = @_;
 
-   $val =~ s{ \A \s+ }{}mx; $val =~ s{ \s+ \z }{}mx;
-   return $val;
+   $v =~ s{ \A \s+ }{}mx; $v =~ s{ \s+ \z }{}mx;
+   return $v;
 }
 
 sub filterUpperCase {
-   my ($self, $val) = @_; return uc $val;
+   my ($self, $v) = @_; return uc $v;
 }
 
 sub filterWhiteSpace {
-   my ($self, $val) = @_; $val =~ s{ \s+ }{}gmx; return $val;
+   my ($self, $v) = @_; $v =~ s{ \s+ }{}gmx; return $v;
 }
 
 sub filterZeroLength {
@@ -83,7 +83,7 @@ __END__
 
 =pod
 
-=encoding utf8
+=encoding utf-8
 
 =head1 Name
 
@@ -95,7 +95,7 @@ Data::Validation::Filters - Filter data values
 
    %config = ( method => $method, %{ $self->filters->{ $id } || {} } );
 
-   $filter_ref = Data::Validation::Filters->new( %config );
+   $filter_ref = Data::Validation::Filters->new_from_method( %config );
 
    $value = $filter_ref->filter_value( $value );
 
@@ -106,10 +106,18 @@ value
 
 =head1 Configuration and Environment
 
-Uses the L<Moo::Role> L<Data::Validation::Utils>. Defines the
-following attributes:
+Defines the following attributes:
 
 =over 3
+
+=item C<method>
+
+Name of the constraint to apply. Required
+
+=item C<pattern>
+
+Used by L</isMathchingRegex> as the pattern to match the supplied value
+against
 
 =item C<replace>
 
@@ -120,13 +128,14 @@ operations
 
 =head1 Subroutines/Methods
 
-=head2 filter_value
+=head2 new_from_method
 
-Calls either a builtin method or an external one to filter the data value
+A class method which implements a factory pattern using the C<method> attribute
+to select the subclass
 
 =head2 filter
 
-Should have been overridden in an external filter subclass
+Calls either a builtin method or an external one to filter the data value
 
 =head2 filterEscapeHTML
 

@@ -15,7 +15,8 @@ sub test_val {
    my $value     = eval { $validator->check_field( @_ ) };
    my $e         = Data::Validation::Exception->caught();
 
-   $e and $e->instance_of( 'Constraint' ) and return $e->class;
+   $e and $e->instance_of( 'Constraint' ) and $e->class ne 'Constraint'
+      and return $e->class;
 
    if ($e) { $e = $e->as_string; chomp $e; return $e }
 
@@ -24,9 +25,9 @@ sub test_val {
 
 my $f = {};
 
-is test_val( $f, undef, 1 ), q(Field '[?]' validation configuration not found),
+is test_val( $f, undef, 1 ), "Field '[?]' validation configuration not found",
    'No field def 1';
-is test_val( $f, 'test', 1), q(Field 'test' validation configuration not found),
+is test_val( $f, 'test', 1), "Field 'test' validation configuration not found",
    'No field def 2';
 
 $f->{fields}->{test}->{validate} = q(isHexadecimal);
@@ -35,21 +36,21 @@ is test_val( $f, q(test), q(dead) ),  q(dead),         'Is hexadecimal';
 
 $f->{fields}->{test}->{validate} = q(isMandatory);
 is test_val( $f, q(test), undef ), q(Mandatory), 'Missing field';
-is test_val( $f, q(test), 1 ),     q(1),          'Mandatory field';
+is test_val( $f, q(test), 1 ),     q(1),       'Mandatory field';
 
 $f->{fields}->{test}->{validate} = q(isPrintable);
 is test_val( $f, q(test), q() ),   q(Printable), 'Not printable';
-is test_val( $f, q(test), q(q; *) ), q(q; *),       'Printable';
+is test_val( $f, q(test), q(q; *) ), q(q; *),          'Printable';
 
 $f->{fields}->{test}->{validate} = q(isSimpleText);
-is test_val( $f, q(test), q(*3$%^) ),        q(SimpleText),  'Not simple text';
-is test_val( $f, q(test), q(this is text) ), q(this is text), 'Simple text';
+is test_val( $f, q(test), q(*3$%^) ),        q(SimpleText), 'Not simple text';
+is test_val( $f, q(test), q(this is text) ), q(this is text),   'Simple text';
 
 SKIP: {
    $f->{fields}->{test}->{validate} = q(isValidHostname);
 
-   (test_val( $f, q(test), q(example.com)        ) eq q(example.com)    and
-    test_val( $f, q(test), q(google.com)         ) eq q(google.com)     and
+   (test_val( $f, q(test), q(example.com)        ) eq q(example.com)   and
+    test_val( $f, q(test), q(google.com)         ) eq q(google.com)    and
     test_val( $f, q(test), q(does_not_exist)     ) eq q(ValidHostname) and
     test_val( $f, q(test), q(does_not_exist.com) ) eq q(ValidHostname) and
     test_val( $f, q(test), q(does.not.exist.com) ) eq q(ValidHostname) and

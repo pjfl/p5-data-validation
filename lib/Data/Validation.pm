@@ -2,7 +2,7 @@ package Data::Validation;
 
 use 5.010001;
 use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.20.%d', q$Rev: 4 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.20.%d', q$Rev: 5 $ =~ /\d+/gmx );
 
 use Data::Validation::Constants qw( EXCEPTION_CLASS FALSE HASH NUL SPC );
 use Data::Validation::Constraints;
@@ -10,29 +10,30 @@ use Data::Validation::Filters;
 use Data::Validation::Utils     qw( throw );
 use List::Util                  qw( first );
 use Try::Tiny;
-use Unexpected::Types           qw( HashRef NonZeroPositiveInt );
 use Unexpected::Functions       qw( FieldComparison ValidationErrors );
+use Unexpected::Types           qw( HashRef NonZeroPositiveInt );
 use Moo;
 
 has 'constraints' => is => 'ro', isa => HashRef, default => sub { {} };
-
-has 'level'       => is => 'ro', isa => NonZeroPositiveInt, default => 1;
 
 has 'fields'      => is => 'ro', isa => HashRef, default => sub { {} };
 
 has 'filters'     => is => 'ro', isa => HashRef, default => sub { {} };
 
-has '_operators'  => is => 'ro', isa => HashRef, default => sub {
-   { 'eq' => sub { $_[ 0 ] eq $_[ 1 ] },
-     '==' => sub { $_[ 0 ] == $_[ 1 ] },
-     'ne' => sub { $_[ 0 ] ne $_[ 1 ] },
-     '!=' => sub { $_[ 0 ] != $_[ 1 ] },
-     '>'  => sub { $_[ 0 ] >  $_[ 1 ] },
-     '>=' => sub { $_[ 0 ] >= $_[ 1 ] },
-     '<'  => sub { $_[ 0 ] <  $_[ 1 ] },
-     '<=' => sub { $_[ 0 ] <= $_[ 1 ] }, } };
+has 'level'       => is => 'ro', isa => NonZeroPositiveInt, default => 1;
 
 # Private functions
+my $_comparisons = sub {
+   return { 'eq' => sub { $_[ 0 ] eq $_[ 1 ] },
+            '==' => sub { $_[ 0 ] == $_[ 1 ] },
+            'ne' => sub { $_[ 0 ] ne $_[ 1 ] },
+            '!=' => sub { $_[ 0 ] != $_[ 1 ] },
+            '>'  => sub { $_[ 0 ] >  $_[ 1 ] },
+            '>=' => sub { $_[ 0 ] >= $_[ 1 ] },
+            '<'  => sub { $_[ 0 ] <  $_[ 1 ] },
+            '<=' => sub { $_[ 0 ] <= $_[ 1 ] }, };
+};
+
 my $_get_methods = sub {
    return split SPC, $_[ 0 ] // NUL;
 };
@@ -43,16 +44,16 @@ my $_should_compare = sub {
 
 # Private methods
 my $_filter = sub {
-   my ($self, $filters, $id, $value) = @_;
+   my ($self, $filters, $id, $v) = @_;
 
    for my $method ($_get_methods->( $filters )) {
-      my %attr    = ( %{ $self->filters->{ $id } // {} }, method => $method, );
-      my $dvf_obj = Data::Validation::Filters->new_from_method( %attr );
+      my $attr    = { %{ $self->filters->{ $id } // {} }, method => $method, };
+      my $dvf_obj = Data::Validation::Filters->new_from_method( $attr );
 
-      $value = $dvf_obj->filter( $value );
+      $v = $dvf_obj->filter( $v );
    }
 
-   return $value;
+   return $v;
 };
 
 my $_compare_fields = sub {
@@ -61,33 +62,35 @@ my $_compare_fields = sub {
    my $id         = $prefix.$lhs_name;
    my $constraint = $self->constraints->{ $id } // {};
    my $rhs_name   = $constraint->{other_field}
-      or throw 'Constraint [_1] has no comparison field', [ $id ];
+      or throw 'Constraint [_1] has no comparison field',
+               [ $id ], class => 'Constraint';
    my $op         = $constraint->{operator} // 'eq';
+   my $handler    = $_comparisons->()->{ $op }
+      or throw 'Constraint [_1] unknown comparison operator [_2]',
+               [ $id, $op ], class => 'Constraint';
    my $lhs        = $form->{ $lhs_name } // NUL;
    my $rhs        = $form->{ $rhs_name } // NUL;
-   my $matched    = exists $self->_operators->{ $op }
-                  ? $self->_operators->{ $op }->( $lhs, $rhs ) : FALSE;
 
-   unless ($matched) {
-      $lhs_name = $self->fields->{ $prefix.$lhs_name }->{label} // $lhs_name;
-      $rhs_name = $self->fields->{ $prefix.$rhs_name }->{label} // $rhs_name;
-      throw FieldComparison, [ $lhs_name, $op, $rhs_name ];
-   }
+   $handler->( $lhs, $rhs ) and return;
 
-   return;
+   $lhs_name = $self->fields->{ $prefix.$lhs_name }->{label} // $lhs_name;
+   $rhs_name = $self->fields->{ $prefix.$rhs_name }->{label} // $rhs_name;
+   throw FieldComparison, [ $lhs_name, $op, $rhs_name ];
 };
 
 my $_validate = sub {
-   my ($self, $method, $id, $value) = @_;
+   my ($self, $valids, $id, $v) = @_;
 
-   my %attr = ( %{ $self->constraints->{ $id } // {} }, method => $method, );
-   my $constraint = Data::Validation::Constraints->new_from_method( %attr );
+   for my $method (grep { $_ ne 'compare' } $_get_methods->( $valids )) {
+      my $attr = { %{ $self->constraints->{ $id } // {} }, method => $method, };
+      my $constraint = Data::Validation::Constraints->new_from_method( $attr );
 
-   unless ($constraint->validate( $value )) {
+      $constraint->validate( $v ) and next;
+
      (my $class = $method) =~ s{ \A is }{}mx;
       my $name  = $self->fields->{ $id }->{label} // $id;
 
-      throw sub { $class }, [ $name, $value ], level => $self->level;
+      throw sub { $class }, [ $name, $v ], level => $self->level;
    }
 
    return;
@@ -97,16 +100,17 @@ my $_validate = sub {
 sub check_form { # Validate all fields on a form by repeated calling check_field
    my ($self, $prefix, $form) = @_; my @errors = (); $prefix ||= NUL;
 
-   ($form and ref $form eq HASH) or throw 'Form bad hash';
+   ($form and ref $form eq HASH)
+      or throw 'Form bad hash', class => 'Constraint';
 
    for my $name (sort keys %{ $form }) {
-      my $id = $prefix.$name; my $field = $self->fields->{ $id };
+      my $id = $prefix.$name; my $conf = $self->fields->{ $id };
 
-      ($field and ($field->{filters} or $field->{validate})) or next;
+      ($conf and ($conf->{filters} or $conf->{validate})) or next;
 
       try   {
          $form->{ $name } = $self->check_field( $id, $form->{ $name } );
-         $_should_compare->( $field )
+         $_should_compare->( $conf )
             and $self->$_compare_fields( $prefix, $form, $name );
       }
       catch { push @errors, $_ };
@@ -117,22 +121,19 @@ sub check_form { # Validate all fields on a form by repeated calling check_field
    return $form;
 }
 
-sub check_field { # Validate form field values
-   my ($self, $id, $value) = @_; my $field;
+sub check_field { # Validate a single form field value
+   my ($self, $id, $v) = @_; my $conf;
 
-   unless ($id and $field = $self->fields->{ $id }
-           and ($field->{filters} or $field->{validate})) {
-      throw 'Field [_1] validation configuration not found', [ $id, $value ];
+   unless ($id and $conf = $self->fields->{ $id }
+           and ($conf->{filters} or $conf->{validate})) {
+      throw 'Field [_1] validation configuration not found',
+            [ $id, $v ], class => 'Constraint';
    }
 
-   $field->{filters}
-      and $value = $self->$_filter( $field->{filters}, $id, $value );
+   $conf->{filters } and $v = $self->$_filter( $conf->{filters }, $id, $v );
+   $conf->{validate} and    $self->$_validate( $conf->{validate}, $id, $v );
 
-   for my $method ($_get_methods->( $field->{validate} )) {
-      $method eq 'compare' or $self->$_validate( $method, $id, $value );
-   }
-
-   return $value;
+   return $v;
 }
 
 1;
@@ -157,7 +158,7 @@ Data::Validation - Filter and validate data values
 
 =head1 Version
 
-Describes version v0.20.$Rev: 4 $ of L<Data::Validation>
+Describes version v0.20.$Rev: 5 $ of L<Data::Validation>
 
 =head1 Synopsis
 
@@ -184,9 +185,9 @@ Describes version v0.20.$Rev: 4 $ of L<Data::Validation>
       my ($self, $config) = @_;
 
       return Data::Validation->new( {
-         constraints => $config->{constraints}     || {},
-         fields      => $config->{fields}          || {},
-         filters     => $config->{filters}         || {} } );
+         constraints => $config->{constraints} // {},
+         fields      => $config->{fields}      // {},
+         filters     => $config->{filters}     // {} } );
    }
 
 =head1 Description
@@ -227,13 +228,6 @@ to L</check_field>. See L<Data::Validation::Filters>
 
 Positive integer defaults to 1. Used to select the stack frame from which
 to throw the C<check_field> exception
-
-=item C<operators>
-
-Hash containing operator code refs. The keys of the hash ref are comparison
-operators and their values are the anonymous code refs that compare
-the operands and return a boolean. Used by the C<compare> form validation
-method
 
 =back
 

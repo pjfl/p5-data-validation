@@ -10,7 +10,7 @@ Data::Validation - Filter and validate data values
 
 # Version
 
-Describes version v0.20.$Rev: 4 $ of [Data::Validation](https://metacpan.org/pod/Data::Validation)
+Describes version v0.20.$Rev: 5 $ of [Data::Validation](https://metacpan.org/pod/Data::Validation)
 
 # Synopsis
 
@@ -37,9 +37,9 @@ Describes version v0.20.$Rev: 4 $ of [Data::Validation](https://metacpan.org/pod
        my ($self, $config) = @_;
 
        return Data::Validation->new( {
-          constraints => $config->{constraints}     || {},
-          fields      => $config->{fields}          || {},
-          filters     => $config->{filters}         || {} } );
+          constraints => $config->{constraints} // {},
+          fields      => $config->{fields}      // {},
+          filters     => $config->{filters}     // {} } );
     }
 
 # Description
@@ -78,13 +78,6 @@ Defines the following attributes;
 
     Positive integer defaults to 1. Used to select the stack frame from which
     to throw the `check_field` exception
-
-- `operators`
-
-    Hash containing operator code refs. The keys of the hash ref are comparison
-    operators and their values are the anonymous code refs that compare
-    the operands and return a boolean. Used by the `compare` form validation
-    method
 
 # Subroutines/Methods
 

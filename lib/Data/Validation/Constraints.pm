@@ -9,35 +9,41 @@ use Regexp::Common              qw( number );
 use Scalar::Util                qw( looks_like_number );
 use Try::Tiny;
 use Unexpected::Functions       qw( KnownType );
-use Unexpected::Types           qw( Any Bool Int Object Str Undef );
+use Unexpected::Types           qw( Any ArrayRef Bool Int Object Str Undef );
 use Moo;
 
-has 'max_length'    => is => 'ro',   isa => Int;
+# Public attributes
+has 'max_length'     => is => 'ro',   isa => Int;
 
-has 'max_value'     => is => 'ro',   isa => Int;
+has 'max_value'      => is => 'ro',   isa => Int;
 
-has 'method'        => is => 'ro',   isa => Str, required => TRUE;
+has 'method'         => is => 'ro',   isa => Str, required => TRUE;
 
-has 'min_length'    => is => 'ro',   isa => Int;
+has 'min_length'     => is => 'ro',   isa => Int;
 
-has 'min_value'     => is => 'ro',   isa => Int;
+has 'min_value'      => is => 'ro',   isa => Int;
 
-has 'pattern'       => is => 'ro',   isa => Str;
+has 'pattern'        => is => 'ro',   isa => Str;
 
-has 'type_registry' => is => 'lazy', isa => Object, builder => sub {
-   ensure_class_loaded 'Type::Registry';
+has 'required'       => is => 'ro',   isa => Bool, default => FALSE;
 
-   my $reg = Type::Registry->for_me; $reg->add_types( 'Unexpected::Types' );
+has 'type'           => is => 'ro',   isa => Str | Undef;
+
+has 'type_libraries' => is => 'ro',   isa => ArrayRef[Str],
+   builder           => sub { [ 'Unexpected::Types' ] };
+
+has 'type_registry'  => is => 'lazy', isa => Object, builder => sub {
+   my $self = shift; ensure_class_loaded 'Type::Registry';
+   my $reg  = Type::Registry->for_me;
+
+   $reg->add_types( $_ ) for (@{ $self->type_libraries });
 
    return $reg;
 };
 
-has 'required'      => is => 'ro',   isa => Bool, default => FALSE;
+has 'value'          => is => 'ro',   isa => Any;
 
-has 'type'          => is => 'ro',   isa => Str | Undef;
-
-has 'value'         => is => 'ro',   isa => Any;
-
+# Public methods
 sub new_from_method {
    my $class = shift; my $attr = ref $_[ 0 ] eq HASH ? $_[ 0 ] : { @_ };
 
@@ -104,7 +110,7 @@ sub isMatchingType {
    catch {
       $_ =~ m{ \Qnot a known type constraint\E }mx
          and throw KnownType, [ $type_name ];
-      throw $_;
+      throw "${_}", class => 'Constraint';
    };
 
    return $type->check( $v ) ? TRUE : FALSE;
@@ -144,11 +150,7 @@ sub isValidLength {
 }
 
 sub isValidNumber {
-   my ($self, $v) = @_;
-
-   defined $v or return FALSE; looks_like_number( $v ) and return TRUE;
-
-   return FALSE;
+   my ($self, $v) = @_; return looks_like_number( $v ) ? TRUE : FALSE;
 }
 
 1;
@@ -157,7 +159,7 @@ __END__
 
 =pod
 
-=encoding utf8
+=encoding utf-8
 
 =head1 Name
 
@@ -169,9 +171,9 @@ Data::Validation::Constraints - Test data values for conformance with constraint
 
    %config = ( method => $method, %{ $self->constraints->{ $id } || {} } );
 
-   $constraint_ref = Data::Validation::Constraints->new( %config );
+   $constraint_ref = Data::Validation::Constraints->new_from_method( %config );
 
-   $constraint_ref->validate( $value );
+   $bool = $constraint_ref->validate( $value );
 
 =head1 Description
 
@@ -179,15 +181,9 @@ Tests a single data value for conformance with a constraint
 
 =head1 Configuration and Environment
 
-Uses the L<Moo::Role> L<Data::Validation::Utils>. Defines the
-following attributes:
+Defines the following attributes:
 
 =over 3
-
-=item C<error>
-
-A string containing the error message that is thrown if the validation
-fails
 
 =item C<max_length>
 
@@ -198,6 +194,10 @@ numerically less than this
 
 Used by L</isBetweenValues>.
 
+=item C<method>
+
+Name of the constraint to apply. Required
+
 =item C<min_length>
 
 Used by L</isValidLength>.
@@ -206,10 +206,29 @@ Used by L</isValidLength>.
 
 Used by L</isBetweenValues>.
 
+=item C<pattern>
+
+Used by L</isMathchingRegex> as the pattern to match the supplied value
+against
+
 =item C<required>
 
 If true then undefined values are not allowed regardless of what other
 validation would be done
+
+=item C<type>
+
+If C<isMatchingType> matches against this value
+
+=item C<type_libraries>
+
+A list of type libraries to add to the registry. Defaults to;
+L<Unexpected::Types>
+
+=item C<type_registry>
+
+Lazily evaluated instance of L<Type::Registry> to which the C<type_libraries>
+have been added
 
 =item C<value>
 
@@ -218,6 +237,11 @@ Used by the L</isEqualTo> method as the other value in the comparison
 =back
 
 =head1 Subroutines/Methods
+
+=head2 new_from_method
+
+A class method which implements a factory pattern using the C<method> attribute
+to select the subclass
 
 =head2 validate
 
@@ -245,11 +269,17 @@ number
 
 =head2 isMandatory
 
-Null values are not allowed
+Undefined and null values are not allowed
 
 =head2 isMatchingRegex
 
-Does the supplied value match C<< $self->pattern >>?
+Does the supplied value match the pattern? The pattern defaults to
+C<< $self->pattern >>
+
+=head2 isMatchingType
+
+Does the supplied value pass the type constraint check? The constraint
+defaults to C<< $self->type >>
 
 =head2 isPrintable
 

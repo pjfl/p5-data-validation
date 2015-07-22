@@ -52,6 +52,7 @@ isEqualTo
 isHexadecimal
 isMandatory
 isMatchingRegex
+isMatchingType
 isPrintable
 isSimpleText
 isValidHostname

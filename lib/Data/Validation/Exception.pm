@@ -71,7 +71,7 @@ __END__
 
 =pod
 
-=encoding utf8
+=encoding utf-8
 
 =head1 Name
 
@@ -101,9 +101,13 @@ Defines the following exceptions;
 
 =item C<Hexadecimal>
 
+=item C<KnownType>
+
 =item C<Mandatory>
 
 =item C<MatchingRegex>
+
+=item C<MatchingType>
 
 =item C<Printable>
 

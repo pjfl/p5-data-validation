@@ -16,18 +16,19 @@ my $prereqs  = {
     'version' => '0.88'
   },
   'recommends' => {
-    'Class::Usul' => 'v0.58.0'
+    'Class::Usul' => 'v0.63.0'
   },
   'requires' => {
     'Email::Valid' => '1.196',
     'Exporter::Tiny' => '0.042',
-    'HTTP::Tiny' => '0.054',
+    'HTTP::Tiny' => '0.056',
     'Module::Runtime' => '0.014',
     'Moo' => '2.000001',
     'Regexp::Common' => '2013031301',
     'Try::Tiny' => '0.22',
+    'Type::Tiny' => '1.000005',
     'Unexpected' => 'v0.38.0',
-    'namespace::autoclean' => '0.22',
+    'namespace::autoclean' => '0.26',
     'perl' => '5.010001'
   },
   'test_requires' => {
