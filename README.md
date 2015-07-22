@@ -10,7 +10,7 @@ Data::Validation - Filter and validate data values
 
 # Version
 
-Describes version v0.20.$Rev: 5 $ of [Data::Validation](https://metacpan.org/pod/Data::Validation)
+Describes version v0.21.$Rev: 1 $ of [Data::Validation](https://metacpan.org/pod/Data::Validation)
 
 # Synopsis
 
