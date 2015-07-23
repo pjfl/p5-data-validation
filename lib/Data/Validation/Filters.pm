@@ -29,7 +29,7 @@ around 'filter' => sub {
    my ($orig, $self, $v) = @_; return defined $v ? $orig->( $self, $v ) : undef;
 };
 
-# Builtin factory filter methods
+# Builtin filter methods
 sub filterEscapeHTML {
    my ($self, $v) = @_;
 

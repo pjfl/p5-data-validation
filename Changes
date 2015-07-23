@@ -1,5 +1,8 @@
 Revision history for Data::Validation
 
+          - Renamed Constraint exception to InvalidParameter
+            and removed the incorrect error message
+
 0.21.1    2015-07-22 08:45:30
           - Refactored factory patterns
           - Added matching types

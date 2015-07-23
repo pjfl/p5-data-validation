@@ -8,7 +8,7 @@ use Moo;
 extends q(Data::Validation::Constraints);
 
 EXCEPTION_CLASS->add_exception( 'ValidPath', {
-   parents => [ 'Constraint' ],
+   parents => [ 'InvalidParameter' ],
    error   => 'Parameter [_1] value [_2] is not a valid pathname' } );
 
 sub validate {

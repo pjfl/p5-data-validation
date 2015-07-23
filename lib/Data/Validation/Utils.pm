@@ -2,7 +2,7 @@ package Data::Validation::Utils;
 
 use strict;
 use warnings;
-use parent qw( Exporter::Tiny );
+use parent 'Exporter::Tiny';
 
 use Data::Validation::Constants qw( EXCEPTION_CLASS TRUE );
 use Module::Runtime             qw( require_module );
@@ -20,8 +20,7 @@ sub ensure_class_loaded ($;$) {
    try { require_module( $class ) } catch { throw( $_ ) };
 
    is_class_loaded( $class )
-      or throw( 'Class [_1] loaded but package undefined',
-                [ $class ], class => 'Constraint' );
+      or throw( 'Class [_1] loaded but package undefined', [ $class ] );
 
    return TRUE;
 }

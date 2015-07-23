@@ -2,7 +2,7 @@ package Data::Validation::Constants;
 
 use strict;
 use warnings;
-use parent qw( Exporter::Tiny );
+use parent 'Exporter::Tiny';
 
 use Data::Validation::Exception;
 

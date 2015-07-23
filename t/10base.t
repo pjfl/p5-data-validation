@@ -15,8 +15,8 @@ sub test_val {
    my $value     = eval { $validator->check_field( @_ ) };
    my $e         = Data::Validation::Exception->caught();
 
-   $e and $e->instance_of( 'Constraint' ) and $e->class ne 'Constraint'
-      and return $e->class;
+   $e and $e->instance_of( 'Data::Validation::Exception' )
+      and $e->class ne 'Data::Validation::Exception' and return $e->class;
 
    if ($e) { $e = $e->as_string; chomp $e; return $e }
 

@@ -2,7 +2,7 @@ package Data::Validation;
 
 use 5.010001;
 use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.21.%d', q$Rev: 1 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.21.%d', q$Rev: 2 $ =~ /\d+/gmx );
 
 use Data::Validation::Constants qw( EXCEPTION_CLASS FALSE HASH NUL SPC );
 use Data::Validation::Constraints;
@@ -62,20 +62,18 @@ my $_compare_fields = sub {
    my $id         = $prefix.$lhs_name;
    my $constraint = $self->constraints->{ $id } // {};
    my $rhs_name   = $constraint->{other_field}
-      or throw 'Constraint [_1] has no comparison field',
-               [ $id ], class => 'Constraint';
+      or throw 'Constraint [_1] has no comparison field', [ $id ];
    my $op         = $constraint->{operator} // 'eq';
-   my $handler    = $_comparisons->()->{ $op }
-      or throw 'Constraint [_1] unknown comparison operator [_2]',
-               [ $id, $op ], class => 'Constraint';
+   my $compare    = $_comparisons->()->{ $op }
+      or throw 'Constraint [_1] unknown comparison operator [_2]', [ $id, $op ];
    my $lhs        = $form->{ $lhs_name } // NUL;
    my $rhs        = $form->{ $rhs_name } // NUL;
 
-   $handler->( $lhs, $rhs ) and return;
+   $compare->( $lhs, $rhs ) and return;
 
    $lhs_name = $self->fields->{ $prefix.$lhs_name }->{label} // $lhs_name;
    $rhs_name = $self->fields->{ $prefix.$rhs_name }->{label} // $rhs_name;
-   throw FieldComparison, [ $lhs_name, $op, $rhs_name ];
+   throw FieldComparison, [ $lhs_name, $op, $rhs_name ], level => $self->level;
 };
 
 my $_validate = sub {
@@ -100,8 +98,7 @@ my $_validate = sub {
 sub check_form { # Validate all fields on a form by repeated calling check_field
    my ($self, $prefix, $form) = @_; my @errors = (); $prefix ||= NUL;
 
-   ($form and ref $form eq HASH)
-      or throw 'Form bad hash', class => 'Constraint';
+   ($form and ref $form eq HASH) or throw 'Form parameter not a hash ref';
 
    for my $name (sort keys %{ $form }) {
       my $id = $prefix.$name; my $conf = $self->fields->{ $id };
@@ -126,8 +123,7 @@ sub check_field { # Validate a single form field value
 
    unless ($id and $conf = $self->fields->{ $id }
            and ($conf->{filters} or $conf->{validate})) {
-      throw 'Field [_1] validation configuration not found',
-            [ $id, $v ], class => 'Constraint';
+      throw 'Field [_1] validation configuration not found', [ $id, $v ];
    }
 
    $conf->{filters } and $v = $self->$_filter( $conf->{filters }, $id, $v );
@@ -158,7 +154,7 @@ Data::Validation - Filter and validate data values
 
 =head1 Version
 
-Describes version v0.21.$Rev: 1 $ of L<Data::Validation>
+Describes version v0.21.$Rev: 2 $ of L<Data::Validation>
 
 =head1 Synopsis
 

@@ -12,53 +12,52 @@ my $class = __PACKAGE__;
 
 has_exception $class;
 
-has_exception 'Constraint' => parents => [ $class ],
-   error   => 'String [_1] contains possible taint';
+has_exception 'InvalidParameter' => parents => [ $class ];
 
-has_exception 'BetweenValues' => parents => [ 'Constraint' ],
+has_exception 'BetweenValues' => parents => [ 'InvalidParameter' ],
    error   => 'Parameter [_1] value [_2] is not in range';
 
-has_exception 'EqualTo' => parents => [ 'Constraint' ],
+has_exception 'EqualTo' => parents => [ 'InvalidParameter' ],
    error   => 'Parameter [_1] value [_2] is not equal to the required value';
 
-has_exception 'FieldComparison' => parents => [ 'Constraint' ],
+has_exception 'FieldComparison' => parents => [ 'InvalidParameter' ],
    error   => 'Field [_1] does not [_2] field [_3]';
 
-has_exception 'Hexadecimal' => parents => [ 'Constraint' ],
+has_exception 'Hexadecimal' => parents => [ 'InvalidParameter' ],
    error   => 'Parameter [_1] value [_2] is not a hexadecimal number';
 
-has_exception 'KnownType' => parents => [ 'Constraint' ],
-   error   => 'Type constraint [_1] is unknown';
-
-has_exception 'Mandatory' => parents => [ 'Constraint' ],
+has_exception 'Mandatory' => parents => [ 'InvalidParameter' ],
    error   => 'Parameter [_1] is mandatory';
 
-has_exception 'MatchingRegex' => parents => [ 'Constraint' ],
+has_exception 'MatchingRegex' => parents => [ 'InvalidParameter' ],
    error   => 'Parameter [_1] value [_2] does not match the required regex';
 
-has_exception 'MatchingType' => parents => [ 'Constraint' ],
+has_exception 'MatchingType' => parents => [ 'InvalidParameter' ],
    error   => 'Parameter [_1] value [_2] does not of the required type [_3]';
 
-has_exception 'Printable' => parents => [ 'Constraint' ],
+has_exception 'Printable' => parents => [ 'InvalidParameter' ],
    error   => 'Parameter [_1] value is not a printable character';
 
-has_exception 'SimpleText' => parents => [ 'Constraint' ],
+has_exception 'SimpleText' => parents => [ 'InvalidParameter' ],
    error   => 'Parameter [_1] value [_2] is not simple text';
 
-has_exception 'ValidHostname' => parents => [ 'Constraint' ],
+has_exception 'ValidHostname' => parents => [ 'InvalidParameter' ],
    error   => 'Parameter [_1] value [_2] is not a hostname';
 
-has_exception 'ValidIdentifier' => parents => [ 'Constraint' ],
+has_exception 'ValidIdentifier' => parents => [ 'InvalidParameter' ],
    error   => 'Parameter [_1] value [_2] is not a valid identifier';
 
-has_exception 'ValidInteger' => parents => [ 'Constraint' ],
+has_exception 'ValidInteger' => parents => [ 'InvalidParameter' ],
    error   => 'Parameter [_1] value [_2] is not valid integer';
 
-has_exception 'ValidLength' => parents => [ 'Constraint' ],
+has_exception 'ValidLength' => parents => [ 'InvalidParameter' ],
    error   => 'Parameter [_1] value [_2] is not a valid length';
 
-has_exception 'ValidNumber' => parents => [ 'Constraint' ],
+has_exception 'ValidNumber' => parents => [ 'InvalidParameter' ],
    error   => 'Parameter [_1] value [_2] is not valid number';
+
+has_exception 'KnownType' => parents => [ $class ],
+   error   => 'Type constraint [_1] is unknown';
 
 has_exception 'ValidationErrors' => parents => [ $class ],
    error   => 'There is at least one data validation error';
@@ -91,7 +90,7 @@ Defines the following exceptions;
 
 =over 3
 
-=item C<Constraint>
+=item C<InvalidParameter>
 
 =item C<BetweenValues>
 

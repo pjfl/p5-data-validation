@@ -110,7 +110,7 @@ sub isMatchingType {
    catch {
       $_ =~ m{ \Qnot a known type constraint\E }mx
          and throw KnownType, [ $type_name ];
-      throw "${_}", class => 'Constraint';
+      throw "${_}";
    };
 
    return $type->check( $v ) ? TRUE : FALSE;
