@@ -7,7 +7,6 @@ my $perl_ver = 5.010001;
 my $name     = 'Data-Validation'; $name =~ s{ - }{::}gmx;
 my $prereqs  = {
   'build_requires' => {
-    'Class::Null' => '1.09',
     'Module::Build' => '0.4004',
     'version' => '0.88'
   },
@@ -32,9 +31,12 @@ my $prereqs  = {
     'perl' => '5.010001'
   },
   'test_requires' => {
+    'Class::Null' => '1.09',
     'File::Spec' => '0',
+    'Module::Build' => '0.4004',
     'Module::Metadata' => '0',
-    'Sys::Hostname' => '0'
+    'Sys::Hostname' => '0',
+    'version' => '0.88'
   },
 };
 my $testing  = sub { $ENV{AUTOMATED_TESTING}

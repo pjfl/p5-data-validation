@@ -12,15 +12,17 @@ requires "perl" => "5.010001";
 recommends "Class::Usul" => "v0.63.0";
 
 on 'build' => sub {
-  requires "Class::Null" => "1.09";
   requires "Module::Build" => "0.4004";
   requires "version" => "0.88";
 };
 
 on 'test' => sub {
+  requires "Class::Null" => "1.09";
   requires "File::Spec" => "0";
+  requires "Module::Build" => "0.4004";
   requires "Module::Metadata" => "0";
   requires "Sys::Hostname" => "0";
+  requires "version" => "0.88";
 };
 
 on 'test' => sub {
