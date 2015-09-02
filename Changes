@@ -1,5 +1,6 @@
 Revision history for Data::Validation
 
+          - Upstream toolchain update
           - Renamed Constraint exception to InvalidParameter
             and removed the incorrect error message
 
