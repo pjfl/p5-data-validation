@@ -107,6 +107,11 @@ $f->{constraints}->{test} = { pattern => q(...-...) };
 is test_val( $f, q(test), q(123 456) ), q(MatchingRegex), 'Non Matching Regex';
 is test_val( $f, q(test), q(123-456) ), q(123-456),       'Matching Regex';
 
+$f->{fields}->{test}->{validate} = q(isAllowed);
+$f->{constraints}->{test} = { allowed => [ 'a', 'b', 'c' ] };
+is test_val( $f, q(test), q(x) ), q(Allowed), 'Is not allowed';
+is test_val( $f, q(test), q(b) ), q(b),  'Is allowed';
+
 $f->{fields}->{test}->{validate} = q(isValidEmail);
 is test_val( $f, q(test), q(fred) ),  q(ValidEmail), 'Invalid email';
 is test_val( $f, q(test), q(a@b.c) ), q(a@b.c),      'Valid email';
@@ -127,7 +132,7 @@ is test_val( $f, q(test), q(CA123445) ), q(ValidPostcode), 'Invalid postcode';
 is test_val( $f, q(test), q(SW1A 4WW) ), q(SW1A 4WW),      'Valid postcode';
 
 SKIP: {
-   $ENV{AUTHOR_TESTING} or skip 'Need a network connection', 1;
+   $ENV{AUTHOR_TESTING} or skip 'valid URL developers only', 1;
 
    $f->{fields}->{test}->{validate} = 'isValidURL';
    is test_val( $f, 'test', 'http://notlikeky.nono' ), 'ValidURL',

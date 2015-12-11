@@ -5,6 +5,7 @@ use charnames qw( :full );
 
 use Data::Validation::Constants qw( EXCEPTION_CLASS FALSE HASH TRUE );
 use Data::Validation::Utils     qw( ensure_class_loaded load_class throw );
+use List::Util                  qw( any );
 use Regexp::Common              qw( number );
 use Scalar::Util                qw( looks_like_number );
 use Try::Tiny;
@@ -13,6 +14,8 @@ use Unexpected::Types           qw( Any ArrayRef Bool Int Object Str Undef );
 use Moo;
 
 # Public attributes
+has 'allowed'        => is => 'ro',   iss => ArrayRef, builder => sub { [] };
+
 has 'max_length'     => is => 'ro',   isa => Int;
 
 has 'max_value'      => is => 'ro',   isa => Int;
@@ -68,6 +71,12 @@ around 'validate' => sub {
 };
 
 # Builtin factory validation methods
+sub isAllowed {
+   my ($self, $v) = @_;
+
+   return (any { $_ eq $v } @{ $self->allowed }) ? TRUE : FALSE;
+}
+
 sub isBetweenValues {
    my ($self, $v) = @_;
 
@@ -185,6 +194,10 @@ Defines the following attributes:
 
 =over 3
 
+=item C<allowed>
+
+An array reference of permitted values used by L</isAllowed>
+
 =item C<max_length>
 
 Used by L</isValidLength>. The I<length> of the supplied value must be
@@ -250,6 +263,10 @@ tests for a null input value so that individual validation methods
 don't have to. It calls either a built in validation method or
 C<validate> which should have been overridden in a factory
 subclass. An exception is thrown if the data value is not acceptable
+
+=head2 isAllowed
+
+Is the the value in the C<< $self->allowed >> list of values
 
 =head2 isBetweenValues
 

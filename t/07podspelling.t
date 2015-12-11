@@ -47,6 +47,7 @@ filterTrimBoth
 filterUpperCase
 filterWhiteSpace
 filterZeroLength
+isAllowed
 isBetweenValues
 isEqualTo
 isHexadecimal

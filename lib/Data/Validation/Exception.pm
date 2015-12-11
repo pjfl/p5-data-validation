@@ -14,6 +14,9 @@ has_exception $class;
 
 has_exception 'InvalidParameter' => parents => [ $class ];
 
+has_exception 'Allowed' => parents => [ 'InvalidParameter' ],
+   error   => 'Parameter [_1] value [_2] is not in the list of allowed values';
+
 has_exception 'BetweenValues' => parents => [ 'InvalidParameter' ],
    error   => 'Parameter [_1] value [_2] is not in range';
 
