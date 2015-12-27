@@ -1,5 +1,6 @@
 Revision history for Data::Validation
 
+          - Added coverage badge and coverage report posting
           - Added isAllowed constraint
           - Upstream toolchain update
           - Renamed Constraint exception to InvalidParameter

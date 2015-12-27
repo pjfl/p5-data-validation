@@ -2,7 +2,7 @@ package Data::Validation;
 
 use 5.010001;
 use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.21.%d', q$Rev: 6 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.21.%d', q$Rev: 7 $ =~ /\d+/gmx );
 
 use Data::Validation::Constants qw( EXCEPTION_CLASS FALSE HASH NUL SPC );
 use Data::Validation::Constraints;
@@ -143,6 +143,7 @@ __END__
 =begin html
 
 <a href="https://travis-ci.org/pjfl/p5-data-validation"><img src="https://travis-ci.org/pjfl/p5-data-validation.svg?branch=master" alt="Travis CI Badge"></a>
+<a href="https://roxsoft.co.uk/coverage/report/data-validation/latest"><img src="https://roxsoft.co.uk/coverage/badge/data-validation/latest" alt="Coverage Badge"></a>
 <a href="http://badge.fury.io/pl/Data-Validation"><img src="https://badge.fury.io/pl/Data-Validation.svg" alt="CPAN Badge"></a>
 <a href="http://cpants.cpanauthors.org/dist/Data-Validation"><img src="http://cpants.cpanauthors.org/dist/Data-Validation.png" alt="Kwalitee Badge"></a>
 
@@ -154,7 +155,7 @@ Data::Validation - Filter and validate data values
 
 =head1 Version
 
-Describes version v0.21.$Rev: 6 $ of L<Data::Validation>
+Describes version v0.21.$Rev: 7 $ of L<Data::Validation>
 
 =head1 Synopsis
 

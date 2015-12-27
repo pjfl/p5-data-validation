@@ -1,5 +1,6 @@
 <div>
     <a href="https://travis-ci.org/pjfl/p5-data-validation"><img src="https://travis-ci.org/pjfl/p5-data-validation.svg?branch=master" alt="Travis CI Badge"></a>
+    <a href="https://roxsoft.co.uk/coverage/report/data-validation/latest"><img src="https://roxsoft.co.uk/coverage/badge/data-validation/latest" alt="Coverage Badge"></a>
     <a href="http://badge.fury.io/pl/Data-Validation"><img src="https://badge.fury.io/pl/Data-Validation.svg" alt="CPAN Badge"></a>
     <a href="http://cpants.cpanauthors.org/dist/Data-Validation"><img src="http://cpants.cpanauthors.org/dist/Data-Validation.png" alt="Kwalitee Badge"></a>
 </div>
@@ -10,7 +11,7 @@ Data::Validation - Filter and validate data values
 
 # Version
 
-Describes version v0.21.$Rev: 6 $ of [Data::Validation](https://metacpan.org/pod/Data::Validation)
+Describes version v0.21.$Rev: 7 $ of [Data::Validation](https://metacpan.org/pod/Data::Validation)
 
 # Synopsis
 
