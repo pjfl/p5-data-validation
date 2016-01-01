@@ -1,5 +1,9 @@
 Revision history for Data::Validation
 
+          - Added List::Util as a dependency
+            Even newish versions of Perl ship with too old copies
+            of the core module
+
 0.22.1    2016-01-01 00:11:07
           - Added coverage badge and coverage report posting
           - Added isAllowed constraint
