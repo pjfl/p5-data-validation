@@ -6,7 +6,6 @@ use charnames qw( :full );
 use Data::Validation::Constants qw( EXCEPTION_CLASS FALSE HASH TRUE );
 use Data::Validation::Utils     qw( ensure_class_loaded load_class throw );
 use List::Util                  qw( any );
-use Regexp::Common              qw( number );
 use Scalar::Util                qw( looks_like_number );
 use Try::Tiny;
 use Unexpected::Functions       qw( KnownType );
@@ -95,7 +94,13 @@ sub isEqualTo {
 }
 
 sub isHexadecimal {
-   return $_[ 0 ]->isMatchingRegex( $_[ 1 ], '\A '.$RE{num}{hex}.' \z' );
+   my ($self, $v) = @_;
+
+   my $pat = '\A (?:(?i)(?:[-+]?)(?:(?=[.]?[0123456789ABCDEF])'
+           . '(?:[0123456789ABCDEF]*)(?:(?:[.])(?:[0123456789ABCDEF]{0,}))?)'
+           . '(?:(?:[G])(?:(?:[-+]?)(?:[0123456789ABCDEF]+))|)) \z';
+
+   return $self->isMatchingRegex( $v, $pat );
 }
 
 sub isMandatory {
@@ -144,8 +149,9 @@ sub isValidIdentifier {
 sub isValidInteger {
    my ($self, $v) = @_;
 
-   $self->isMatchingRegex( $v, '\A '.$RE{num}{int}{-sep=>'[_]?'}.' \z' )
-      or return FALSE;
+   my $pat = '\A (?:(?:[-+]?)(?:[0123456789]{1,3}(?:[_]?[0123456789]{3})*)) \z';
+
+   $self->isMatchingRegex( $v, $pat ) or return FALSE;
    int $v == $v or return FALSE;
    return TRUE;
 }

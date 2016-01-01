@@ -4,7 +4,6 @@ requires "HTTP::Tiny" => "0.056";
 requires "List::Util" => "1.42";
 requires "Module::Runtime" => "0.014";
 requires "Moo" => "2.000001";
-requires "Regexp::Common" => "2013031301";
 requires "Try::Tiny" => "0.22";
 requires "Type::Tiny" => "1.000005";
 requires "Unexpected" => "v0.43.0";

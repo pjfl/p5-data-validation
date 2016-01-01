@@ -24,7 +24,6 @@ my $prereqs  = {
     'List::Util' => '1.42',
     'Module::Runtime' => '0.014',
     'Moo' => '2.000001',
-    'Regexp::Common' => '2013031301',
     'Try::Tiny' => '0.22',
     'Type::Tiny' => '1.000005',
     'Unexpected' => 'v0.43.0',
