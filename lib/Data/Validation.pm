@@ -2,7 +2,7 @@ package Data::Validation;
 
 use 5.010001;
 use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.22.%d', q$Rev: 2 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.23.%d', q$Rev: 1 $ =~ /\d+/gmx );
 
 use Data::Validation::Constants qw( EXCEPTION_CLASS FALSE HASH NUL SPC );
 use Data::Validation::Constraints;
@@ -155,7 +155,7 @@ Data::Validation - Filter and validate data values
 
 =head1 Version
 
-Describes version v0.22.$Rev: 2 $ of L<Data::Validation>
+Describes version v0.23.$Rev: 1 $ of L<Data::Validation>
 
 =head1 Synopsis
 

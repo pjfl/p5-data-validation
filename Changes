@@ -1,5 +1,6 @@
 Revision history for Data::Validation
 
+0.23.1    2016-01-01 11:08:17
           - Added List::Util as a dependency
             Even newish versions of Perl ship with too old copies
             of the core module
