@@ -379,8 +379,6 @@ None
 
 =item L<Moo>
 
-=item L<Regexp::Common>
-
 =item L<Unexpected>
 
 =back

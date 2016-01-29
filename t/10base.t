@@ -1,7 +1,6 @@
 use t::boilerplate;
 
 use Test::More;
-use Test::Requires { 'Regexp::Common::number' => 2013031101 };
 use Class::Null;
 use English qw( -no_match_vars );
 use Unexpected;
