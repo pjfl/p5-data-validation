@@ -6,32 +6,30 @@ use parent 'Exporter::Tiny';
 
 use Data::Validation::Constants qw( EXCEPTION_CLASS TRUE );
 use Module::Runtime             qw( require_module );
-use Scalar::Util                qw( blessed );
 use Try::Tiny;
 use Unexpected::Functions       qw( is_class_loaded );
 
 our @EXPORT_OK = qw( ensure_class_loaded load_class throw );
 
-sub ensure_class_loaded ($;$) {
-   my ($class, $opts) = @_; $opts //= {};
-
-   not $opts->{ignore_loaded} and is_class_loaded( $class ) and return TRUE;
+sub ensure_class_loaded ($) {
+   my $class = shift;
 
    try { require_module( $class ) } catch { throw( $_ ) };
 
+   # uncoverable branch true
    is_class_loaded( $class )
       or throw( 'Class [_1] loaded but package undefined', [ $class ] );
 
    return TRUE;
 }
 
-sub load_class ($$$;$) {
-   my ($proto, $prefix, $class, $opts) = @_; $class =~ s{ \A $prefix }{}mx;
+sub load_class ($$$) {
+   my ($proto, $prefix, $class) = @_; $class =~ s{ \A $prefix }{}mx;
 
-   if ($class =~ m{ \A \+ }mx) { $class =~ s{ \A \+ }{}mx }
-   else { $class = (blessed $proto || $proto).'::'.(ucfirst $class) }
+   if ('+' eq substr $class, 0, 1) { $class = substr $class, 1 }
+   else { $class = "${proto}::".(ucfirst $class) }
 
-   ensure_class_loaded $class, $opts;
+   ensure_class_loaded $class;
 
    return $class;
 }

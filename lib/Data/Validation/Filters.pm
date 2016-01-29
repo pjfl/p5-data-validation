@@ -14,7 +14,7 @@ has 'pattern' => is => 'ro', isa => Str;
 has 'replace' => is => 'ro', isa => Str;
 
 sub new_from_method {
-   my $class = shift; my $attr = ref $_[ 0 ] eq HASH ? $_[ 0 ] : { @_ };
+   my ($class, $attr) = @_;
 
    $class->can( $attr->{method} ) and return $class->new( $attr );
 

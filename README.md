@@ -11,7 +11,7 @@ Data::Validation - Filter and validate data values
 
 # Version
 
-Describes version v0.23.$Rev: 1 $ of [Data::Validation](https://metacpan.org/pod/Data::Validation)
+Describes version v0.23.$Rev: 3 $ of [Data::Validation](https://metacpan.org/pod/Data::Validation)
 
 # Synopsis
 
@@ -69,6 +69,15 @@ Defines the following attributes;
     separated list of filters to apply and a space separated list of
     constraints. Each constraint method must return true for the value to
     be accepted
+
+    The constraint method can also be a list of methods separated by | (pipe)
+    characters. This has the effect of requiring only one of the constraints
+    to be true
+
+        isMandatory isHexadecimal|isValidNumber
+
+    This constraint would require a value that was either hexadecimal or a
+    valid number
 
 - `filters`
 

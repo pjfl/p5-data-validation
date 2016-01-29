@@ -121,6 +121,9 @@ is test_val( $f, q(test), q(fred) ), q(ValidPassword), 'Invalid password 1';
 is test_val( $f, q(test), q(freddyBoy) ), q(ValidPassword),
    'Invalid password 2';
 is test_val( $f, q(test), q(qw3erty) ), q(qw3erty), 'Valid password';
+$f->{constraints}->{test}->{min_length} = 8;
+is test_val( $f, q(test), q(qw3erty) ), q(ValidPassword),
+   'Invalid password 3';
 
 $f->{fields}->{test}->{validate} = q(isValidPath);
 is test_val( $f, q(test), q(this is not ok;) ), q(ValidPath),
@@ -136,10 +139,18 @@ SKIP: {
 
    $f->{fields}->{test}->{validate} = 'isValidURL';
    is test_val( $f, 'test', 'http://notlikeky.nono' ), 'ValidURL',
-      'Invalid URL';
+      'Invalid URL - 1';
+   is test_val( $f, 'test', 'notlikeky.nono' ), 'ValidURL',
+      'Invalid URL - 2';
    is test_val( $f, 'test', 'http://google.com' ), 'http://google.com',
       'Valid URL';
 }
+
+$f->{fields}->{test}->{validate} = q(isHexadecimal|isValidNumber);
+is test_val( $f, q(test), 1.2 ), 1.2, 'Is hexadecimal or a number - 1';
+is test_val( $f, q(test), 'dead' ), 'dead', 'Is hexadecimal or a number - 2';
+like test_val( $f, q(test), 'wrong' ), qr{ \Qis none of\E }mx,
+   'Is not hexadecimal or a number';
 
 {  package BadTestConstraint;
 
@@ -205,6 +216,10 @@ $vals->{field_name2} = q(tooeasy);
 eval { $validator->check_form( q(subr_), $vals ) };
 $e = Unexpected->caught() || Class::Null->new();
 like $e->args->[0]->as_string, qr{ \Qnot a valid password\E }mx, 'Invalid form';
+
+eval { $validator->check_form( undef, [] ) };
+$e = Unexpected->caught() || Class::Null->new();
+like $e->error, qr{ \Qnot a hash\E }mx, 'Invalid form args';
 
 $f->{fields}->{test}->{validate} = q(isMatchingType);
 $f->{constraints}->{test} = { type => 'Int' };

@@ -2,7 +2,7 @@ package Data::Validation;
 
 use 5.010001;
 use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.23.%d', q$Rev: 2 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.23.%d', q$Rev: 3 $ =~ /\d+/gmx );
 
 use Data::Validation::Constants qw( EXCEPTION_CLASS FALSE HASH NUL SPC );
 use Data::Validation::Constraints;
@@ -79,16 +79,26 @@ my $_compare_fields = sub {
 my $_validate = sub {
    my ($self, $valids, $id, $v) = @_;
 
-   for my $method (grep { $_ ne 'compare' } $_get_methods->( $valids )) {
-      my $attr = { %{ $self->constraints->{ $id } // {} }, method => $method, };
-      my $constraint = Data::Validation::Constraints->new_from_method( $attr );
+   my $label = $self->fields->{ $id }->{label} // $id;
 
-      $constraint->validate( $v ) and next;
+   for my $methods (grep { $_ ne 'compare' } $_get_methods->( $valids )) {
+      my @fails;
 
-     (my $class = $method) =~ s{ \A is }{}mx;
-      my $name  = $self->fields->{ $id }->{label} // $id;
+      for my $method (split m{ [|] }mx, $methods) {
+         my $constraint = Data::Validation::Constraints->new_from_method
+            ( { %{ $self->constraints->{ $id } // {} }, method => $method, } );
+        (my $class = $method) =~ s{ \A is }{}mx;
 
-      throw sub { $class }, [ $name, $v ], level => $self->level;
+         if ($constraint->validate( $v )) { @fails = (); last }
+
+         push @fails, $class;
+      }
+
+      @fails == 1 and throw sub { $fails[ 0 ] }, [ $label, $v ],
+                            level => $self->level;
+      @fails  > 1 and throw 'Field [_1] value [_2] is none of [_3]',
+                            [ $label, $v, join ' | ', @fails ],
+                            level => $self->level;
    }
 
    return;
@@ -155,7 +165,7 @@ Data::Validation - Filter and validate data values
 
 =head1 Version
 
-Describes version v0.23.$Rev: 2 $ of L<Data::Validation>
+Describes version v0.23.$Rev: 3 $ of L<Data::Validation>
 
 =head1 Synopsis
 
@@ -215,6 +225,15 @@ to L</check_field>. Each field definition can contain a space
 separated list of filters to apply and a space separated list of
 constraints. Each constraint method must return true for the value to
 be accepted
+
+The constraint method can also be a list of methods separated by | (pipe)
+characters. This has the effect of requiring only one of the constraints
+to be true
+
+   isMandatory isHexadecimal|isValidNumber
+
+This constraint would require a value that was either hexadecimal or a
+valid number
 
 =item C<filters>
 
