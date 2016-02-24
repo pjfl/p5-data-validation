@@ -1,5 +1,6 @@
 Revision history for Data::Validation
 
+          - Fixed bug in validating non mandatory fields
           - Added or option to constraints
           - Dropped dependency on Regexp::Common
             That module has had installation and indexing problems for

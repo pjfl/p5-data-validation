@@ -2,7 +2,7 @@ package Data::Validation;
 
 use 5.010001;
 use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.23.%d', q$Rev: 4 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.23.%d', q$Rev: 5 $ =~ /\d+/gmx );
 
 use Data::Validation::Constants qw( EXCEPTION_CLASS FALSE HASH NUL SPC );
 use Data::Validation::Constraints;
@@ -78,6 +78,9 @@ my $_compare_fields = sub {
 
 my $_validate = sub {
    my ($self, $valids, $id, $v) = @_;
+
+   $valids !~ m{ isMandatory }mx and (not defined $v or not length $v)
+      and return;
 
    my $label = $self->fields->{ $id }->{label} // $id;
 
@@ -165,7 +168,7 @@ Data::Validation - Filter and validate data values
 
 =head1 Version
 
-Describes version v0.23.$Rev: 4 $ of L<Data::Validation>
+Describes version v0.23.$Rev: 5 $ of L<Data::Validation>
 
 =head1 Synopsis
 
