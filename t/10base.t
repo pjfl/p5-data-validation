@@ -89,6 +89,11 @@ $f->{constraints}->{test} = { min_value => 2, max_value => 4 };
 is test_val( $f, q(test), 5 ), q(BetweenValues), 'Out of range';
 is test_val( $f, q(test), 3 ), 3,                'In range';
 
+$f->{fields}->{test}->{validate} = 'isValidTime';
+is test_val( $f, 'test', '0700'     ), 'ValidTime', 'Invalid Time';
+is test_val( $f, 'test', '07:00'    ), '07:00',     'Valid Time - no secs';
+is test_val( $f, 'test', '07:00:59' ), '07:00:59',  'Valid Time - with secs';
+
 $f->{fields}->{test}->{validate} = q(isEqualTo);
 $f->{constraints}->{test} = { value => 4 };
 is test_val( $f, q(test), 5 ), q(EqualTo), 'Not equal';

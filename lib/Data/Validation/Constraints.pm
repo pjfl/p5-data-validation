@@ -168,6 +168,12 @@ sub isValidNumber {
    my ($self, $v) = @_; return looks_like_number( $v ) ? TRUE : FALSE;
 }
 
+sub isValidTime {
+   my ($self, $v) = @_; my $pat = '\A \d\d : \d\d (?: : \d\d )? \z';
+
+   return $self->isMatchingRegex( $v, $pat ) ? TRUE : FALSE;
+}
+
 1;
 
 __END__
@@ -332,6 +338,10 @@ C<< $self->min_length >> and less than C<< $self->max_length >>
 =head2 isValidNumber
 
 Return true if the supplied value C<looks_like_number>
+
+=head2 isValidTime
+
+Matches against a the pattern '\A \d\d : \d\d (?: : \d\d )? \z'
 
 =head1 External Constraints
 

@@ -61,6 +61,7 @@ isValidIdentifier
 isValidInteger
 isValidLength
 isValidNumber
+isValidTime
 merchantability
 opendns
 rebless

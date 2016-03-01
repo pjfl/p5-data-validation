@@ -51,13 +51,16 @@ has_exception 'ValidIdentifier' => parents => [ 'InvalidParameter' ],
    error   => 'Parameter [_1] value [_2] is not a valid identifier';
 
 has_exception 'ValidInteger' => parents => [ 'InvalidParameter' ],
-   error   => 'Parameter [_1] value [_2] is not valid integer';
+   error   => 'Parameter [_1] value [_2] is not a valid integer';
 
 has_exception 'ValidLength' => parents => [ 'InvalidParameter' ],
-   error   => 'Parameter [_1] value [_2] is not a valid length';
+   error   => 'Parameter [_1] value [_2] has an invalid length';
 
 has_exception 'ValidNumber' => parents => [ 'InvalidParameter' ],
-   error   => 'Parameter [_1] value [_2] is not valid number';
+   error   => 'Parameter [_1] value [_2] is not a valid number';
+
+has_exception 'ValidTime' => parents => [ 'InvalidParameter' ],
+   error   => 'Parameter [_1] value [_2] is not a valid time';
 
 has_exception 'KnownType' => parents => [ $class ],
    error   => 'Type constraint [_1] is unknown';
