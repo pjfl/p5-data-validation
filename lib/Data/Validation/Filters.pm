@@ -58,6 +58,12 @@ sub filterReplaceRegex {
    return $v;
 }
 
+sub filterTitleCase {
+   my ($self, $v) = @_; my @words = split ' ', $v, -1;
+
+   return join ' ', map { ucfirst $_ } @words;
+}
+
 sub filterTrimBoth {
    my ($self, $v) = @_;
 
@@ -67,6 +73,10 @@ sub filterTrimBoth {
 
 sub filterUpperCase {
    my ($self, $v) = @_; return uc $v;
+}
+
+sub filterUCFirst {
+   my ($self, $v) = @_; return ucfirst $v;
 }
 
 sub filterWhiteSpace {
@@ -128,44 +138,52 @@ operations
 
 =head1 Subroutines/Methods
 
-=head2 new_from_method
+=head2 C<new_from_method>
 
 A class method which implements a factory pattern using the C<method> attribute
 to select the subclass
 
-=head2 filter
+=head2 C<filter>
 
 Calls either a builtin method or an external one to filter the data value
 
-=head2 filterEscapeHTML
+=head2 C<filterEscapeHTML>
 
 Replaces &<>" with their &xxx; equivalents
 
-=head2 filterLowerCase
+=head2 C<filterLowerCase>
 
 Lower cases the data value
 
-=head2 filterNonNumeric
+=head2 C<filterNonNumeric>
 
 Removes all non numeric characters
 
-=head2 filterReplaceRegex
+=head2 C<filterReplaceRegex>
 
 Matches the regular expression pattern and substitutes the replace string
 
-=head2 filterTrimBoth
+=head2 C<filterTitleCase>
+
+Like L</filterUCFirst> but applied to every word in the string
+
+=head2 C<filterTrimBoth>
 
 Remove all leading and trailing whitespace
 
-=head2 filterUpperCase
+=head2 C<filterUpperCase>
 
 Upper cases the data value
 
-=head2 filterWhiteSpace
+=head2 C<filterUCFirst>
+
+Upper cases the first character of the data value
+
+=head2 C<filterWhiteSpace>
 
 Removes all whitespace
 
-=head2 filterZeroLength
+=head2 C<filterZeroLength>
 
 Returns undef if value is zero length
 

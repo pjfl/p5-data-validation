@@ -256,6 +256,10 @@ $f->{constraints}->{test} = { pattern => q(\A \d+ \z) };
 $f->{filters}->{test} = { pattern => q(\-), replace => q(0) };
 is test_val( $f, q(test), q(1-2-3) ), q(10203), 'Filter RegexReplace';
 
+$f->{fields}->{test}->{filters} = q(filterTitleCase);
+$f->{constraints}->{test} = { pattern => q(\A [a-zA-Z ]+ \z) };
+is test_val( $f, q(test), q(hello world) ), q(Hello World), 'Filter TitleCase';
+
 $f->{fields}->{test}->{filters} = q(filterTrimBoth);
 $f->{constraints}->{test} = { pattern => q(\A \d+ \z) };
 is test_val( $f, q(test), q( 123456 ) ), 123456, 'Filter TrimBoth';
@@ -263,6 +267,10 @@ is test_val( $f, q(test), q( 123456 ) ), 123456, 'Filter TrimBoth';
 $f->{fields}->{test}->{filters} = q(filterUpperCase);
 $f->{constraints}->{test} = { pattern => q(\A [A-Z ]+ \z) };
 is test_val( $f, q(test), q(hello world) ), q(HELLO WORLD), 'Filter UpperCase';
+
+$f->{fields}->{test}->{filters} = q(filterUCFirst);
+$f->{constraints}->{test} = { pattern => q(\A [A-Z][a-z ]+ \z) };
+is test_val( $f, q(test), q(hello world) ), q(Hello world), 'Filter UCFirst';
 
 $f->{fields}->{test}->{filters} = q(filterWhiteSpace);
 $f->{constraints}->{test} = { pattern => q(\A \d+ \z) };
