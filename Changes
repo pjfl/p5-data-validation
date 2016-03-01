@@ -1,5 +1,6 @@
 Revision history for Data::Validation
 
+0.24.1    2016-03-01 13:01:42
           - Added filterUCFirst and filterTitleCase
           - Fixed bug in validating non mandatory fields
           - Added or option to constraints
