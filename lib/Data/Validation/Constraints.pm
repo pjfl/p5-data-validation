@@ -170,7 +170,7 @@ sub isValidNumber {
 
 sub isValidText {
    return $_[ 0 ]->isMatchingRegex( $_[ 1 ],
-          '\A [\t\n !\"%&\'\(\)\*\+\,\-\./0-9:;=\?@A-Z\[\]_a-z\|\~]+ \z' );
+          '\A [\t\n !\"#%&\'\(\)\*\+\,\-\./0-9:;=\?@A-Z\[\]_a-z\|\~]+ \z' );
 }
 
 sub isValidTime {
