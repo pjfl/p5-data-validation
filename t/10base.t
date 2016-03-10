@@ -89,6 +89,10 @@ $f->{constraints}->{test} = { min_value => 2, max_value => 4 };
 is test_val( $f, q(test), 5 ), q(BetweenValues), 'Out of range';
 is test_val( $f, q(test), 3 ), 3,                'In range';
 
+$f->{fields}->{test}->{validate} = q(isValidText);
+is test_val( $f, q(test), q(*3$%^) ),        q(ValidText), 'Not valid text';
+is test_val( $f, q(test), q(this/is/text) ), q(this/is/text),   'Valid text';
+
 $f->{fields}->{test}->{validate} = 'isValidTime';
 is test_val( $f, 'test', '0700'     ), 'ValidTime', 'Invalid Time';
 is test_val( $f, 'test', '07:00'    ), '07:00',     'Valid Time - no secs';

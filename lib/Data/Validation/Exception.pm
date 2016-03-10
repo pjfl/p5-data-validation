@@ -15,52 +15,55 @@ has_exception $class;
 has_exception 'InvalidParameter' => parents => [ $class ];
 
 has_exception 'Allowed' => parents => [ 'InvalidParameter' ],
-   error   => 'Parameter [_1] value [_2] is not in the list of allowed values';
+   error   => 'Parameter [_1] is not in the list of allowed values';
 
 has_exception 'BetweenValues' => parents => [ 'InvalidParameter' ],
-   error   => 'Parameter [_1] value [_2] is not in range';
+   error   => 'Parameter [_1] is not in range';
 
 has_exception 'EqualTo' => parents => [ 'InvalidParameter' ],
-   error   => 'Parameter [_1] value [_2] is not equal to the required value';
+   error   => 'Parameter [_1] is not equal to the required value';
 
 has_exception 'FieldComparison' => parents => [ 'InvalidParameter' ],
    error   => 'Field [_1] does not [_2] field [_3]';
 
 has_exception 'Hexadecimal' => parents => [ 'InvalidParameter' ],
-   error   => 'Parameter [_1] value [_2] is not a hexadecimal number';
+   error   => 'Parameter [_1] is not a hexadecimal number';
 
 has_exception 'Mandatory' => parents => [ 'InvalidParameter' ],
    error   => 'Parameter [_1] is mandatory';
 
 has_exception 'MatchingRegex' => parents => [ 'InvalidParameter' ],
-   error   => 'Parameter [_1] value [_2] does not match the required regex';
+   error   => 'Parameter [_1] does not match the required regex';
 
 has_exception 'MatchingType' => parents => [ 'InvalidParameter' ],
-   error   => 'Parameter [_1] value [_2] does not of the required type [_3]';
+   error   => 'Parameter [_1] does not of the required type [_3]';
 
 has_exception 'Printable' => parents => [ 'InvalidParameter' ],
    error   => 'Parameter [_1] value is not a printable character';
 
 has_exception 'SimpleText' => parents => [ 'InvalidParameter' ],
-   error   => 'Parameter [_1] value [_2] is not simple text';
+   error   => 'Parameter [_1] is not simple text';
 
 has_exception 'ValidHostname' => parents => [ 'InvalidParameter' ],
-   error   => 'Parameter [_1] value [_2] is not a hostname';
+   error   => 'Parameter [_1] is not a hostname';
 
 has_exception 'ValidIdentifier' => parents => [ 'InvalidParameter' ],
-   error   => 'Parameter [_1] value [_2] is not a valid identifier';
+   error   => 'Parameter [_1] is not a valid identifier';
 
 has_exception 'ValidInteger' => parents => [ 'InvalidParameter' ],
-   error   => 'Parameter [_1] value [_2] is not a valid integer';
+   error   => 'Parameter [_1] is not a valid integer';
 
 has_exception 'ValidLength' => parents => [ 'InvalidParameter' ],
-   error   => 'Parameter [_1] value [_2] has an invalid length';
+   error   => 'Parameter [_1] has an invalid length';
 
 has_exception 'ValidNumber' => parents => [ 'InvalidParameter' ],
-   error   => 'Parameter [_1] value [_2] is not a valid number';
+   error   => 'Parameter [_1] is not a valid number';
+
+has_exception 'ValidText' => parents => [ 'InvalidParameter' ],
+   error   => 'Parameter [_1] is not valid text';
 
 has_exception 'ValidTime' => parents => [ 'InvalidParameter' ],
-   error   => 'Parameter [_1] value [_2] is not a valid time';
+   error   => 'Parameter [_1] is not a valid time';
 
 has_exception 'KnownType' => parents => [ $class ],
    error   => 'Type constraint [_1] is unknown';

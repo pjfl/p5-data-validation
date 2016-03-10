@@ -10,7 +10,7 @@ extends q(Data::Validation::Constraints);
 
 EXCEPTION_CLASS->add_exception( 'ValidURL', {
    parents => [ 'InvalidParameter' ],
-   error   => 'Parameter [_1] value [_2] is not a valid URL' } );
+   error   => 'Parameter [_1] is not a valid URL' } );
 
 sub validate {
    my ($self, $val) = @_;

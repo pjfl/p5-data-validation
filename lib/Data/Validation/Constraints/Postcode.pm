@@ -9,7 +9,7 @@ extends q(Data::Validation::Constraints);
 
 EXCEPTION_CLASS->add_exception( 'ValidPostcode', {
    parents => [ 'InvalidParameter' ],
-   error   => 'Parameter [_1] value [_2] is not a valid postcode' } );
+   error   => 'Parameter [_1] is not a valid postcode' } );
 
 my @patterns = ( 'AN NAA',  'ANN NAA',  'AAN NAA', 'AANN NAA',
                  'ANA NAA', 'AANA NAA', 'AAA NAA', );

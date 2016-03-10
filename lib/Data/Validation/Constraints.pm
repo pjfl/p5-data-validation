@@ -168,6 +168,11 @@ sub isValidNumber {
    my ($self, $v) = @_; return looks_like_number( $v ) ? TRUE : FALSE;
 }
 
+sub isValidText {
+   return $_[ 0 ]->isMatchingRegex
+      ( $_[ 1 ], '\A [\t\n !%&\(\)\*\+\,\-\./0-9:;=\?@A-Z\[\]_a-z\|\~]+ \z' );
+}
+
 sub isValidTime {
    my ($self, $v) = @_; my $pat = '\A \d\d : \d\d (?: : \d\d )? \z';
 
@@ -338,6 +343,11 @@ C<< $self->min_length >> and less than C<< $self->max_length >>
 =head2 isValidNumber
 
 Return true if the supplied value C<looks_like_number>
+
+=head2 isValidText
+
+Text is defined as any string matching the pattern
+'\A [ !%&\(\)\*\+\,\-\./0-9:;=\?@A-Z\[\]_a-z\|\~]+ \z'
 
 =head2 isValidTime
 

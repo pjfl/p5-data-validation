@@ -56,6 +56,7 @@ isMatchingRegex
 isMatchingType
 isPrintable
 isSimpleText
+isValidText
 isValidHostname
 isValidIdentifier
 isValidInteger

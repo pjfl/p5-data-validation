@@ -10,7 +10,7 @@ extends q(Data::Validation::Constraints);
 
 EXCEPTION_CLASS->add_exception( 'ValidDate', {
    parents => [ 'InvalidParameter' ],
-   error   => 'Parameter [_1] value [_2] is not a valid date' } );
+   error   => 'Parameter [_1] is not a valid date' } );
 
 sub validate {
    return defined str2time( $_[ 1 ] ) ? TRUE : FALSE;

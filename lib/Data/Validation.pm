@@ -2,7 +2,7 @@ package Data::Validation;
 
 use 5.010001;
 use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.24.%d', q$Rev: 2 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.24.%d', q$Rev: 3 $ =~ /\d+/gmx );
 
 use Data::Validation::Constants qw( EXCEPTION_CLASS FALSE HASH NUL SPC );
 use Data::Validation::Constraints;
@@ -97,10 +97,10 @@ my $_validate = sub {
          push @fails, $class;
       }
 
-      @fails == 1 and throw sub { $fails[ 0 ] }, [ $label, $v ],
+      @fails == 1 and throw sub { $fails[ 0 ] }, [ $label ],
                             level => $self->level;
-      @fails  > 1 and throw 'Field [_1] value [_2] is none of [_3]',
-                            [ $label, $v, join ' | ', @fails ],
+      @fails  > 1 and throw 'Field [_1] is none of [_2]',
+                            [ $label, join ' | ', @fails ],
                             level => $self->level;
    }
 
@@ -168,7 +168,7 @@ Data::Validation - Filter and validate data values
 
 =head1 Version
 
-Describes version v0.24.$Rev: 2 $ of L<Data::Validation>
+Describes version v0.24.$Rev: 3 $ of L<Data::Validation>
 
 =head1 Synopsis
 
