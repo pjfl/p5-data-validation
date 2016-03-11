@@ -1,5 +1,6 @@
 Revision history for Data::Validation
 
+0.25.1    2016-03-11 19:41:44
           - Added isValidText
           - Value in error messages was making them too long
           - Added isValidTime
