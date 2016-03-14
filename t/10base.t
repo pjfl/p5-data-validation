@@ -97,6 +97,9 @@ $f->{fields}->{test}->{validate} = 'isValidTime';
 is test_val( $f, 'test', '0700'     ), 'ValidTime', 'Invalid Time';
 is test_val( $f, 'test', '07:00'    ), '07:00',     'Valid Time - no secs';
 is test_val( $f, 'test', '07:00:59' ), '07:00:59',  'Valid Time - with secs';
+is test_val( $f, 'test', '07:00:60' ), 'ValidTime', 'Valid Time - bad secs';
+is test_val( $f, 'test', '07:60'    ), 'ValidTime', 'Valid Time - bad mins';
+is test_val( $f, 'test', '24:00'    ), 'ValidTime', 'Valid Time - bad hours';
 
 $f->{fields}->{test}->{validate} = q(isEqualTo);
 $f->{constraints}->{test} = { value => 4 };

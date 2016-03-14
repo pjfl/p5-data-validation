@@ -174,9 +174,18 @@ sub isValidText {
 }
 
 sub isValidTime {
-   my ($self, $v) = @_; my $pat = '\A \d\d : \d\d (?: : \d\d )? \z';
+   my ($self, $v) = @_; my $pat = '\A (\d\d ): (\d\d) (?: : (\d\d) )? \z';
 
-   return $self->isMatchingRegex( $v, $pat ) ? TRUE : FALSE;
+   $self->isMatchingRegex( $v, $pat ) or return FALSE;
+
+   my ($hours, $minutes, $seconds) = $v =~ m{ $pat }msx;
+
+   ($hours   >= 0 and $hours   <= 23) or return FALSE;
+   ($minutes >= 0 and $minutes <= 59) or return FALSE;
+
+   defined $seconds or return TRUE;
+
+   return ($seconds >= 0 && $seconds <= 59) ? TRUE : FALSE;
 }
 
 1;
