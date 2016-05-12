@@ -369,7 +369,7 @@ method
 
 =head2 Date
 
-If the C<str2time> method in the L<CatalystX::Usul::Class::Time>
+If the C<str2time> method in the L<Class::Usul::Time>
 module can parse the supplied value then it is deemed to be a valid
 date
 

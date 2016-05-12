@@ -123,6 +123,15 @@ $f->{constraints}->{test} = { allowed => [ 'a', 'b', 'c' ] };
 is test_val( $f, q(test), q(x) ), q(Allowed), 'Is not allowed';
 is test_val( $f, q(test), q(b) ), q(b),  'Is allowed';
 
+SKIP: {
+   $ENV{AUTHOR_TESTING} or skip 'valid date developers only', 1;
+
+   $f->{fields}->{test}->{validate} = 'isValidDate';
+   is test_val( $f, 'test', '9/13/2001' ), 'ValidDate', 'Invalid date';
+   is test_val( $f, 'test', '9/11/2001' ), '9/11/2001', 'Valid date';
+   is test_val( $f, 'test', '13/9/2001' ), '13/9/2001', 'Valid date - GB';
+}
+
 $f->{fields}->{test}->{validate} = q(isValidEmail);
 is test_val( $f, q(test), q(fred) ),  q(ValidEmail), 'Invalid email';
 is test_val( $f, q(test), q(a@b.c) ), q(a@b.c),      'Valid email';
