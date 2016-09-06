@@ -19,3 +19,4 @@ t/06yaml.t
 t/07podspelling.t
 t/10base.t
 t/boilerplate.pm
+t/exceptions.dd

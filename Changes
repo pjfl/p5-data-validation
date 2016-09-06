@@ -1,5 +1,6 @@
 Revision history for Data::Validation
 
+0.26.1    2016-09-06 01:18:12
           - Loads Class::Usul::Time at runtime
             Changes to CPANTs now ignore prereqs / recommends
           - Better value range checking in valid time
