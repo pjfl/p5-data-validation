@@ -144,6 +144,8 @@ is test_val( $f, q(test), q(qw3erty) ), q(qw3erty), 'Valid password';
 $f->{constraints}->{test}->{min_length} = 8;
 is test_val( $f, q(test), q(qw3erty) ), q(ValidPassword),
    'Invalid password 3';
+is test_val( $f, q(test), q(123456789) ), q(ValidPassword),
+   'Invalid password 4';
 
 $f->{fields}->{test}->{validate} = q(isValidPath);
 is test_val( $f, q(test), q(this is not ok;) ), q(ValidPath),

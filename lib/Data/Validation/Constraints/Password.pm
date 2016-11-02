@@ -15,6 +15,7 @@ sub validate {
    my ($self, $val) = @_; my $min_length = $self->min_length || 6;
 
    length $val < $min_length and return FALSE;
+   $val =~ m{ \A \d+ \z }mx and return FALSE;
    $val =~ tr{A-Z}{a-z}; $val =~ tr{a-z}{}d;
    return length $val > 0 ? TRUE : FALSE;
 }

@@ -1,5 +1,7 @@
 Revision history for Data::Validation
 
+          - Solely numeric passwords not allowed
+
 0.26.1    2016-09-06 01:18:12
           - Loads Class::Usul::Time at runtime
             Changes to CPANTs now ignore prereqs / recommends
