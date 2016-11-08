@@ -2,7 +2,7 @@ package Data::Validation;
 
 use 5.010001;
 use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.27.%d', q$Rev: 1 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.27.%d', q$Rev: 2 $ =~ /\d+/gmx );
 
 use Data::Validation::Constants qw( EXCEPTION_CLASS FALSE HASH NUL SPC );
 use Data::Validation::Constraints;
@@ -126,7 +126,7 @@ sub check_form { # Validate all fields on a form by repeated calling check_field
       catch { push @errors, $_ };
    }
 
-   @errors and throw ValidationErrors, \@errors, level => 2;
+   @errors and throw ValidationErrors, \@errors, level => $self->level;
 
    return $form;
 }
@@ -168,7 +168,7 @@ Data::Validation - Filter and validate data values
 
 =head1 Version
 
-Describes version v0.27.$Rev: 1 $ of L<Data::Validation>
+Describes version v0.27.$Rev: 2 $ of L<Data::Validation>
 
 =head1 Synopsis
 
