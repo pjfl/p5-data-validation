@@ -8,11 +8,16 @@ use Unexpected;
 use_ok 'Data::Validation';
 use_ok 'Data::Validation::Constants';
 
-sub test_val {
+sub new_e {
    my $config    = shift;
    my $validator = Data::Validation->new( %{ $config } );
    my $value     = eval { $validator->check_field( @_ ) };
-   my $e         = Data::Validation::Exception->caught();
+
+   return $value, Data::Validation::Exception->caught();
+}
+
+sub test_val {
+   my ($value, $e) = new_e( @_ );
 
    $e and $e->instance_of( 'Data::Validation::Exception' )
       and $e->class ne 'Data::Validation::Exception' and return $e->class;
@@ -33,9 +38,16 @@ $f->{fields}->{test}->{validate} = q(isHexadecimal);
 is test_val( $f, q(test), q(alive) ), q(Hexadecimal), 'Not hexadecimal';
 is test_val( $f, q(test), q(dead) ),  q(dead),         'Is hexadecimal';
 
+my ($value, $e) = new_e( $f, q(test), q(alive) );
+
+like $e->explain, qr{ \Qcan only contain\E }imx, 'Explains error';
+
 $f->{fields}->{test}->{validate} = q(isMandatory);
 is test_val( $f, q(test), undef ), q(Mandatory), 'Missing field';
 is test_val( $f, q(test), 1 ),     q(1),       'Mandatory field';
+
+($value, $e) = new_e( $f, q(test), undef );
+is $e->explain, q(), 'Default explain';
 
 $f->{fields}->{test}->{validate} = q(isPrintable);
 is test_val( $f, q(test), q() ),   q(Printable), 'Not printable';
@@ -112,6 +124,9 @@ $f->{fields}->{test}->{validate} = q(isValidLength);
 $f->{constraints}->{test} = { min_length => 2, max_length => 4 };
 is test_val( $f, q(test), q(qwerty) ), q(ValidLength), 'Invalid length';
 is test_val( $f, q(test), q(qwe) ),    q(qwe),         'Valid length';
+
+($value, $e) = new_e( $f, q(test), q(qwerty) );
+like $e->explain, qr{ \Qmust be greater\E }imx, 'Explains error with subs';
 
 $f->{fields}->{test}->{validate} = q(isMatchingRegex);
 $f->{constraints}->{test} = { pattern => q(...-...) };
@@ -206,7 +221,7 @@ my $vals = { field_name  => q(SW1A 4WW),
 
 eval { $validator->check_form( q(subr_), $vals ) };
 
-my $e = Unexpected->caught() || Class::Null->new();
+$e = Unexpected->caught() || Class::Null->new();
 
 ok !$e->error, 'Valid form';
 

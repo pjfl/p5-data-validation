@@ -2,7 +2,7 @@ package Data::Validation;
 
 use 5.010001;
 use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.27.%d', q$Rev: 2 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.27.%d', q$Rev: 3 $ =~ /\d+/gmx );
 
 use Data::Validation::Constants qw( EXCEPTION_CLASS FALSE HASH NUL SPC );
 use Data::Validation::Constraints;
@@ -82,6 +82,7 @@ my $_validate = sub {
    $valids !~ m{ isMandatory }mx and (not defined $v or not length $v)
       and return;
 
+   my $params = $self->constraints->{ $id } // {};
    my $label = $self->fields->{ $id }->{label} // $id;
 
    for my $methods (grep { $_ ne 'compare' } $_get_methods->( $valids )) {
@@ -89,7 +90,7 @@ my $_validate = sub {
 
       for my $method (split m{ [|] }mx, $methods) {
          my $constraint = Data::Validation::Constraints->new_from_method
-            ( { %{ $self->constraints->{ $id } // {} }, method => $method, } );
+            ( { %{ $params }, method => $method, } );
         (my $class = $method) =~ s{ \A is }{}mx;
 
          if ($constraint->validate( $v )) { @fails = (); last }
@@ -98,7 +99,7 @@ my $_validate = sub {
       }
 
       @fails == 1 and throw sub { $fails[ 0 ] }, [ $label ],
-                            level => $self->level;
+                            constraints => $params, level => $self->level;
       @fails  > 1 and throw 'Field [_1] is none of [_2]',
                             [ $label, join ' | ', @fails ],
                             level => $self->level;
@@ -168,7 +169,7 @@ Data::Validation - Filter and validate data values
 
 =head1 Version
 
-Describes version v0.27.$Rev: 2 $ of L<Data::Validation>
+Describes version v0.27.$Rev: 3 $ of L<Data::Validation>
 
 =head1 Synopsis
 

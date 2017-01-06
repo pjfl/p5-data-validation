@@ -9,7 +9,9 @@ extends q(Data::Validation::Constraints);
 
 EXCEPTION_CLASS->add_exception( 'ValidPassword', {
    parents => [ 'InvalidParameter' ],
-   error   => 'Parameter [_1] is not a valid password' } );
+   error   => 'Parameter [_1] is not a valid password',
+   explain => 'Must be longer than {min_length} characters long, contain '
+            . 'non alpha characters and must not be wholely numeric' } );
 
 sub validate {
    my ($self, $val) = @_; my $min_length = $self->min_length || 6;
