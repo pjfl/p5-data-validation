@@ -54,6 +54,7 @@ isHexadecimal
 isMandatory
 isMatchingRegex
 isMatchingType
+isNotExcluded
 isPrintable
 isSimpleText
 isValidText

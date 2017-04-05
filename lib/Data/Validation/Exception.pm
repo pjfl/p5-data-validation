@@ -43,6 +43,9 @@ has_exception 'MatchingRegex' => parents => [ 'InvalidParameter' ],
 has_exception 'MatchingType' => parents => [ 'InvalidParameter' ],
    error   => 'Parameter [_1] does not of the required type [_3]';
 
+has_exception 'NotExcluded' => parents => [ 'InvalidParameter' ],
+   error   => 'Parameter [_1] is in the list of excluded values';
+
 has_exception 'Printable' => parents => [ 'InvalidParameter' ],
    error   => 'Parameter [_1] value is not a printable character';
 
@@ -146,6 +149,8 @@ Defines the following exceptions;
 =item C<MatchingRegex>
 
 =item C<MatchingType>
+
+=item C<NotExcluded>
 
 =item C<Printable>
 

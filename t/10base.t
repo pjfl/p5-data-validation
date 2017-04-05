@@ -138,6 +138,11 @@ $f->{constraints}->{test} = { allowed => [ 'a', 'b', 'c' ] };
 is test_val( $f, q(test), q(x) ), q(Allowed), 'Is not allowed';
 is test_val( $f, q(test), q(b) ), q(b),  'Is allowed';
 
+$f->{fields}->{test}->{validate} = q(isNotExcluded);
+$f->{constraints}->{test} = { excluded => [ 'a', 'b', 'c' ] };
+is test_val( $f, q(test), q(x) ), q(x), 'Is not excluded';
+is test_val( $f, q(test), q(b) ), q(NotExcluded),  'Is excluded';
+
 SKIP: {
    $ENV{AUTHOR_TESTING} or skip 'valid date developers only', 1;
 

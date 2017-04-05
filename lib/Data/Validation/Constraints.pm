@@ -15,6 +15,8 @@ use Moo;
 # Public attributes
 has 'allowed'        => is => 'ro',   iss => ArrayRef, builder => sub { [] };
 
+has 'excluded'       => is => 'ro',   iss => ArrayRef, builder => sub { [] };
+
 has 'max_length'     => is => 'ro',   isa => Int;
 
 has 'max_value'      => is => 'ro',   isa => Int;
@@ -130,6 +132,12 @@ sub isMatchingType {
    return $type->check( $v ) ? TRUE : FALSE;
 }
 
+sub isNotExcluded {
+   my ($self, $v) = @_;
+
+   return (any { $_ eq $v } @{ $self->excluded }) ? FALSE : TRUE;
+}
+
 sub isPrintable {
    return $_[ 0 ]->isMatchingRegex( $_[ 1 ], '\A \p{IsPrint}+ \z' );
 }
@@ -224,6 +232,10 @@ Defines the following attributes:
 
 An array reference of permitted values used by L</isAllowed>
 
+=item C<excluded>
+
+An array reference of excluded values used by L</isNotExcluded>
+
 =item C<max_length>
 
 Used by L</isValidLength>. The I<length> of the supplied value must be
@@ -292,7 +304,7 @@ subclass. An exception is thrown if the data value is not acceptable
 
 =head2 isAllowed
 
-Is the the value in the C<< $self->allowed >> list of values
+Is the value in the C<< $self->allowed >> list of values
 
 =head2 isBetweenValues
 
@@ -323,6 +335,10 @@ C<< $self->pattern >>
 
 Does the supplied value pass the type constraint check? The constraint
 defaults to C<< $self->type >>
+
+=head2 isNotExcluded
+
+Is the value *not* in the C<< $self->excluded >> list of values
 
 =head2 isPrintable
 
