@@ -11,7 +11,7 @@ Data::Validation - Filter and validate data values
 
 # Version
 
-Describes version v0.28.$Rev: 1 $ of [Data::Validation](https://metacpan.org/pod/Data::Validation)
+Describes version v0.28.$Rev: 5 $ of [Data::Validation](https://metacpan.org/pod/Data::Validation)
 
 # Synopsis
 
@@ -150,7 +150,7 @@ Peter Flanigan, `<pjfl@cpan.org>`
 
 # License and Copyright
 
-Copyright (c) 2016 Peter Flanigan. All rights reserved
+Copyright (c) 2017 Peter Flanigan. All rights reserved
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See [perlartistic](https://metacpan.org/pod/perlartistic)

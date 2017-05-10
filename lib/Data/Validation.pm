@@ -2,7 +2,7 @@ package Data::Validation;
 
 use 5.010001;
 use namespace::autoclean;
-use version; our $VERSION = qv( sprintf '0.28.%d', q$Rev: 4 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.28.%d', q$Rev: 5 $ =~ /\d+/gmx );
 
 use Data::Validation::Constants qw( EXCEPTION_CLASS FALSE HASH NUL SPC );
 use Data::Validation::Constraints;
@@ -91,11 +91,10 @@ my $_validate = sub {
       for my $method (split m{ [|] }mx, $methods) {
          my $constraint = Data::Validation::Constraints->new_from_method
             ( { %{ $params }, method => $method, } );
-        (my $class = $method) =~ s{ \A is }{}mx;
 
          if ($constraint->validate( $v )) { @fails = (); last }
 
-         push @fails, $class;
+         push @fails, $constraint->exception_class;
       }
 
       @fails == 1 and throw sub { $fails[ 0 ] }, [ $label ],
@@ -169,7 +168,7 @@ Data::Validation - Filter and validate data values
 
 =head1 Version
 
-Describes version v0.28.$Rev: 4 $ of L<Data::Validation>
+Describes version v0.28.$Rev: 5 $ of L<Data::Validation>
 
 =head1 Synopsis
 

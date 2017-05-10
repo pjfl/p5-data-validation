@@ -56,9 +56,20 @@ sub new_from_method {
    return (load_class $class, 'isValid', $attr->{method})->new( $attr );
 }
 
+sub exception_class {
+   my $self = shift;
+
+   (my $class = $self->method) =~ s{ \A is }{}mx;
+
+   $class =~ m{ \A Not }mx and $class =~ s{ \A Not }{}mx;
+
+   return $class;
+}
+
 sub validate {
    my ($self, $v) = @_; my $method = $self->method; return $self->$method( $v );
 }
+
 
 around 'validate' => sub {
    my ($orig, $self, $v) = @_;
@@ -133,7 +144,7 @@ sub isMatchingType {
 }
 
 sub isNotExcluded {
-   my ($self, $v) = @_;
+   my ($self, $v) = @_; # Counter intuitive but correct. See tests
 
    return (any { $_ eq $v } @{ $self->excluded }) ? FALSE : TRUE;
 }

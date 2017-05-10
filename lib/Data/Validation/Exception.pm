@@ -26,6 +26,9 @@ has_exception 'EqualTo' => parents => [ 'InvalidParameter' ],
    error   => 'Parameter [_1] is not equal to the required value',
    explain => 'Must equal {value}';
 
+has_exception 'Excluded' => parents => [ 'InvalidParameter' ],
+   error   => 'Parameter [_1] is in the list of excluded values';
+
 has_exception 'FieldComparison' => parents => [ 'InvalidParameter' ],
    error   => 'Field [_1] does not [_2] field [_3]';
 
@@ -42,9 +45,6 @@ has_exception 'MatchingRegex' => parents => [ 'InvalidParameter' ],
 
 has_exception 'MatchingType' => parents => [ 'InvalidParameter' ],
    error   => 'Parameter [_1] does not of the required type [_3]';
-
-has_exception 'NotExcluded' => parents => [ 'InvalidParameter' ],
-   error   => 'Parameter [_1] is in the list of excluded values';
 
 has_exception 'Printable' => parents => [ 'InvalidParameter' ],
    error   => 'Parameter [_1] value is not a printable character';

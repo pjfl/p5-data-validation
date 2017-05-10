@@ -1,5 +1,6 @@
 Revision history for Data::Validation
 
+          - Makes isNotExcluded throw and Excluded exception
           - Adds isNotExclued
 
 0.28.1    2017-01-08 16:12:48
