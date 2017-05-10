@@ -175,6 +175,8 @@ is test_val( $f, q(test), q(/this/is/ok) ), q(/this/is/ok), 'Valid path';
 $f->{fields}->{test}->{validate} = q(isValidPostcode);
 is test_val( $f, q(test), q(CA123445) ), q(ValidPostcode), 'Invalid postcode';
 is test_val( $f, q(test), q(SW1A 4WW) ), q(SW1A 4WW),      'Valid postcode';
+is test_val( $f, q(test), q(GIR 0AA)  ), q(GIR 0AA),       'Valid special case';
+is test_val( $f, q(test), q(SAN TA1)  ), q(ValidPostcode), 'Bar humbug';
 
 SKIP: {
    $ENV{AUTHOR_TESTING} or skip 'valid URL developers only', 1;
