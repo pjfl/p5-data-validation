@@ -14,17 +14,19 @@ our @EXPORT_OK = qw( ensure_class_loaded load_class throw );
 sub ensure_class_loaded ($) {
    my $class = shift;
 
-   try { require_module( $class ) } catch { throw( $_ ) };
+   try { require_module($class) } catch { throw($_) };
 
    # uncoverable branch true
-   is_class_loaded( $class )
-      or throw( 'Class [_1] loaded but package undefined', [ $class ] );
+	throw('Class [_1] loaded but package undefined', [$class])
+      unless is_class_loaded($class);
 
    return TRUE;
 }
 
 sub load_class ($$$) {
-   my ($proto, $prefix, $class) = @_; $class =~ s{ \A $prefix }{}mx;
+   my ($proto, $prefix, $class) = @_;
+
+   $class =~ s{ \A $prefix }{}mx;
 
    if ('+' eq substr $class, 0, 1) { $class = substr $class, 1 }
    else { $class = "${proto}::".(ucfirst $class) }
@@ -35,7 +37,7 @@ sub load_class ($$$) {
 }
 
 sub throw (;@) {
-   EXCEPTION_CLASS->throw( @_ );
+   EXCEPTION_CLASS->throw(@_);
 }
 
 1;

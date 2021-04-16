@@ -1,5 +1,6 @@
 Revision history for Data::Validation
 
+          - Refactored coding style
           - Makes isNotExcluded throw and Excluded exception
           - Adds isNotExclued
 

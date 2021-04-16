@@ -7,19 +7,23 @@ use Moo;
 
 extends q(Data::Validation::Constraints);
 
-EXCEPTION_CLASS->add_exception( 'ValidPostcode', {
-   parents => [ 'InvalidParameter' ],
-   error   => 'Parameter [_1] is not a valid postcode' } );
+EXCEPTION_CLASS->add_exception('ValidPostcode', {
+   error   => 'Parameter [_1] is not a valid postcode',
+   parents => ['InvalidParameter'],
+});
 
-my @patterns = ( 'AN NAA',  'ANN NAA',  'AAN NAA', 'AANN NAA',
-                 'ANA NAA', 'AANA NAA', 'AAA NAA', );
+my @patterns = (
+   'AN NAA', 'ANN NAA', 'AAN NAA', 'AANN NAA', 'ANA NAA', 'AANA NAA', 'AAA NAA',
+);
 
 for (@patterns) { s{ A }{[A-Z]}gmx; s{ N }{\\d}gmx; s{ [ ] }{\\s+}gmx; }
 
 my $pattern = join '|', @patterns;
 
 sub validate {
-   my ($self, $v) = @_; return $v =~ m{ \A (?:$pattern) \z }mox ? TRUE : FALSE;
+   my ($self, $v) = @_;
+
+   return $v =~ m{ \A (?:$pattern) \z }mox ? TRUE : FALSE;
 }
 
 1;

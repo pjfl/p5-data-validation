@@ -8,8 +8,6 @@ use Data::Validation::Exception;
 
 our @EXPORT = qw( EXCEPTION_CLASS FALSE HASH NUL SPC TRUE );
 
-my $Exception_Class = 'Data::Validation::Exception';
-
 sub EXCEPTION_CLASS () { __PACKAGE__->Exception_Class }
 sub FALSE           () { 0      }
 sub HASH            () { 'HASH' }
@@ -17,13 +15,17 @@ sub NUL             () { q()    }
 sub SPC             () { q( )   }
 sub TRUE            () { 1      }
 
+my $exception_class = 'Data::Validation::Exception';
+
 sub Exception_Class {
-   my ($self, $class) = @_; defined $class or return $Exception_Class;
+   my ($self, $class) = @_;
 
-   $class->can( 'throw' )
-      or die "Class '${class}' is not loaded or has no 'throw' method";
+   return $exception_class unless defined $class;
 
-   return $Exception_Class = $class;
+   die "Class '${class}' is not loaded or has no 'throw' method"
+      unless $class->can('throw');
+
+   return $exception_class = $class;
 }
 
 1;

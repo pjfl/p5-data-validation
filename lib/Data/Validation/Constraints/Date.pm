@@ -8,14 +8,17 @@ use Moo;
 
 extends q(Data::Validation::Constraints);
 
-EXCEPTION_CLASS->add_exception( 'ValidDate', {
-   parents => [ 'InvalidParameter' ],
-   error   => 'Parameter [_1] is not a valid date' } );
+EXCEPTION_CLASS->add_exception('ValidDate', {
+   error   => 'Parameter [_1] is not a valid date',
+   parents => ['InvalidParameter'],
+});
 
 sub validate {
+   my ($self, $x) = @_;
+
    ensure_class_loaded 'Class::Usul::Time';
 
-   return defined Class::Usul::Time::str2time( $_[ 1 ] ) ? TRUE : FALSE;
+   return defined Class::Usul::Time::str2time($x) ? TRUE : FALSE;
 }
 
 1;

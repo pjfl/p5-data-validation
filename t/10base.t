@@ -36,7 +36,7 @@ is test_val( $f, 'test', 1), "Field 'test' validation configuration not found",
 
 $f->{fields}->{test}->{validate} = q(isHexadecimal);
 is test_val( $f, q(test), q(alive) ), q(Hexadecimal), 'Not hexadecimal';
-is test_val( $f, q(test), q(dead) ),  q(dead),         'Is hexadecimal';
+is test_val( $f, q(test), q(dead) ),  q(dead),        'Is hexadecimal';
 
 my ($value, $e) = new_e( $f, q(test), q(alive) );
 
@@ -44,18 +44,18 @@ like $e->explain, qr{ \Qcan only contain\E }imx, 'Explains error';
 
 $f->{fields}->{test}->{validate} = q(isMandatory);
 is test_val( $f, q(test), undef ), q(Mandatory), 'Missing field';
-is test_val( $f, q(test), 1 ),     q(1),       'Mandatory field';
+is test_val( $f, q(test), 1 ),     q(1),         'Mandatory field';
 
 ($value, $e) = new_e( $f, q(test), undef );
 is $e->explain, q(), 'Default explain';
 
 $f->{fields}->{test}->{validate} = q(isPrintable);
 is test_val( $f, q(test), q() ),   q(Printable), 'Not printable';
-is test_val( $f, q(test), q(q; *) ), q(q; *),          'Printable';
+is test_val( $f, q(test), q(q; *) ), q(q; *),      'Printable';
 
 $f->{fields}->{test}->{validate} = q(isSimpleText);
-is test_val( $f, q(test), q(*3$%^) ),        q(SimpleText), 'Not simple text';
-is test_val( $f, q(test), q(this is text) ), q(this is text),   'Simple text';
+is test_val( $f, q(test), q(*3$%^) ),        q(SimpleText),   'Not simple text';
+is test_val( $f, q(test), q(this is text) ), q(this is text), 'Simple text';
 
 SKIP: {
    $f->{fields}->{test}->{validate} = q(isValidHostname);
@@ -102,8 +102,8 @@ is test_val( $f, q(test), 5 ), q(BetweenValues), 'Out of range';
 is test_val( $f, q(test), 3 ), 3,                'In range';
 
 $f->{fields}->{test}->{validate} = q(isValidText);
-is test_val( $f, q(test), q(*3$%^) ),        q(ValidText), 'Not valid text';
-is test_val( $f, q(test), q(this/is/text) ), q(this/is/text),   'Valid text';
+is test_val( $f, q(test), q(*3$%^) ),        q(ValidText),    'Not valid text';
+is test_val( $f, q(test), q(this/is/text) ), q(this/is/text), 'Valid text';
 
 $f->{fields}->{test}->{validate} = 'isValidTime';
 is test_val( $f, 'test', '0700'     ), 'ValidTime', 'Invalid Time';
@@ -136,12 +136,12 @@ is test_val( $f, q(test), q(123-456) ), q(123-456),       'Matching Regex';
 $f->{fields}->{test}->{validate} = q(isAllowed);
 $f->{constraints}->{test} = { allowed => [ 'a', 'b', 'c' ] };
 is test_val( $f, q(test), q(x) ), q(Allowed), 'Is not allowed';
-is test_val( $f, q(test), q(b) ), q(b),  'Is allowed';
+is test_val( $f, q(test), q(b) ), q(b),       'Is allowed';
 
 $f->{fields}->{test}->{validate} = q(isNotExcluded);
 $f->{constraints}->{test} = { excluded => [ 'a', 'b', 'c' ] };
-is test_val( $f, q(test), q(x) ), q(x), 'Is not excluded';
-is test_val( $f, q(test), q(b) ), q(Excluded),  'Is excluded';
+is test_val( $f, q(test), q(x) ), q(x),        'Is not excluded';
+is test_val( $f, q(test), q(b) ), q(Excluded), 'Is excluded';
 
 SKIP: {
    $ENV{AUTHOR_TESTING} or skip 'valid date developers only', 1;

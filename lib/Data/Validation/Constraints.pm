@@ -13,47 +13,55 @@ use Unexpected::Types           qw( Any ArrayRef Bool Int Object Str Undef );
 use Moo;
 
 # Public attributes
-has 'allowed'        => is => 'ro',   iss => ArrayRef, builder => sub { [] };
+has 'allowed'    => is => 'ro', isa => ArrayRef, builder => sub { [] };
 
-has 'excluded'       => is => 'ro',   iss => ArrayRef, builder => sub { [] };
+has 'excluded'   => is => 'ro', isa => ArrayRef, builder => sub { [] };
 
-has 'max_length'     => is => 'ro',   isa => Int;
+has 'max_length' => is => 'ro', isa => Int;
 
-has 'max_value'      => is => 'ro',   isa => Int;
+has 'max_value'  => is => 'ro', isa => Int;
 
-has 'method'         => is => 'ro',   isa => Str, required => TRUE;
+has 'method'     => is => 'ro', isa => Str, required => TRUE;
 
-has 'min_length'     => is => 'ro',   isa => Int;
+has 'min_length' => is => 'ro', isa => Int;
 
-has 'min_value'      => is => 'ro',   isa => Int;
+has 'min_value'  => is => 'ro', isa => Int;
 
-has 'pattern'        => is => 'ro',   isa => Str;
+has 'pattern'    => is => 'ro', isa => Str;
 
-has 'required'       => is => 'ro',   isa => Bool, default => FALSE;
+has 'required'   => is => 'ro', isa => Bool, default => FALSE;
 
-has 'type'           => is => 'ro',   isa => Str | Undef;
+has 'type'       => is => 'ro', isa => Str | Undef;
 
-has 'type_libraries' => is => 'ro',   isa => ArrayRef[Str],
-   builder           => sub { [ 'Unexpected::Types' ] };
+has 'type_libraries' =>
+   is      => 'ro',
+   isa     => ArrayRef[Str],
+   builder => sub { ['Unexpected::Types'] };
 
-has 'type_registry'  => is => 'lazy', isa => Object, builder => sub {
-   my $self = shift; ensure_class_loaded 'Type::Registry';
-   my $reg  = Type::Registry->for_me;
+has 'type_registry' =>
+   is      => 'lazy',
+   isa     => Object,
+   builder => sub {
+      my $self = shift;
 
-   $reg->add_types( $_ ) for (@{ $self->type_libraries });
+      ensure_class_loaded 'Type::Registry';
 
-   return $reg;
-};
+      my $reg = Type::Registry->for_me;
 
-has 'value'          => is => 'ro',   isa => Any;
+      $reg->add_types($_) for (@{$self->type_libraries});
+
+      return $reg;
+   };
+
+has 'value' => is => 'ro', isa => Any;
 
 # Public methods
 sub new_from_method {
    my ($class, $attr) = @_;
 
-   $class->can( $attr->{method} ) and return $class->new( $attr );
+   return $class->new($attr) if $class->can($attr->{method});
 
-   return (load_class $class, 'isValid', $attr->{method})->new( $attr );
+   return load_class($class, 'isValid', $attr->{method})->new($attr);
 }
 
 sub exception_class {
@@ -61,47 +69,53 @@ sub exception_class {
 
    (my $class = $self->method) =~ s{ \A is }{}mx;
 
-   $class =~ m{ \A Not }mx and $class =~ s{ \A Not }{}mx;
+   $class =~ s{ \A Not }{}mx if $class =~ m{ \A Not }mx;
 
    return $class;
 }
 
 sub validate {
-   my ($self, $v) = @_; my $method = $self->method; return $self->$method( $v );
+   my ($self, $v) = @_;
+
+   my $method = $self->method;
+
+   return $self->$method($v);
 }
 
 
 around 'validate' => sub {
    my ($orig, $self, $v) = @_;
 
-   not defined $v and $self->required and return FALSE;
+   return FALSE if not defined $v and $self->required;
 
-   not defined $v and not $self->required and $self->method ne 'isMandatory'
-      and return TRUE;
+   return TRUE  if not defined $v and not $self->required
+      and $self->method ne 'isMandatory';
 
-   return $orig->( $self, $v );
+   return $orig->($self, $v);
 };
 
 # Builtin factory validation methods
 sub isAllowed {
    my ($self, $v) = @_;
 
-   return (any { $_ eq $v } @{ $self->allowed }) ? TRUE : FALSE;
+   return (any { $_ eq $v } @{$self->allowed}) ? TRUE : FALSE;
 }
 
 sub isBetweenValues {
    my ($self, $v) = @_;
 
-   defined $self->min_value and $v < $self->min_value and return FALSE;
-   defined $self->max_value and $v > $self->max_value and return FALSE;
+   return FALSE if defined $self->min_value and $v < $self->min_value;
+
+   return FALSE if defined $self->max_value and $v > $self->max_value;
+
    return TRUE;
 }
 
 sub isEqualTo {
    my ($self, $v) = @_;
 
-   $self->isValidNumber( $v ) and $self->isValidNumber( $self->value )
-      and return $v == $self->value ? TRUE : FALSE;
+   return $v == $self->value ? TRUE : FALSE
+      if $self->isValidNumber($v) and $self->isValidNumber($self->value);
 
    return $v eq $self->value ? TRUE : FALSE;
 }
@@ -113,56 +127,61 @@ sub isHexadecimal {
            . '(?:[0123456789ABCDEF]*)(?:(?:[.])(?:[0123456789ABCDEF]{0,}))?)'
            . '(?:(?:[G])(?:(?:[-+]?)(?:[0123456789ABCDEF]+))|)) \z';
 
-   return $self->isMatchingRegex( $v, $pat );
+   return $self->isMatchingRegex($v, $pat);
 }
 
 sub isMandatory {
-   return defined $_[ 1 ] && length $_[ 1 ] ? TRUE : FALSE;
+   return defined $_[1] && length $_[1] ? TRUE : FALSE;
 }
 
 sub isMatchingRegex {
    my ($self, $v, $pat) = @_;
 
-   $pat //= $self->pattern; defined $pat or return FALSE;
+   $pat //= $self->pattern;
+
+   return FALSE unless defined $pat;
 
    return $v =~ m{ $pat }msx ? TRUE : FALSE;
 }
 
 sub isMatchingType {
-   my ($self, $v, $type_name) = @_; my $type;
+   my ($self, $v, $type_name) = @_;
 
-   $type_name //= $self->type; defined $type_name or return FALSE;
+   my $type;
 
-   try   { $type = $self->type_registry->lookup( $type_name ) }
+   $type_name //= $self->type;
+
+   return FALSE unless defined $type_name;
+
+   try   { $type = $self->type_registry->lookup($type_name) }
    catch {
-      $_ =~ m{ \Qnot a known type constraint\E }mx
-         and throw KnownType, [ $type_name ];
+      throw KnownType, [$type_name] if m{ \Qnot a known type constraint\E }mx;
       throw "${_}"; # uncoverable statement
    };
 
-   return $type->check( $v ) ? TRUE : FALSE;
+   return $type->check($v) ? TRUE : FALSE;
 }
 
 sub isNotExcluded {
    my ($self, $v) = @_; # Counter intuitive but correct. See tests
 
-   return (any { $_ eq $v } @{ $self->excluded }) ? FALSE : TRUE;
+   return (any { $_ eq $v } @{$self->excluded}) ? FALSE : TRUE;
 }
 
 sub isPrintable {
-   return $_[ 0 ]->isMatchingRegex( $_[ 1 ], '\A \p{IsPrint}+ \z' );
+   return $_[0]->isMatchingRegex( $_[1], '\A \p{IsPrint}+ \z' );
 }
 
 sub isSimpleText {
-   return $_[ 0 ]->isMatchingRegex( $_[ 1 ], '\A [a-zA-Z0-9_ \-\.]+ \z' );
+   return $_[0]->isMatchingRegex( $_[1], '\A [a-zA-Z0-9_ \-\.]+ \z' );
 }
 
 sub isValidHostname {
-   return (gethostbyname $_[ 1 ])[ 0 ] ? TRUE : FALSE;
+   return (gethostbyname $_[1])[0] ? TRUE : FALSE;
 }
 
 sub isValidIdentifier {
-   return $_[ 0 ]->isMatchingRegex( $_[ 1 ], '\A [a-zA-Z_] \w* \z' );
+   return $_[ 0 ]->isMatchingRegex( $_[1], '\A [a-zA-Z_] \w* \z' );
 }
 
 sub isValidInteger {
@@ -170,39 +189,44 @@ sub isValidInteger {
 
    my $pat = '\A (?:(?:[-+]?)(?:[0123456789]{1,3}(?:[_]?[0123456789]{3})*)) \z';
 
-   $self->isMatchingRegex( $v, $pat ) or return FALSE;
-   int $v == $v or return FALSE;
+   return FALSE unless $self->isMatchingRegex($v, $pat);
+   return FALSE unless int $v == $v;
    return TRUE;
 }
 
 sub isValidLength {
    my ($self, $v) = @_;
 
-   defined $self->min_length and length $v < $self->min_length and return FALSE;
-   defined $self->max_length and length $v > $self->max_length and return FALSE;
+   return FALSE if defined $self->min_length and length $v < $self->min_length;
+   return FALSE if defined $self->max_length and length $v > $self->max_length;
    return TRUE;
 }
 
 sub isValidNumber {
-   my ($self, $v) = @_; return looks_like_number( $v ) ? TRUE : FALSE;
+   my ($self, $v) = @_;
+
+   return looks_like_number($v) ? TRUE : FALSE;
 }
 
 sub isValidText {
-   return $_[ 0 ]->isMatchingRegex( $_[ 1 ],
-          '\A [\t\n !\"#%&\'\(\)\*\+\,\-\./0-9:;=\?@A-Z\[\]_a-z\|\~]+ \z' );
+   return $_[0]->isMatchingRegex(
+      $_[1], '\A [\t\n !\"#%&\'\(\)\*\+\,\-\./0-9:;=\?@A-Z\[\]_a-z\|\~]+ \z'
+   );
 }
 
 sub isValidTime {
-   my ($self, $v) = @_; my $pat = '\A (\d\d ): (\d\d) (?: : (\d\d) )? \z';
+   my ($self, $v) = @_;
 
-   $self->isMatchingRegex( $v, $pat ) or return FALSE;
+   my $pat = '\A (\d\d ): (\d\d) (?: : (\d\d) )? \z';
+
+   return FALSE unless $self->isMatchingRegex($v, $pat);
 
    my ($hours, $minutes, $seconds) = $v =~ m{ $pat }msx;
 
-   ($hours   >= 0 and $hours   <= 23) or return FALSE;
-   ($minutes >= 0 and $minutes <= 59) or return FALSE;
+   return FALSE unless ($hours   >= 0 and $hours   <= 23);
+   return FALSE unless ($minutes >= 0 and $minutes <= 59);
 
-   defined $seconds or return TRUE;
+   return TRUE unless defined $seconds;
 
    return ($seconds >= 0 && $seconds <= 59) ? TRUE : FALSE;
 }

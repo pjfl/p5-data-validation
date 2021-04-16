@@ -8,12 +8,15 @@ use Moo;
 
 extends q(Data::Validation::Constraints);
 
-EXCEPTION_CLASS->add_exception( 'ValidEmail', {
-   parents => [ 'InvalidParameter' ],
-   error   => 'Parameter [_1] is not a valid email address' } );
+EXCEPTION_CLASS->add_exception('ValidEmail', {
+   error   => 'Parameter [_1] is not a valid email address',
+   parents => ['InvalidParameter'],
+});
 
 sub validate {
-   return Email::Valid->address( $_[ 1 ] ) ? TRUE : FALSE;
+   my ($self, $x) = @_;
+
+   return Email::Valid->address($x) ? TRUE : FALSE;
 }
 
 1;

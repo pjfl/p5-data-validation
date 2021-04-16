@@ -8,16 +8,17 @@ use Moo;
 
 extends q(Data::Validation::Constraints);
 
-EXCEPTION_CLASS->add_exception( 'ValidURL', {
-   parents => [ 'InvalidParameter' ],
-   error   => 'Parameter [_1] is not a valid URL' } );
+EXCEPTION_CLASS->add_exception('ValidURL', {
+   error   => 'Parameter [_1] is not a valid URL',
+   parents => ['InvalidParameter'],
+});
 
 sub validate {
    my ($self, $val) = @_;
 
-   $val !~ m{ \A http: }mx and $val = "http://localhost${val}";
+   $val = "http://localhost${val}" if $val !~ m{ \A http: }mx;
 
-   my $res = HTTP::Tiny->new->get( $val );
+   my $res = HTTP::Tiny->new->get($val);
 
    return $res->{success} ? TRUE : FALSE;
 }

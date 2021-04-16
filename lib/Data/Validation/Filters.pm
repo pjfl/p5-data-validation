@@ -16,17 +16,23 @@ has 'replace' => is => 'ro', isa => Str;
 sub new_from_method {
    my ($class, $attr) = @_;
 
-   $class->can( $attr->{method} ) and return $class->new( $attr );
+   return $class->new($attr) if $class->can($attr->{method});
 
-   return (load_class $class, 'filter', $attr->{method})->new( $attr );
+   return load_class($class, 'filter', $attr->{method})->new($attr);
 }
 
 sub filter {
-   my ($self, $v) = @_; my $method = $self->method; return $self->$method( $v );
+   my ($self, $v) = @_;
+
+   my $method = $self->method;
+
+   return $self->$method($v);
 }
 
 around 'filter' => sub {
-   my ($orig, $self, $v) = @_; return defined $v ? $orig->( $self, $v ) : undef;
+   my ($orig, $self, $v) = @_;
+
+   return defined $v ? $orig->($self, $v) : undef;
 };
 
 # Builtin filter methods
@@ -41,11 +47,16 @@ sub filterEscapeHTML {
 }
 
 sub filterLowerCase {
-   my ($self, $v) = @_; return lc $v;
+   my ($self, $v) = @_;
+
+   return lc $v;
 }
 
 sub filterNonNumeric {
-   my ($self, $v) = @_; $v =~ s{ \D+ }{}gmx; return $v;
+   my ($self, $v) = @_;
+
+   $v =~ s{ \D+ }{}gmx;
+   return $v;
 }
 
 sub filterReplaceRegex {
@@ -59,7 +70,9 @@ sub filterReplaceRegex {
 }
 
 sub filterTitleCase {
-   my ($self, $v) = @_; my @words = split ' ', $v, -1;
+   my ($self, $v) = @_;
+
+   my @words = split ' ', $v, -1;
 
    return join ' ', map { ucfirst $_ } @words;
 }
@@ -67,24 +80,35 @@ sub filterTitleCase {
 sub filterTrimBoth {
    my ($self, $v) = @_;
 
-   $v =~ s{ \A \s+ }{}mx; $v =~ s{ \s+ \z }{}mx;
+   $v =~ s{ \A \s+ }{}mx;
+   $v =~ s{ \s+ \z }{}mx;
    return $v;
 }
 
 sub filterUpperCase {
-   my ($self, $v) = @_; return uc $v;
+   my ($self, $v) = @_;
+
+   return uc $v;
 }
 
 sub filterUCFirst {
-   my ($self, $v) = @_; return ucfirst $v;
+   my ($self, $v) = @_;
+
+   return ucfirst $v;
 }
 
 sub filterWhiteSpace {
-   my ($self, $v) = @_; $v =~ s{ \s+ }{}gmx; return $v;
+   my ($self, $v) = @_;
+
+   $v =~ s{ \s+ }{}gmx;
+
+   return $v;
 }
 
 sub filterZeroLength {
-   return defined $_[ 1 ] && length $_[ 1 ] ? $_[ 1 ] : undef;
+   my ($self, $v) = @_;
+
+   return defined $v && length $v ? $v : undef;
 }
 
 1;

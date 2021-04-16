@@ -89,19 +89,23 @@ has '+class' => default => $class;
 
 has 'constraints' => is => 'lazy', isa => HashRef, default => sub { {} };
 
-has '_explain' => is => 'lazy', isa => SimpleStr, default => q(),
+has '_explain' =>
+   is       => 'lazy',
+   isa      => SimpleStr,
+   default  => q(),
    init_arg => 'explain';
 
 sub explain {
-   my $self = shift; my $text = $self->_explain;
+   my $self = shift;
+   my $text = $self->_explain;
 
-   0 > index $text, '{' and return $text;
+   return $text if 0 > index $text, '{';
 
    # Expand named parameters of the form {param_name}
-   my %args = %{ $self->constraints };
-   my $re = join '|', map { quotemeta $_ } keys %args;
+   my %args = %{$self->constraints};
+   my $re   = join '|', map { quotemeta $_ } keys %args;
 
-   $text =~ s{ \{($re)\} }{ defined $args{ $1 } ? $args{ $1 } : "{${1}?}" }egmx;
+   $text =~ s{ \{($re)\} }{ defined $args{$1} ? $args{$1} : "{${1}?}" }egmx;
 
    return $text;
 }

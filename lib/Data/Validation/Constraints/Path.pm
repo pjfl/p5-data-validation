@@ -7,12 +7,15 @@ use Moo;
 
 extends q(Data::Validation::Constraints);
 
-EXCEPTION_CLASS->add_exception( 'ValidPath', {
-   parents => [ 'InvalidParameter' ],
-   error   => 'Parameter [_1] is not a valid pathname' } );
+EXCEPTION_CLASS->add_exception('ValidPath', {
+   error   => 'Parameter [_1] is not a valid pathname',
+   parents => ['InvalidParameter'],
+});
 
 sub validate {
-   my ($self, $val) = @_; return $val !~ m{ [;&*{} ] }mx ? TRUE : FALSE;
+   my ($self, $val) = @_;
+
+   return $val !~ m{ [;&*{} ] }mx ? TRUE : FALSE;
 }
 
 1;
